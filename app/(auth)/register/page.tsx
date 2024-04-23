@@ -1,6 +1,6 @@
 "use client";
 
-import "@/app/globals.css";
+// import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import React, { useState, useEffect } from "react";
@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAccount } from "wagmi";
+// import { connectToDB } from "@/lib/mongoose";
 
 import { Button } from "@/components/ui/button"
 import {

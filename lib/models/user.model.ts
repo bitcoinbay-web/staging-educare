@@ -9,6 +9,7 @@ const AccountSchema = new mongoose.Schema({
   walletID: { type: String, required: true },
 });
 
-const Account = mongoose.model("Account", AccountSchema);
+const Account =
+  mongoose.models.Accounts || mongoose.model("Account", AccountSchema);
 
 export default Account;

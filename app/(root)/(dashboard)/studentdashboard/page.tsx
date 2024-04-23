@@ -5,6 +5,9 @@ import Navbar from "../../../../components/Navbar/navbar";
 import Sidebar from "../../../../components/Sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 
+import { Service, columns } from "./services/columns";
+import { DataTable } from "./services/data-table";
+
 import {
   Card,
   CardContent,
@@ -14,7 +17,89 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+// async Promise<>
+function getData(): Service[] {
+  // Fetch data from API here.
+  return [
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+    {
+      id: "728ed52f",
+      name: "Tutoring and Learning Services",
+      status: "pending",
+      stdID: "101502209",
+    },
+
+    // ...
+  ];
+}
+
 const StudentDashboardPage: React.FC = () => {
+  const data = getData();
   return (
     <div>
       <Navbar></Navbar>
@@ -54,8 +139,15 @@ const StudentDashboardPage: React.FC = () => {
               </CardFooter>
             </Card>
           </div>
+          <div className="services-table">
+            <h1>Recent Services</h1>
+            <div className="container mx-auto py-5">
+              <DataTable columns={columns} data={data} />
+            </div>
+          </div>
         </div>
       </div>
+
       {/* <Button variant="outline">Button</Button> */}
     </div>
   );

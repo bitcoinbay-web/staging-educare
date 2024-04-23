@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Navbar from "../../../../../components/Navbar/navbar";
-import Sidebar from "../../../../../components/Sidebar/sidebar";
+import Navbar from "@/components/Navbar/navbar";
+import Sidebar from "@/components/Sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
@@ -42,7 +42,7 @@ const ProfilePage: React.FC = () => {
                 <CardHeader>
                   <CardTitle>Account</CardTitle>
                   <CardDescription>
-                    Make changes to your account here. Click save when you&apos;re
+                    Make changes to your account here. Click save when you are
                     done.
                   </CardDescription>
                 </CardHeader>

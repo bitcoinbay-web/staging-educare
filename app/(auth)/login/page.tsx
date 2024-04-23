@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import axios from "axios";
-import "@/app/globals.css";
+// import "@/app/globals.css";
 
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +32,7 @@ const formSchema = z.object({
     .min(26, { message: "Must be 26 or more characters long" }),
 });
 
-const RegistrationForm: React.FC = () => {
+const LoginForm: React.FC = () => {
   const router = useRouter();
   const { open } = useWeb3Modal();
   const { address } = useAccount();
@@ -130,4 +130,4 @@ const RegistrationForm: React.FC = () => {
   );
 };
 
-export default RegistrationForm;
+export default LoginForm;

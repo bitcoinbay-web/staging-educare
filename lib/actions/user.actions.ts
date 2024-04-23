@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import Account from "../models/user.model";
-// import { connectToDB } from "../connection";
+import { connectToDB } from "../mongoose";
 
 interface Params {
   username: string;
@@ -19,6 +19,7 @@ export async function updateUser({
   walletID,
   path,
 }: Params): Promise<void> {
+  connectToDB();
   try {
     await Account.findOneAndUpdate(
       { stdID: stdID },
