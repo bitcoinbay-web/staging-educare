@@ -1,19 +1,10 @@
 "use client";
 
 import React from "react";
-import Navbar from "../../../../components/Navbar/navbar";
-import Sidebar from "../../../../components/Sidebar/sidebar";
-import AccessibilityForm from "@/components/AccessibilityForm";
-// import { Button } from "@/components/ui/button";
-
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
+import Navbar from "@/components/Navbar/navbar";
+import Sidebar from "@/components/Sidebar/sidebar";
+import AccessibilityForm from "@/components/forms/AccessibilityForm";
+import PractitionerForm from "@/components/forms/PractitionerForm";
 
 const AdminDashboardPage: React.FC = () => {
   return (
@@ -23,6 +14,7 @@ const AdminDashboardPage: React.FC = () => {
       <div className="dashboard-main">
         <h1>Welcome!</h1>
         <AccessibilityForm />
+        <PractitionerForm />
       </div>
     </div>
   );

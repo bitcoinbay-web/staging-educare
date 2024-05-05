@@ -1,21 +1,22 @@
-import React from 'react'
+'use client'
 
-import { connect, getAccount } from '@wagmi/core'
-import { injected } from '@wagmi/connectors'
-import { config } from '@/lib/config'
-import { network } from '@/constants'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
-const WagmiUseAccount = async () => {
-  // const result = await connect(config, {
-  //   chainId: network.sepolia.id,
-  //   connector: injected(),
-  // })
-
-  // const account = await getAccount(config)
-  // console.log(account);
+const WagmiUseAccount = () => {
+  const account = useAccount()
+  const { connectors, connect, status, error } = useConnect()
+  const { disconnect } = useDisconnect()
 
   return (
-    <div>WagmiUseAccount</div>
+    <div>
+      <div>
+          status: {account.status}
+          <br />
+          addresses: {JSON.stringify(account.addresses)}
+          <br />
+          chainId: {account.chainId}
+        </div>      
+    </div>
   )
 }
 

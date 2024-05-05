@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LoginForm } from "@/components/auth/login-form";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -32,7 +33,7 @@ const formSchema = z.object({
     .min(26, { message: "Must be 26 or more characters long" }),
 });
 
-const LoginForm: React.FC = () => {
+const LoginPage: React.FC = () => {
   const router = useRouter();
   const { open } = useWeb3Modal();
   const { address } = useAccount();
@@ -69,65 +70,69 @@ const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="main">
-      <div className="register-screen">
-        <h1>Login</h1>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter Your Full Name" {...field} />
-                  </FormControl>
-                  {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-                  {/* <FormMessage /> */}
-                </FormItem>
-              )}
-            />
+    <>
+      {/* <h1>Login Page</h1> */}
+      <LoginForm></LoginForm>
+    </>
+    // <div className="main">
+    //   <div className="register-screen">
+    //     <h1>Login</h1>
+    //     <Form {...form}>
+    //       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    //         <FormField
+    //           control={form.control}
+    //           name="username"
+    //           render={({ field }) => (
+    //             <FormItem>
+    //               <FormLabel>Name</FormLabel>
+    //               <FormControl>
+    //                 <Input placeholder="Enter Your Full Name" {...field} />
+    //               </FormControl>
+    //               {/* <FormDescription>
+    //             This is your public display name.
+    //           </FormDescription> */}
+    //               {/* <FormMessage /> */}
+    //             </FormItem>
+    //           )}
+    //         />
 
-            <FormField
-              control={form.control}
-              name="walletID"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Wallet Address</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter Your Student ID" /> */}
-                    <div className="flex w-full items-center space-x-2">
-                      <Input
-                        id="wallet-input"
-                        placeholder="Click on the button to connect to your wallet"
-                        value={address || ""} // Ensure a default empty string if address is null/undefined
-                        readOnly
+    //         <FormField
+    //           control={form.control}
+    //           name="walletID"
+    //           render={({ field }) => (
+    //             <FormItem>
+    //               <FormLabel>Wallet Address</FormLabel>
+    //               <FormControl>
+    //                 {/* <Input placeholder="Enter Your Student ID" /> */}
+    //                 <div className="flex w-full items-center space-x-2">
+    //                   <Input
+    //                     id="wallet-input"
+    //                     placeholder="Click on the button to connect to your wallet"
+    //                     value={address || ""} // Ensure a default empty string if address is null/undefined
+    //                     readOnly
 
-                        // onChange={(e) => setAccount(e.target.value)}
-                      />
-                      <Button
-                        type="button"
-                        id="connect-button"
-                        onClick={() => open()}
-                      >
-                        {address ? "Connected" : "Connect Wallet"}
-                      </Button>
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="button">
-              <Button type="submit">Submit</Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </div>
+    //                     // onChange={(e) => setAccount(e.target.value)}
+    //                   />
+    //                   <Button
+    //                     type="button"
+    //                     id="connect-button"
+    //                     onClick={() => open()}
+    //                   >
+    //                     {address ? "Connected" : "Connect Wallet"}
+    //                   </Button>
+    //                 </div>
+    //               </FormControl>
+    //             </FormItem>
+    //           )}
+    //         />
+    //         <div className="button">
+    //           <Button type="submit">Submit</Button>
+    //         </div>
+    //       </form>
+    //     </Form>
+    //   </div>
+    // </div>
   );
 };
 
-export default LoginForm;
+export default LoginPage;

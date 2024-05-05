@@ -66,7 +66,7 @@ const ProfilePage: React.FC = () => {
                 <CardHeader>
                   <CardTitle>Password</CardTitle>
                   <CardDescription>
-                    Change your password here. After saving, you&apos;ll be logged
+                    Change your password here. After saving, you will be logged
                     out.
                   </CardDescription>
                 </CardHeader>
