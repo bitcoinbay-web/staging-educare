@@ -12,8 +12,8 @@ const ServicesPage: React.FC = () => {
     <div>
       <Navbar></Navbar>
       <Sidebar></Sidebar>
-      <div className="dashboard-main">
-        <h1>Services</h1>
+      <div className="pt-10 pl-20 ml-64 h-full">
+        <h1 className="font-bold text-2xl mb-4">Services</h1>
         <div>
           <div className="space-y-1">
             <h4 className="text-sm font-medium leading-none">

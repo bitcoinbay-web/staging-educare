@@ -3,13 +3,19 @@
  *  These routes dont require authentication
  */
 
-export const publicRoutes = ["/"];
+export const publicRoutes = ["/", "/new-verification"];
 
 /**
  *  Note: These routes are used for authentication.
  */
 
-export const authRoutes = ["/login", "/register"];
+export const authRoutes = [
+  "/login",
+  "/register",
+  "/error",
+  "/reset",
+  "/new-password",
+];
 
 /**
  *  Note: This is simply the prefix for API Authentication routes.
@@ -21,4 +27,4 @@ export const apiAuthPrefix = "/api/auth";
 /**
  *  Note: The default redirect path after logging in.
  */
-export const DEFAULT_LOGIN_REDIRECT = "/settings";
+export const DEFAULT_LOGIN_REDIRECT = "/studentdashboard";

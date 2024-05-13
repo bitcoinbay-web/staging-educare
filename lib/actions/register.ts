@@ -4,9 +4,11 @@ import * as z from "zod";
 import { RegisterSchema } from "@/schemas";
 import bcrypt from "bcryptjs";
 import { connectToDB } from "../mongoose";
-import { Db } from "mongodb";
-import Accounts from "../models/user.model";
+import Users from "../models/user.model";
 import { getUserByEmail } from "@/data/user";
+
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   console.log(values);
@@ -26,8 +28,8 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Email already in use" };
   }
 
-  // Accounts.init();
-  await Accounts.create({
+  // Users.init();
+  await Users.create({
     email,
     password: hashedPassword,
     name,
@@ -37,5 +39,9 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   // TODO: Send verification token email
 
-  return { success: "User created!" };
+  const verificationToken = await generateVerificationToken(email);
+
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+  return { success: "Confirmation Email Sent!" };
 };

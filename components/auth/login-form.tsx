@@ -6,6 +6,8 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useSearchParams } from "next/navigation";
+
 import { LoginSchema } from "@/schemas";
 
 import {
@@ -23,8 +25,15 @@ import { CardWrapper } from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { login } from "@/lib/actions/login";
+import Link from "next/link";
 
 export const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email already in use! Please use a different Email."
+      : "";
+
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
@@ -90,13 +99,21 @@ export const LoginForm = () => {
                         disabled={isPending}
                       />
                     </FormControl>
+                    <Button
+                      size="sm"
+                      variant="link"
+                      asChild
+                      className="px-0 font-normal"
+                    >
+                      <Link href="/reset">Forgot Password?</Link>
+                    </Button>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <FormError message={error} />
-            {/* <FormSuccess message={success} /> */}
+            <FormError message={error || urlError} />
+            <FormSuccess message={success} />
             <Button type="submit" className="w-full" disabled={isPending}>
               Login
             </Button>

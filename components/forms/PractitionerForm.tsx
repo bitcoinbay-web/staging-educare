@@ -61,7 +61,7 @@ const ProfessionSchema = z.object({
   practitionerName: z.string().min(2).max(50),
   licenseNo: z.coerce.number(),
   qualified: z.enum(['true', 'false']).transform((value) => value === 'true'),
-  specialty: z.enum(["family", "psychiatrist", "psychologist", "otherPhysician", "other"])
+  specialty: z.enum(["family", "psychiatrist", "psychologist", "otherPhysician", "other"]),
 })
 
 const PractitionerForm: React.FC = () => {
@@ -159,7 +159,6 @@ const PractitionerForm: React.FC = () => {
                         No
                       </FormLabel>
                     </FormItem>
-
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -183,16 +182,23 @@ const PractitionerForm: React.FC = () => {
                   >
                     {specialtyInfo.map((item) => (
                       <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value={item.id} />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        {item.label}
-                      </FormLabel>
-                    </FormItem>
+                        <FormControl>
+                          <RadioGroupItem value={item.id} />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          {item.label}
+                        </FormLabel>
+                        {item.id === "otherPhysician" || item.id === "other" &&
+                         <Input 
+                          placeholder="Name"
+                          type="text"
+                          {...item}
+                        />}
+                      </FormItem>
                     ))}
                   </RadioGroup>
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )
           }} 

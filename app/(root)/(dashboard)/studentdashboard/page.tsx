@@ -104,8 +104,8 @@ const StudentDashboardPage: React.FC = () => {
     <div>
       <Navbar></Navbar>
       <Sidebar></Sidebar>
-      <div className="dashboard-main">
-        <h1>Welcome!</h1>
+      <div className="pt-10 pl-20 ml-64 h-full">
+        <h1 className="font-bold text-2xl mb-4">Welcome!</h1>
         <div className="cards">
           <div className="card-1">
             <Card>
@@ -140,9 +140,11 @@ const StudentDashboardPage: React.FC = () => {
             </Card>
           </div>
           <div className="services-table">
-            <h1>Recent Services</h1>
+            <h1 className="font-bold text-2xl mb-4">Recent Services</h1>
             <div className="container mx-auto py-5">
-              <DataTable columns={columns} data={data} />
+              <div className="bg-white rounded-lg">
+                <DataTable columns={columns} data={data} />
+              </div>
             </div>
           </div>
         </div>

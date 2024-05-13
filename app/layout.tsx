@@ -2,6 +2,8 @@
 
 import "./globals.css";
 import { Inter } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 // import { useState } from "react";
 import { ethers } from "ethers";
 // import { Web3Modal } from "../context/web3modal";
@@ -18,21 +20,24 @@ export const metadata: Metadata = {
   description: "Next.js App",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const initialState = cookieToInitialState(config, headers().get("cookie"));
 
+  const session = await auth();
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <ContextProvider initialState={initialState}>
-          {children}
-        </ContextProvider>
-      </body>
-    </html>
+    <SessionProvider session={session}>
+      <html lang="en">
+        <body className={inter.className}>
+          <ContextProvider initialState={initialState}>
+            {children}
+          </ContextProvider>
+        </body>
+      </html>
+    </SessionProvider>
   );
 
   /* create local state to save account information after signin */
@@ -84,8 +89,6 @@ export default function RootLayout({
   //     console.log("error:", err);
   //   }
   // }
-
-  
 
   // <main className="main">
   //   <div className="login-screen">

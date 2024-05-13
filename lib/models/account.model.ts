@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 // import Accounts from "@/lib/models/user.model";
 
-const userSchema = new Schema({
+const AccountSchema = new Schema({
   //   _id: mongoose.Schema.Types.ObjectId,
-  userId: { type: Schema.Types.ObjectId, ref: "Accounts" },
+  userId: { type: Schema.Types.ObjectId, ref: "Users" },
   type: String,
   provider: String,
   providerAccountId: String,
@@ -19,8 +19,9 @@ const userSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-const Users = mongoose.models.Users || mongoose.model("Users", userSchema);
+const Accounts =
+  mongoose.models.Accounts || mongoose.model("Accounts", AccountSchema);
 
 //  || mongoose.model("Accounts", AccountSchema);
 
-export default Users;
+export default Accounts;

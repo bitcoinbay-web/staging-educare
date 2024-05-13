@@ -80,7 +80,7 @@ body,
   }
 }
 
-@import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap"); */
 
 .main {
   text-align: center;
@@ -149,12 +149,12 @@ form button {
 } */
 
 /* ------------NAVBAR------------------ */
-.nav {
-  padding: 10px 50px; /* Adjust padding as needed */
+/* .nav {
+  padding: 10px 50px; 
   background-color: aliceblue;
   width: 100%;
   font-family: "Courier Prime", monospace;
-}
+} */
 
 .nav-logo h1 {
   font-size: 23px;
@@ -200,13 +200,14 @@ form button {
   position: absolute;
   color: white;
   padding: 50px;
-  font-family: "Courier Prime", monospace;
+  /* font-family: "Courier Prime", monospace;  */
 }
 
 .sidebar-links {
   margin-bottom: 50px;
   font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 20px;
+  /* letter-spacing: 2px; */
 }
 
 /* --------Services History Table ------------ */

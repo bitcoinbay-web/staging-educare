@@ -1,12 +1,11 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import MobileNav from './MobileNav';
+import Image from "next/image";
+import Link from "next/link";
+import MobileNav from "./MobileNav";
 
 const Navbar = () => {
   return (
-    <nav className="flex items-center justify-between fixed z-50 w-full bg-dark-1 px-6 py-4 lg:px-10">      
+    <nav className="flex items-center justify-between fixed z-50 w-full bg-dark-1 px-6 py-4 lg:px-10">
       <div className="flex items-center gap-1">
-
         <Link href="/" className="flex items-center gap-1">
           <Image
             src="/icons/next.svg"
@@ -24,15 +23,11 @@ const Navbar = () => {
         <div className="flex-between gap-5">
           <Link href="/login">Login</Link>
 
-          <w3m-button 
-            // balance='show' 
-            size='md'
-          />
+          <w3m-button size="md" />
         </div>
       </div>
-
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

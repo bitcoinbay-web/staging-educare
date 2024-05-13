@@ -1,5 +1,7 @@
 // import { auth } from "@/auth";
 
+// import { auth } from "@/auth";
+
 import NextAuth from "next-auth";
 
 import authConfig from "@/auth.config";
@@ -13,10 +15,6 @@ import {
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  // console.log("ROUTE:", req.nextUrl.pathname);
-  // console.log("IS LOGGEDIN:", isLoggedIn);
-
-  // const { nextUrl } = req;
   // console.log("ROUTE:", req.nextUrl.pathname);
   // console.log("IS LOGGEDIN:", isLoggedIn);
 
@@ -46,8 +44,11 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
   unstable_allowDynamic: [
+    // allows a single file
+    // '/lib/utilities.js',
+    // use a glob to allow anything in the function-bind 3rd party module
     '/node_modules/mongoose/**',
   ],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

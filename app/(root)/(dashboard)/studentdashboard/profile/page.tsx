@@ -18,8 +18,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+// import WagmiReadContractComponent from "@/components/WagmiReadContractComponent";
+import { network } from "@/constants";
+import WagmiUseAccount from "@/components/WagmiUseAccount";
+import WagmiUseSignMessage from "@/components/WagmiUseSignMessage";
+import WagmiVerifyMessage from "@/components/WagmiVerifyMessage";
+import WagmiTransactionComponents from "@/components/WagmiTransactionComponents";
 
-const ProfilePage: React.FC = () => {
+const ProfilePage = () => {
   const router = useRouter();
   function onSubmit() {
     router.push("/studentdashboard");
@@ -29,8 +35,20 @@ const ProfilePage: React.FC = () => {
     <div>
       <Navbar></Navbar>
       <Sidebar></Sidebar>
-      <div className="dashboard-main">
-        <h1>Profile Information</h1>
+      <div className=" pt-10 pl-20 ml-64 h-full">
+        <h1 className="font-bold text-2xl mb-4">Profile Information</h1>
+        <WagmiUseAccount />
+        {/* <WagmiReadContractComponent
+          address="0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
+          functionName="tokenURI"
+          args={[BigInt(123456789)]}
+          currentNetwork={network.sepolia}
+        /> */}
+        <WagmiTransactionComponents
+          // txHash="0xd620b8601a9858ce93cd77d266286c8c4b1236ab809c0d1486e49edb6cb8a57d"
+        />
+        <WagmiUseSignMessage />
+        <WagmiVerifyMessage />
         <div>
           <Tabs defaultValue="account" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">
