@@ -52,15 +52,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return true;
     },
-    async session({ token, session }) {
+    async session({ token, session, user }) {
       console.log({ sessionToken: token });
       // session.user.customField = token.customField;
+      // const updatedUserRole = await Users.findByIdAndUpdate(
+      //   { _id: session.user.id },
+      //   { role: session.user.role },
+      //   { new: true } // To return the updated document
+      // );
+      // if (!updatedUserRole) {
+      //   console.log("User does not have a role");
+      // }
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
 
       if (token.role && session.user) {
         session.user.role = token.role as "Student" | "Doctor" | "Admin";
+        // token.role = "Admin";
       }
 
       return session;

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.0.0",
+    "@builder.io/react-hydration-overlay": "^0.0.8",
     "@hookform/resolvers": "^3.3.4",
     "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

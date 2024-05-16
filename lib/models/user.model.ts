@@ -5,11 +5,11 @@ import mongoose from "mongoose";
 
 // import { unique } from "next/dist/build/utils";
 
-// const UserRole = {
-//   ADMIN: "Admin",
-//   DOCTOR: "Doctor",
-//   STUDENT: "Student",
-// };
+export const UserRole = {
+  ADMIN: "Admin",
+  DOCTOR: "Doctor",
+  STUDENT: "Student",
+};
 
 const userSchema = new mongoose.Schema(
   {

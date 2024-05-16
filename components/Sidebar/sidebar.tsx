@@ -10,7 +10,9 @@ import { usePathname } from "next/navigation";
 
 const Sidebar: React.FC = () => {
   const onClick = () => {
-    signOut();
+    signOut(
+      // { callbackUrl: '/' }
+    )
   };
   const pathname = usePathname();
 
@@ -36,6 +38,13 @@ const Sidebar: React.FC = () => {
         } `}
       >
         <Link href="/studentdashboard/profile">Profile</Link>
+      </div>
+      <div
+        className={`mb-10 font-bold text-lg ${
+          pathname === "/doctor" ? "text-black" : ""
+        } `}
+      >
+        <Link href="/doctor">Doctor</Link>
       </div>
       <div
         className={`mb-10 font-bold text-lg ${

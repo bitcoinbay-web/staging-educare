@@ -3,7 +3,10 @@
 import React from "react";
 import Navbar from "@/components/Navbar/navbar";
 import Sidebar from "@/components/Sidebar/sidebar";
-import { Button } from "@/components/ui/button";
+import AccessibilityForm from "@/components/forms/AccessibilityForm";
+import PractitionerForm from "@/components/forms/PractitionerForm";
+import AssessmentHistory from "@/components/forms/AssessmentHistory";
+import DisabilityConfirmation from "@/components/forms/DisabilityConfirmation";
 
 import {
   Card,
@@ -14,50 +17,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 const DoctorDashboard: React.FC = () => {
   return (
     <div>
       <Navbar></Navbar>
       <Sidebar></Sidebar>
-      <div className="pt-10 pl-20 ml-64 h-full">
-        <h1 className="font-bold text-2xl mb-4">Welcome!</h1>
-        <div className="cards">
-          <div className="card-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Acessibility Services Form</CardTitle>
-                <CardDescription>
-                  Fill the form to access services
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button>Edit Form</Button>
-              </CardContent>
-              <CardFooter>
-                <p>Pending</p>
-              </CardFooter>
-            </Card>
-          </div>
-          <div className="card-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Financial Resources Form</CardTitle>
-                <CardDescription>
-                  Fill the form to access services
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button>Edit Form</Button>
-              </CardContent>
-              <CardFooter>
-                <p>Awaiting Approval</p>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
+      <div className="dashboard-main">
+        <h1>Welcome!</h1>
+        <Tabs defaultValue="student" className="w-[400px]">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="student">Student</TabsTrigger>
+            <TabsTrigger value="practitioner">Practitioner</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="confirmation">Confirmation</TabsTrigger>
+          </TabsList>
+          <TabsContent value="student">
+            <AccessibilityForm />
+          </TabsContent>
+          <TabsContent value="practitioner">
+            <PractitionerForm />
+          </TabsContent>
+          <TabsContent value="history">
+            <AssessmentHistory />
+          </TabsContent>
+          <TabsContent value="confirmation">
+            <DisabilityConfirmation />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* <Button variant="outline">Button</Button> */}
     </div>
   );
 };
