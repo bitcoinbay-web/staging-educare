@@ -15,8 +15,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-
 import { Input } from "@/components/ui/input"
+
+import { useAccount, useSignMessage } from "wagmi";
 
 const studentInfo = [
   {
@@ -35,14 +36,6 @@ const studentInfo = [
     id: "email",
     label: "Email"
   },
-  // {
-  //   id: "consent",
-  //   label: "Share Consent"
-  // },
-  // {
-  //   id: "authorize",
-  //   label: "Authorize Communitication"
-  // },
 ] as const
 
 const consentInfo = [
@@ -72,6 +65,9 @@ const formSchema = z.object({
 // })
 
 const AccessibilityForm: React.FC = () => {
+  const { data, signMessage } = useSignMessage();
+  const account = useAccount()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,36 +76,26 @@ const AccessibilityForm: React.FC = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(JSON.stringify(values, null, 2))
+    const jsonString = JSON.stringify(values);
+    signMessage({
+      message: jsonString,
+      account: account.address
+    });
+    console.log(JSON.stringify(values, null, 2));
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormItem>
-          {/* <div className="text-base"> */}
+          <div className="text-base">
             <FormLabel>Accessibility Form </FormLabel>
             <FormDescription>
               Student Information
             </FormDescription>name
-          {/* </div> */}
+          </div>
           <FormMessage />
         </FormItem>
-        {/* <FormField
-          control={form.control}
-          name="studentName"
-          render={({ field }) => (
-            <FormItem>
-              <div className="text-base">
-                <FormLabel>Accessibility Form </FormLabel>
-                <FormDescription>
-                  Student Information
-                </FormDescription>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
         {studentInfo.map((item) => (
           <FormField 
             key={item.id}
@@ -176,6 +162,12 @@ const AccessibilityForm: React.FC = () => {
         ))}
         <Button type="submit">Submit</Button>
       </form>
+      {data && (
+        <div>
+          <h3>Signed Data:</h3>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </div>
+      )}
     </Form>
   )
 }

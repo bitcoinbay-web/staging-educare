@@ -5,9 +5,7 @@ import Navbar from "@/components/Navbar/navbar";
 import Sidebar from "@/components/Sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 import {
   Card,
   CardContent,
@@ -24,6 +22,7 @@ import WagmiUseAccount from "@/components/WagmiUseAccount";
 import WagmiUseSignMessage from "@/components/WagmiUseSignMessage";
 import WagmiVerifyMessage from "@/components/WagmiVerifyMessage";
 import WagmiTransactionComponents from "@/components/WagmiTransactionComponents";
+import SafeMint from "@/components/WagmiSafeMint";
 
 const ProfilePage = () => {
   const router = useRouter();
@@ -33,20 +32,18 @@ const ProfilePage = () => {
 
   return (
     <div>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
-      <div className=" pt-10 pl-20 ml-64 h-full">
+      <Navbar />
+      <Sidebar />
+      <div className="pt-10 pl-20 ml-64 h-full">
         <h1 className="font-bold text-2xl mb-4">Profile Information</h1>
         <WagmiUseAccount />
         <WagmiReadContractComponent
-          // address="0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
-          // functionName="tokenURI"
-          // args={[BigInt(123456789)]}
-          // currentNetwork={network.sepolia}
+          address="0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
+          functionName="tokenURI"
+          args={[BigInt(123456789)]}
+          currentNetwork={network.sepolia}
         />
-        <WagmiTransactionComponents
-          // txHash="0xd620b8601a9858ce93cd77d266286c8c4b1236ab809c0d1486e49edb6cb8a57d"
-        />
+        <WagmiTransactionComponents />
         <WagmiUseSignMessage />
         <WagmiVerifyMessage />
         <div>
@@ -60,8 +57,7 @@ const ProfilePage = () => {
                 <CardHeader>
                   <CardTitle>Account</CardTitle>
                   <CardDescription>
-                    Make changes to your account here. Click save when you are
-                    done.
+                    Make changes to your account here. Click save when you are done.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -75,7 +71,7 @@ const ProfilePage = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={() => onSubmit}>Save changes</Button>
+                  <Button onClick={() => onSubmit()}>Save changes</Button>
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -84,8 +80,7 @@ const ProfilePage = () => {
                 <CardHeader>
                   <CardTitle>Password</CardTitle>
                   <CardDescription>
-                    Change your password here. After saving, you will be logged
-                    out.
+                    Change your password here. After saving, you will be logged out.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">

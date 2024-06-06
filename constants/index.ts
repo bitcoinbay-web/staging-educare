@@ -27,3 +27,5 @@ export const network = {
   "mainnet": mainnet,
   "sepolia": sepolia
 }
+
+export const contractAddress = "0xa1A5c9E37B4fc8a5d2d8C2C397acCB792dEe2362"

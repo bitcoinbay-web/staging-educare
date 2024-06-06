@@ -38,3 +38,7 @@ export const RegisterSchema = z.object({
     message: "Wallet not found",
   }),
 });
+
+export const SettingSchema = z.object({
+  name: z.optional(z.string()),
+});

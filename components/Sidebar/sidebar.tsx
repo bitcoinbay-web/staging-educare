@@ -48,6 +48,13 @@ const Sidebar: React.FC = () => {
       </div>
       <div
         className={`mb-10 font-bold text-lg ${
+          pathname === "/user" ? "text-black" : ""
+        } `}
+      >
+        <Link href="/user">User</Link>
+      </div>
+      <div
+        className={`mb-10 font-bold text-lg ${
           pathname === "/admin" ? "text-black" : ""
         } `}
       >

@@ -7,6 +7,8 @@ import AccessibilityForm from "@/components/forms/AccessibilityForm";
 import PractitionerForm from "@/components/forms/PractitionerForm";
 import AssessmentHistory from "@/components/forms/AssessmentHistory";
 import DisabilityConfirmation from "@/components/forms/DisabilityConfirmation";
+import AcademicFunctionForm from "@/components/forms/AcademicFunctionForm";
+import RecommendationForm from "@/components/forms/RecommendationForm";
 
 import {
   Card,
@@ -30,11 +32,13 @@ const DoctorDashboard: React.FC = () => {
       <div className="dashboard-main">
         <h1>Welcome!</h1>
         <Tabs defaultValue="student" className="w-[400px]">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="student">Student</TabsTrigger>
             <TabsTrigger value="practitioner">Practitioner</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="confirmation">Confirmation</TabsTrigger>
+            <TabsTrigger value="academic">Academic</TabsTrigger>
+            <TabsTrigger value="recommendation">Recommendation</TabsTrigger>
           </TabsList>
           <TabsContent value="student">
             <AccessibilityForm />
@@ -47,6 +51,12 @@ const DoctorDashboard: React.FC = () => {
           </TabsContent>
           <TabsContent value="confirmation">
             <DisabilityConfirmation />
+          </TabsContent>
+          <TabsContent value="academic">
+            <AcademicFunctionForm />
+          </TabsContent>
+          <TabsContent value="recommendation">
+            <RecommendationForm />
           </TabsContent>
         </Tabs>
       </div>

@@ -13,6 +13,8 @@ import { config } from "../lib/config";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -34,6 +36,7 @@ export default async function RootLayout({
         <body className={inter.className}>
           <ContextProvider initialState={initialState}>
             {children}
+            <Toaster />
           </ContextProvider>
         </body>
       </html>

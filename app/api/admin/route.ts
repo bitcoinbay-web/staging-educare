@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { currentUser } from "@/lib/auth";
 import Users, { UserRole } from "@/lib/models/user.model";
+import { connectToDB } from "@/lib/mongoose";
 // import { useCurrentRole } from "@/hooks/useCurrentRole";
 
 export async function GET() {
@@ -13,7 +14,8 @@ export async function GET() {
     console.log(user);
   }
 
-  const userRecord = await Users.findOne({ _id: user.id }); // Adjust the query to match your schema
+  connectToDB();
+  const userRecord = await Users.findOne({ _id: user.id });
 
   if (!userRecord) {
     return new NextResponse(null, { status: 403 });

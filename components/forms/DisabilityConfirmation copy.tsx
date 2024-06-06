@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
-import { useAccount, useSignMessage } from "wagmi";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -89,8 +89,6 @@ const DisabilitySchema = z.object({
 
 const DisabilityConfirmation: React.FC = () => {
   const [selectedDisability, setSelectedDisability] = useState("permanent");
-  const { data, signMessage } = useSignMessage();
-  const account = useAccount()
 
   const disabilityForm = useForm<z.infer<typeof DisabilitySchema>>({
     resolver: zodResolver(DisabilitySchema),
@@ -114,11 +112,6 @@ const DisabilityConfirmation: React.FC = () => {
   });
 
   function onSubmit(values: z.infer<typeof DisabilitySchema>) {
-    const jsonString = JSON.stringify(values);
-    signMessage({
-      message: jsonString,
-      account: account.address
-    });
     console.log(JSON.stringify(values, null, 2));
   }
 
@@ -331,12 +324,6 @@ const DisabilityConfirmation: React.FC = () => {
 
         <Button type="submit">Submit</Button>
       </form>
-      {data && (
-        <div>
-          <h3>Signed Data:</h3>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
-        </div>
-      )}
     </Form>
   );
 };

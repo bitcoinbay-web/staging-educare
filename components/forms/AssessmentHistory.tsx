@@ -1,10 +1,11 @@
 "use client"
 
 import React from 'react'
-
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
  
 import { Button } from "@/components/ui/button"
 import {
@@ -19,6 +20,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from '@/components/ui/checkbox'
+
+import { useAccount, useSignMessage } from "wagmi";
 
 const MethodsInfo = [
   {
@@ -52,26 +55,39 @@ const MethodsInfo = [
 ] as const
 
 const AssessmentSchema = z.object({
-  duration: z.string(),
+  duration: z.string().min(1, "Assessment duration is required."),
   continue: z.enum(['yes', 'no', 'unknown']),
-  // methods: z.enum(['behavioral', 'clinical', 'diagnostic', 'neuropsychological', 'psychoeducational', 'psychiatric', 'other'])
   methods: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one item."
-  })
+  }),
+  otherMethodDetails: z.string().optional(),
+  diagnosticOptions: z.array(z.string()).optional(),
+  methodDates: z.record(z.string(), z.string().optional()).optional(),
 })
 
 const AssessmentHistory: React.FC = () => {
+  const { data, signMessage } = useSignMessage();
+  const account = useAccount()
+
   const assessmentForm = useForm<z.infer<typeof AssessmentSchema>>({
     resolver: zodResolver(AssessmentSchema),
     defaultValues: {
       duration: '',
       continue: 'unknown',
-      methods: ['other'],
+      methods: [],
+      otherMethodDetails: '',
+      diagnosticOptions: [],
+      methodDates: {},
     },
   })
 
   function onSubmit(values: z.infer<typeof AssessmentSchema>) {
-    console.log(JSON.stringify(values, null, 2))
+    const jsonString = JSON.stringify(values);
+    signMessage({
+      message: jsonString,
+      account: account.address
+    });
+    console.log(JSON.stringify(values, null, 2));
   }
 
   return (
@@ -84,13 +100,9 @@ const AssessmentHistory: React.FC = () => {
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>AssessmentHistory</FormLabel>
+                <FormLabel>Assessment Duration</FormLabel>
                 <FormControl>
-                <Input 
-                    placeholder="How long have you provided service to this student?"
-                    type="text"
-                    {...field}
-                  />
+                  <Input {...field} placeholder="Enter duration" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,14 +116,9 @@ const AssessmentHistory: React.FC = () => {
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>AssessmentHistory</FormLabel>
+                <FormLabel>Assessment Continuation</FormLabel>
                 <FormDescription>Will you continue to provide service to the student?</FormDescription>
                 <FormControl>
-                  {/* <Input 
-                    placeholder="How long have you provided service to this student?"
-                    type="text"
-                    {...field}
-                  /> */}
                   <RadioGroup
                     onValueChange={field.onChange}  
                     defaultValue={field.value}
@@ -156,7 +163,7 @@ const AssessmentHistory: React.FC = () => {
             return (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel className="text-base">Sidebar</FormLabel>
+                  <FormLabel className="text-base">Assessment Methods</FormLabel>
                   <FormDescription>
                     Select the items you want to display in the sidebar.
                   </FormDescription>
@@ -166,36 +173,96 @@ const AssessmentHistory: React.FC = () => {
                     key={item.id}
                     control={assessmentForm.control}
                     name="methods"
-                    render={({ field }) => {
+                    render={({ field: methodField }) => {
                       return (
                         <FormItem
                           key={item.id}
                           className="flex flex-row items-start space-x-3 space-y-0"
                         >
                           <FormControl>
-                            <div>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id
-                                        )
-                                      )
-                                }}
-                              />                    
-                            </div>
+                            <Checkbox
+                              checked={methodField.value?.includes(item.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  methodField.onChange([...methodField.value, item.id])
+                                } else {
+                                  methodField.onChange(methodField.value?.filter(value => value !== item.id))
+                                  assessmentForm.setValue(`methodDates.${item.id}`, '')
+                                  if (item.id === 'other') {
+                                    assessmentForm.setValue('otherMethodDetails', '')
+                                  }
+                                  if (item.id === 'diagnostic') {
+                                    assessmentForm.setValue('diagnosticOptions', [])
+                                  }
+                                }
+                              }}
+                            />                    
                           </FormControl>
                           <FormLabel className="font-normal">
                             {item.label}
                           </FormLabel>
-                          <Input 
-                            placeholder="Date(s)"
-                            type="text"
-                            {...item}
-                          />
+                          {methodField.value?.includes(item.id) && (
+                            <FormControl>
+                              <Controller
+                                name={`methodDates.${item.id}`}
+                                control={assessmentForm.control}
+                                render={({ field }) => (
+                                  <DatePicker
+                                    placeholderText="Select date"
+                                    selected={field.value ? new Date(field.value) : null}
+                                    onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                                    dateFormat="yyyy-MM-dd"
+                                    className="input"
+                                  />
+                                )}
+                              />
+                            </FormControl>
+                          )}
+                          {item.id === 'diagnostic' && methodField.value?.includes('diagnostic') && (
+                            <div className="ml-4 flex flex-col space-y-2">
+                              {['MRI', 'CT', 'EEG', 'X-Ray', 'Other'].map(option => (
+                                <FormField
+                                  key={option}
+                                  control={assessmentForm.control}
+                                  name="diagnosticOptions"
+                                  render={({ field: diagnosticField }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={diagnosticField.value?.includes(option)}
+                                          onCheckedChange={(checked) => {
+                                            return checked
+                                              ? diagnosticField.onChange([...diagnosticField.value, option])
+                                              : diagnosticField.onChange(
+                                                  diagnosticField.value?.filter(
+                                                    (value) => value !== option
+                                                  )
+                                                )
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormLabel className="font-normal">
+                                        {option}
+                                      </FormLabel>
+                                    </FormItem>
+                                  )}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          {item.id === 'other' && methodField.value?.includes('other') && (
+                            <Controller
+                              name="otherMethodDetails"
+                              control={assessmentForm.control}
+                              render={({ field }) => (
+                                <Input
+                                  placeholder="Please specify"
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                />
+                              )}
+                            />
+                          )}
                         </FormItem>
                       )
                     }}
@@ -207,6 +274,12 @@ const AssessmentHistory: React.FC = () => {
         />        
         <Button type="submit">Submit</Button>
       </form>
+      {data && (
+        <div>
+          <h3>Signed Data:</h3>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </div>
+      )}
     </Form>
   )
 }
