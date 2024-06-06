@@ -36,7 +36,7 @@ const ProfilePage = () => {
       <Sidebar />
       <div className="pt-10 pl-20 ml-64 h-full">
         <h1 className="font-bold text-2xl mb-4">Profile Information</h1>
-        <WagmiUseAccount />
+        {/* <WagmiUseAccount />
         <WagmiReadContractComponent
           address="0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
           functionName="tokenURI"
@@ -45,7 +45,7 @@ const ProfilePage = () => {
         />
         <WagmiTransactionComponents />
         <WagmiUseSignMessage />
-        <WagmiVerifyMessage />
+        <WagmiVerifyMessage /> */}
         <div>
           <Tabs defaultValue="account" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">

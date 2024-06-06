@@ -5,30 +5,41 @@ import { config } from '@/lib/config'
 
 import { abi } from '@/constants/tempABI';
 
+type ValidArgs = readonly [] | readonly [`0x${string}`] | readonly [bigint] | readonly [`0x${string}`, `0x${string}`] | readonly [`0x${string}`, bigint];
+
 const WagmiReadContracts = async (functionName, ...args: any[]): Promise<any> => {
   const { address } = getAccount(config)
 
-  console.log(args)
+  let validArgs: ValidArgs | undefined;
+
+  if (args.length === 0) {
+    validArgs = [];
+  } else if (args.length === 1 && typeof args[0] === 'bigint') {
+    validArgs = [args[0] as bigint];
+  } else if (args.length === 1 && typeof args[0] === 'string' && args[0].startsWith('0x')) {
+    validArgs = [`0x${args[0]}`];
+  } else if (args.length === 2 && typeof args[0] === 'string' && args[0].startsWith('0x') && typeof args[1] === 'bigint') {
+    validArgs = [`0x${args[0]}`, args[1] as bigint];
+  } else if (args.length === 2 && typeof args[0] === 'string' && args[0].startsWith('0x') && typeof args[1] === 'string' && args[1].startsWith('0x')) {
+    validArgs = [`0x${args[0]}`, `0x${args[1]}`];
+  } else {
+    throw new Error('Invalid arguments passed to readContract');
+  }
 
   try {
     const result = await readContract(config, {
       abi,
       chainId: network.sepolia.id,
       address: '0xaB238839D44bc09B5090b85B7F1305cC1eef28b6',
-      functionName: functionName,
-      // args: args.length > 0 ? args as unknown as readonly [bigint] : undefined,
-      args: [...args], // as readonly unknown[] | undefined,
-      account: address
-    })
-    // .then((res) => {
-    //    console.log(res)
-    // })
+      functionName,
+      args: validArgs,
+      account: address,
+    });
     console.log(result);
     return result;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-
 }
 
 export default WagmiReadContracts
