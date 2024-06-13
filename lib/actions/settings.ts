@@ -2,13 +2,17 @@
 
 import * as z from "zod";
 
-import db from "@/lib/db";
+import { db } from "@/lib/db";
 
-import Users from "@/lib/models/user.model";
+import bcrypt from "bcryptjs";
+
+// import Users from "@/lib/models/user.model";
 import { SettingSchema } from "@/schemas";
 import { getUserByID } from "@/data/user";
 
 import { currentUser } from "@/lib/auth";
+import { generateVerificationToken } from "../tokens";
+import { sendVerificationEmail } from "../mail";
 
 export const settings = async (values: z.infer<typeof SettingSchema>) => {
   const user = await currentUser();
@@ -23,19 +27,12 @@ export const settings = async (values: z.infer<typeof SettingSchema>) => {
     return { error: "Unauthorized" };
   }
 
-  //   await db.user.update({
-  //     where: {id: dbUser.id},
-  //     data: {
-  //         ...values,
-  //     }
-  //   })
-
-  const updatedUser = await Users.findByIdAndUpdate(
-    dbUser._id,
-    { $set: values },
-    { new: true, runValidators: true }
-  );
-  console.log(updatedUser);
+  await db.user.update({
+    where: { id: dbUser.id },
+    data: {
+      ...values,
+    },
+  });
 
   return { success: "Settings Updated!" };
 };

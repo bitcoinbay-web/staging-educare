@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <main className="h-full flex items-center justify-center bg-[#BBBBBB]">
+    <main className="h-full w-full bg-[#BBBBBB]">
       {/* <Navbar />
       <Sidebar /> */}
       {children}

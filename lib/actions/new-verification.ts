@@ -2,7 +2,9 @@
 
 import { getUserByEmail } from "@/data/user";
 import { getVerificationTokenByToken } from "@/data/verification-token";
-import Users from "@/lib/models/user.model";
+// import Users from "@/lib/models/user.model";
+
+import { db } from "@/lib/db";
 
 export const newVerification = async (token: string) => {
   const existingToken = await getVerificationTokenByToken(token);
@@ -17,14 +19,19 @@ export const newVerification = async (token: string) => {
 
   if (!existingUser) return { error: "Email does not exist!" };
 
-  await Users.findByIdAndUpdate(
-    existingUser.id,
+  await db.user.update(
     {
-      $set: {
+      where: { id: existingUser.id },
+      data: {
         emailVerified: new Date(),
         email: existingToken.email,
       },
-    },
-    { new: true } // Option to return the updated document
+    }
+    // Option to return the updated document
   );
+
+  await db.verificationToken.delete({
+    where: { id: existingToken.id },
+  });
+  return { success: "Email verified!" };
 };

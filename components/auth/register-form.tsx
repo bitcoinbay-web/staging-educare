@@ -92,6 +92,7 @@ export const RegisterForm = () => {
                         placeholder="Enter Your Email"
                         type="email"
                         disabled={isPending}
+                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -110,6 +111,7 @@ export const RegisterForm = () => {
                         placeholder="Enter Your Password"
                         type="password"
                         disabled={isPending}
+                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -127,6 +129,7 @@ export const RegisterForm = () => {
                         {...field}
                         placeholder="Enter Your Full Name"
                         disabled={isPending}
+                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -144,6 +147,7 @@ export const RegisterForm = () => {
                         {...field}
                         placeholder="Enter Your Student ID"
                         disabled={isPending}
+                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -163,11 +167,13 @@ export const RegisterForm = () => {
                           placeholder="Click on the button to connect to your wallet"
                           value={address || ""} // Ensure a default empty string if address is null/undefined
                           readOnly
+                          className="bg-[#E4EDFD]"
 
                           // onChange={(e) => setAccount(e.target.value)}
                         />
                         <Button
                           type="button"
+                          className="bg-[#7840B4]"
                           id="connect-button"
                           onClick={() => open()}
                         >
@@ -181,7 +187,11 @@ export const RegisterForm = () => {
             </div>
             <FormError message={error} />
             <FormSuccess message={success} />
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button
+              type="submit"
+              className="w-full bg-[#7840B4]"
+              disabled={isPending}
+            >
               Register
             </Button>
           </form>

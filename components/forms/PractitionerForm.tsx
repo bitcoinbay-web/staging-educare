@@ -1,11 +1,10 @@
-"use client"
- 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, Controller } from "react-hook-form"
-import { z } from "zod"
-import { useState, useEffect } from "react"
- 
-import { Button } from "@/components/ui/button"
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,10 +14,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
-
 import { useAccount, useSignMessage } from "wagmi";
 
 const specialtyInfo = [
@@ -44,29 +41,26 @@ const specialtyInfo = [
   },
 ] as const;
 
-const practitionerInfo = [
-  {
-    id: "name",
-    label: "Name",
-  },
-  {
-    id: "registrationId",
-    label: "Registration License Number",
-  },
-] as const
-
 const ProfessionSchema = z.object({
   practitionerName: z.string().min(2).max(50),
-  licenseNo: z.coerce.number().min(0, { message: "License number must be non-negative" }),
-  qualified: z.enum(['true', 'false']).transform((value) => value === 'true'),
-  specialty: z.enum(["family", "psychiatrist", "psychologist", "otherPhysician", "other"]),
+  licenseNo: z.coerce
+    .number()
+    .min(0, { message: "License number must be non-negative" }),
+  qualified: z.enum(["true", "false"]).transform((value) => value === "true"),
+  specialty: z.enum([
+    "family",
+    "psychiatrist",
+    "psychologist",
+    "otherPhysician",
+    "other",
+  ]),
   otherSpecialty: z.string().optional(),
-  otherSpecialistPhysician: z.string().optional()
-})
+  otherSpecialistPhysician: z.string().optional(),
+});
 
 const PractitionerForm: React.FC = () => {
   const { data, signMessage } = useSignMessage();
-  const account = useAccount()
+  const account = useAccount();
 
   const professionForm = useForm<z.infer<typeof ProfessionSchema>>({
     resolver: zodResolver(ProfessionSchema),
@@ -76,28 +70,52 @@ const PractitionerForm: React.FC = () => {
       qualified: false,
       specialty: "family",
     },
-  })
+  });
 
   const [showOtherSpecialty, setShowOtherSpecialty] = useState(false);
-  const [showOtherSpecialistPhysician, setShowOtherSpecialistPhysician] = useState(false);
+  const [showOtherSpecialistPhysician, setShowOtherSpecialistPhysician] =
+    useState(false);
+
+  useEffect(() => {
+    const savedValues = sessionStorage.getItem("professionFormValues");
+    if (savedValues) {
+      const parsedValues = JSON.parse(savedValues);
+      professionForm.reset(parsedValues);
+      setShowOtherSpecialty(parsedValues.specialty === "other");
+      setShowOtherSpecialistPhysician(
+        parsedValues.specialty === "otherPhysician"
+      );
+    }
+    const savedData = sessionStorage.getItem("signMessageData");
+    if (savedData) {
+      signMessage(JSON.parse(savedData));
+    }
+  }, [professionForm, signMessage]);
 
   useEffect(() => {
     if (!showOtherSpecialty) {
-      professionForm.setValue("otherSpecialty", "")
+      professionForm.setValue("otherSpecialty", "");
     }
     if (!showOtherSpecialistPhysician) {
-      professionForm.setValue("otherSpecialistPhysician", "")
+      professionForm.setValue("otherSpecialistPhysician", "");
     }
-  }, [showOtherSpecialty, showOtherSpecialistPhysician, professionForm])
+  }, [showOtherSpecialty, showOtherSpecialistPhysician, professionForm]);
 
   function onSubmit(values: z.infer<typeof ProfessionSchema>) {
     const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("professionFormValues", jsonString);
     signMessage({
       message: jsonString,
-      account: account.address
+      account: account.address,
     });
     console.log(JSON.stringify(values, null, 2));
   }
+
+  useEffect(() => {
+    if (data) {
+      sessionStorage.setItem("signMessageData", JSON.stringify(data));
+    }
+  }, [data]);
 
   return (
     <Form {...professionForm}>
@@ -130,7 +148,7 @@ const PractitionerForm: React.FC = () => {
               <FormItem>
                 <FormLabel>License Number</FormLabel>
                 <FormControl>
-                  <Input 
+                  <Input
                     placeholder="0"
                     type="number"
                     min="0"
@@ -154,7 +172,6 @@ const PractitionerForm: React.FC = () => {
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
-                    // defaultValue={field.value}
                     className="flex flex-col space-y-1"
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
@@ -187,9 +204,11 @@ const PractitionerForm: React.FC = () => {
                 <FormControl>
                   <RadioGroup
                     onValueChange={(value) => {
-                      field.onChange(value)
-                      setShowOtherSpecialty(value === 'other')
-                      setShowOtherSpecialistPhysician(value === 'otherPhysician')
+                      field.onChange(value);
+                      setShowOtherSpecialty(value === "other");
+                      setShowOtherSpecialistPhysician(
+                        value === "otherPhysician"
+                      );
                     }}
                     defaultValue={field.value}
                     className="flex flex-col space-y-1"
@@ -216,7 +235,7 @@ const PractitionerForm: React.FC = () => {
         />
 
         {showOtherSpecialty && (
-          <FormField 
+          <FormField
             key="otherSpecialty"
             control={professionForm.control}
             name="otherSpecialty"
@@ -225,7 +244,7 @@ const PractitionerForm: React.FC = () => {
                 <FormItem>
                   <FormLabel>Other Specialty</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       placeholder="Please specify"
                       type="text"
                       {...field}
@@ -233,13 +252,13 @@ const PractitionerForm: React.FC = () => {
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )
+              );
             }}
           />
         )}
 
         {showOtherSpecialistPhysician && (
-          <FormField 
+          <FormField
             key="otherSpecialistPhysician"
             control={professionForm.control}
             name="otherSpecialistPhysician"
@@ -248,7 +267,7 @@ const PractitionerForm: React.FC = () => {
                 <FormItem>
                   <FormLabel>Other Specialist Physician</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       placeholder="Please specify"
                       type="text"
                       {...field}
@@ -256,11 +275,11 @@ const PractitionerForm: React.FC = () => {
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )
+              );
             }}
           />
         )}
-        
+
         <Button type="submit">Submit</Button>
       </form>
       {data && (
@@ -274,4 +293,3 @@ const PractitionerForm: React.FC = () => {
 };
 
 export default PractitionerForm;
-

@@ -26,28 +26,13 @@ export const NewVerificationForm = () => {
       return;
     }
     newVerification(token)
-      .then((data: { success?: string; error: string }) => { // Define the type of 'data'
-        if (data.success === undefined) {
-          setSuccess(''); // Handle the absence of 'success' property
-        } else {
-          setSuccess(data.success);
-        }
+      .then((data) => {
+        setSuccess(data.success);
         setError(data.error);
       })
       .catch(() => {
         setError("Something went wrong!");
       });
-      // .then((data) => {
-      //   if(!data.success) {
-      //     setSuccess('')
-      //   } else {
-      //     setSuccess(data.success);
-      //   }
-      //   setError(data.error);
-      // })
-      // .catch(() => {
-      //   setError("Something went wrong!");
-      // });
   }, [token, success, error]);
 
   useEffect(() => {

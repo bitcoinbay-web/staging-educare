@@ -87,7 +87,7 @@ export default async function RootLayout({
 
   //     // Update state and local storage
   //     setAccount(userAddress);
-  //     localStorage.setItem("isWalletConnected", "true");
+  //     sessionStorage.setItem("isWalletConnected", "true");
   //   } catch (err) {
   //     console.log("error:", err);
   //   }

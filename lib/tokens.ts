@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
-import VerificationToken from "@/lib/models/token.model";
+// import VerificationToken from "@/lib/models/token.model";
+import { db } from "@/lib/db";
 import { getVerificationTokenByEmail } from "@/data/verification-token";
 import { getPasswordResetTokenByEmail } from "@/data/password-reset-token";
-import PasswordResetToken from "./models/reset.model";
+// import PasswordResetToken from "./models/reset.model";
 
 export const generatePasswordResetToken = async (email: string) => {
   const token = uuidv4();
@@ -11,13 +12,15 @@ export const generatePasswordResetToken = async (email: string) => {
   const existingToken = await getPasswordResetTokenByEmail(email);
 
   if (existingToken) {
-    await PasswordResetToken.findByIdAndDelete(existingToken.id);
+    await db.passwordResetToken.delete({ where: { id: existingToken.id } });
   }
 
-  const passwordResetToken = await PasswordResetToken.create({
-    email: email,
-    token: token,
-    expires: expires,
+  const passwordResetToken = await db.passwordResetToken.create({
+    data: {
+      email,
+      token,
+      expires,
+    },
   });
   return passwordResetToken;
 };
@@ -29,12 +32,14 @@ export const generateVerificationToken = async (email: string) => {
   const existingToken = await getVerificationTokenByEmail(email);
 
   if (existingToken) {
-    await VerificationToken.findByIdAndDelete(existingToken.id);
+    await db.verificationToken.delete({ where: { id: existingToken.id } });
   }
-  const verificationToken = await VerificationToken.create({
-    email: email,
-    token: token,
-    expires: expires,
+  const verificationToken = await db.verificationToken.create({
+    data: {
+      email,
+      token,
+      expires,
+    },
   });
   return verificationToken;
 };

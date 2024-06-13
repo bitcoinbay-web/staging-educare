@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useCurrentRole } from "@/hooks/useCurrentRole";
 import { admin } from "@/lib/actions/admin";
-import { UserRole } from "@/lib/models/user.model";
+// import { UserRole } from "@/lib/models/user.model";
+import { UserRole } from "@prisma/client";
 import { toast } from "sonner";
 
 const AdminPage = () => {
@@ -45,7 +46,7 @@ const AdminPage = () => {
             <p className="text-2xl font-semibold">🔑 Admin</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <RoleGate allowedRole={UserRole.STUDENT}>
+            <RoleGate allowedRole={UserRole.ADMIN}>
               <FormSuccess message="You are allowed to see this content" />
             </RoleGate>
             <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-md">

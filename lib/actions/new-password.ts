@@ -8,8 +8,10 @@ import { getPasswordResetTokenByToken } from "@/data/password-reset-token";
 import { getUserByEmail } from "@/data/user";
 
 import bcrypt from "bcryptjs";
-import Users from "../models/user.model";
-import PasswordResetToken from "../models/reset.model";
+// import Users from "../models/user.model";
+// import PasswordResetToken from "../models/reset.model";
+
+import { db } from "@/lib/db";
 
 export const newPassword = async (
   values: z.infer<typeof NewPasswordSchema>,
@@ -47,10 +49,11 @@ export const newPassword = async (
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const updatedUser = await Users.findByIdAndUpdate(
-    existingUser.id,
-    { password: hashedPassword },
-    { new: true } // This option returns the document after update
+  const updatedUser = await db.user.update(
+    {
+      where: { id: existingUser.id },
+      data: { password: hashedPassword },
+    } // This option returns the document after update
   );
 
   if (!updatedUser) {
@@ -58,7 +61,7 @@ export const newPassword = async (
   }
 
   // Assuming `existingToken.id` is known here, delete the password reset token
-  await PasswordResetToken.findByIdAndDelete(existingToken.id);
+  await db.passwordResetToken.delete({ where: { id: existingToken.id } });
 
   // Return success message
   return { success: "Password Updated Successfully!" };

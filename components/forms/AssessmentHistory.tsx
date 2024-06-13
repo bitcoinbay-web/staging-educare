@@ -1,12 +1,12 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
- 
+
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -80,6 +80,22 @@ const AssessmentHistory: React.FC = () => {
       methodDates: {},
     },
   })
+
+  // Load values from local storage
+  useEffect(() => {
+    const storedValues = sessionStorage.getItem('assessmentFormValues')
+    if (storedValues) {
+      assessmentForm.reset(JSON.parse(storedValues))
+    }
+  }, [assessmentForm])
+
+  // Save values to local storage on change
+  useEffect(() => {
+    const subscription = assessmentForm.watch((values) => {
+      sessionStorage.setItem('assessmentFormValues', JSON.stringify(values))
+    })
+    return () => subscription.unsubscribe()
+  }, [assessmentForm])
 
   function onSubmit(values: z.infer<typeof AssessmentSchema>) {
     const jsonString = JSON.stringify(values);
@@ -201,23 +217,23 @@ const AssessmentHistory: React.FC = () => {
                           <FormLabel className="font-normal">
                             {item.label}
                           </FormLabel>
-                          {methodField.value?.includes(item.id) && (
-                            <FormControl>
-                              <Controller
-                                name={`methodDates.${item.id}`}
-                                control={assessmentForm.control}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    placeholderText="Select date"
-                                    selected={field.value ? new Date(field.value) : null}
-                                    onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
-                                    dateFormat="yyyy-MM-dd"
-                                    className="input"
-                                  />
-                                )}
-                              />
-                            </FormControl>
-                          )}
+                          {/* {methodField.value?.includes(item.id) && ( */}
+                          <FormControl>
+                            <Controller
+                              name={`methodDates.${item.id}`}
+                              control={assessmentForm.control}
+                              render={({ field }) => (
+                                <DatePicker
+                                  placeholderText="mm/dd/yyyy"
+                                  selected={field.value ? new Date(field.value) : null}
+                                  onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                                  dateFormat="yyyy-MM-dd"
+                                  className="input"
+                                />
+                              )}
+                            />
+                          </FormControl>
+                          {/* )} */}
                           {item.id === 'diagnostic' && methodField.value?.includes('diagnostic') && (
                             <div className="ml-4 flex flex-col space-y-2">
                               {['MRI', 'CT', 'EEG', 'X-Ray', 'Other'].map(option => (
@@ -272,7 +288,7 @@ const AssessmentHistory: React.FC = () => {
             )
           }}
         />        
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Save</Button>
       </form>
       {data && (
         <div>
