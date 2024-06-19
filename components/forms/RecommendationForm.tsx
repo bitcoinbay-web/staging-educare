@@ -2,11 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"; // Adjust the import path based on your project structure
-
 import { Textarea } from "../ui/textarea"
 import { Button } from "../ui/button"
-
 import { useAccount, useSignMessage } from "wagmi";
+import { useEffect } from "react";
 
 // Define the schema for the form
 const AccommodationSchema = z.object({
@@ -24,8 +23,27 @@ const RecommendationForm = () => {
     },
   });
 
+  useEffect(() => {
+    const storedValues = sessionStorage.getItem('recommendationFormValues');
+    if (storedValues) {
+      form.reset(JSON.parse(storedValues));
+    }
+    const savedData = sessionStorage.getItem("signMessageData");
+    if (savedData) {
+      signMessage(JSON.parse(savedData));
+    }
+  }, [form, signMessage]);
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      sessionStorage.setItem('recommendationFormValues', JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   function onSubmit(values: z.infer<typeof AccommodationSchema>) {
     const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("recommendationFormValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address

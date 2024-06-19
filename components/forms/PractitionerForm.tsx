@@ -41,22 +41,32 @@ const specialtyInfo = [
   },
 ] as const;
 
-const ProfessionSchema = z.object({
-  practitionerName: z.string().min(2).max(50),
-  licenseNo: z.coerce
-    .number()
-    .min(0, { message: "License number must be non-negative" }),
-  qualified: z.enum(["true", "false"]).transform((value) => value === "true"),
-  specialty: z.enum([
-    "family",
-    "psychiatrist",
-    "psychologist",
-    "otherPhysician",
-    "other",
-  ]),
-  otherSpecialty: z.string().optional(),
-  otherSpecialistPhysician: z.string().optional(),
-});
+const ProfessionSchema = z
+  .object({
+    practitionerName: z.string().min(2).max(50),
+    licenseNo: z.string().min(1, { message: "License number is required" }),
+    qualified: z.enum(["true", "false"]).transform((value) => value === "true"),
+    specialty: z.enum([
+      "family",
+      "psychiatrist",
+      "psychologist",
+      "otherPhysician",
+      "other",
+    ]),
+    otherSpecialty: z.string().optional(),
+    otherSpecialistPhysician: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      (data.specialty !== "other" || data.otherSpecialty !== undefined) &&
+      (data.specialty !== "otherPhysician" ||
+        data.otherSpecialistPhysician !== undefined),
+    {
+      message:
+        "Other Specialty must be specified if specialty is 'other', and Other Specialist Physician must be specified if specialty is 'otherPhysician'.",
+      path: ["specialty"], // Set the path of the error to specialty
+    }
+  );
 
 const PractitionerForm: React.FC = () => {
   const { data, signMessage } = useSignMessage();
@@ -66,7 +76,7 @@ const PractitionerForm: React.FC = () => {
     resolver: zodResolver(ProfessionSchema),
     defaultValues: {
       practitionerName: "",
-      licenseNo: 0,
+      licenseNo: "",
       qualified: false,
       specialty: "family",
     },
@@ -123,6 +133,31 @@ const PractitionerForm: React.FC = () => {
         onSubmit={professionForm.handleSubmit(onSubmit)}
         className="w-2/3 space-y-6"
       >
+        <div>
+          SECTION B: INFORMATION FOR REGISTERED HEALTH CARE PRACTITIONER
+          Academic Accommodation Support (AAS) at Toronto Metropolitan University facilitates the provision of
+          reasonable and appropriate academic accommodations and supports for students with disabilities.
+          To determine these accommodations and supports, AAS must verify that a student has a disability and
+          understand the impact(s) of the student’s disability on their academic functioning.
+          The student is required to provide the university with documentation that is:
+          ● Based on a current, thorough and appropriate assessment;
+          ● Provided by a registered practitioner, qualified to diagnose the condition; and
+          ● Supportive of the accommodation(s) being considered or requested.
+
+          Please note that a student’s mental health diagnosis is not required to receive accommodations and
+          support from AAS but full details of the impact(s) of the disability on the student’s academic functioning
+          must be included (see Part III). If the student consents to or requests that you provide a diagnosis
+          statement in section A, this information is kept confidential in accordance with the university’s
+          Information Protection and Access Policy.
+          All relevant sections must be completed thoroughly and objectively to ensure accurate assessment of
+          the student’s disability-related needs, which may include access to support services and government
+          and school bursaries while attending university.
+          Careful completion of all relevant sections also ensures that a student who is currently receiving interim
+          accommodations will have a full and appropriate accommodation and support plan once disability
+          documentation is obtained.
+          AAS supports are available to students with documented disabilities. If no disability is present, students
+          will be referred to other supports at the university.
+        </div>
         <FormField
           key="practitionerName"
           control={professionForm.control}
@@ -148,13 +183,7 @@ const PractitionerForm: React.FC = () => {
               <FormItem>
                 <FormLabel>License Number</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="0"
-                    type="number"
-                    min="0"
-                    {...field}
-                    className="no-spinner"
-                  />
+                  <Input placeholder="License Number" type="text" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

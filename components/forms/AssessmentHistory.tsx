@@ -1,25 +1,34 @@
-"use client"
+"use client";
 
-import React, { useEffect } from 'react'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, Controller } from "react-hook-form"
-import { z } from "zod"
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
+import React, { useEffect } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from '@/components/ui/checkbox'
+  FormDescription
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@/components/ui/dropdown-menu";
 
 import { useAccount, useSignMessage } from "wagmi";
 
@@ -52,10 +61,15 @@ const MethodsInfo = [
     id: "other",
     label: "Other (specify)"
   },
-] as const
+] as const;
+
+const durationTypes = ["days", "weeks", "months", "years"] as [string, ...string[]];
 
 const AssessmentSchema = z.object({
-  duration: z.string().min(1, "Assessment duration is required."),
+  duration: z.object({
+    value: z.string().nonempty("Duration value is required"),
+    type: z.enum(durationTypes, { required_error: "Duration type is required" }),
+  }),
   continue: z.enum(['yes', 'no', 'unknown']),
   methods: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one item."
@@ -63,42 +77,56 @@ const AssessmentSchema = z.object({
   otherMethodDetails: z.string().optional(),
   diagnosticOptions: z.array(z.string()).optional(),
   methodDates: z.record(z.string(), z.string().optional()).optional(),
-})
+}).refine((data) => {
+  const selectedMethods = data.methods;
+  for (const method of selectedMethods) {
+    if (!data.methodDates?.[method]) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: "Method dates are required for the selected methods.",
+  path: ["methodDates"]
+});
 
 const AssessmentHistory: React.FC = () => {
   const { data, signMessage } = useSignMessage();
-  const account = useAccount()
+  const account = useAccount();
 
   const assessmentForm = useForm<z.infer<typeof AssessmentSchema>>({
     resolver: zodResolver(AssessmentSchema),
     defaultValues: {
-      duration: '',
+      duration: { value: '', type: 'days' },
       continue: 'unknown',
       methods: [],
       otherMethodDetails: '',
       diagnosticOptions: [],
       methodDates: {},
     },
-  })
+  });
 
-  // Load values from local storage
   useEffect(() => {
-    const storedValues = sessionStorage.getItem('assessmentFormValues')
+    const storedValues = sessionStorage.getItem('assessmentFormValues');
     if (storedValues) {
-      assessmentForm.reset(JSON.parse(storedValues))
+      assessmentForm.reset(JSON.parse(storedValues));
     }
-  }, [assessmentForm])
+    const savedData = sessionStorage.getItem("signMessageData");
+    if (savedData) {
+      signMessage(JSON.parse(savedData));
+    }
+  }, [assessmentForm, signMessage]);
 
-  // Save values to local storage on change
   useEffect(() => {
     const subscription = assessmentForm.watch((values) => {
-      sessionStorage.setItem('assessmentFormValues', JSON.stringify(values))
-    })
-    return () => subscription.unsubscribe()
-  }, [assessmentForm])
+      sessionStorage.setItem('assessmentFormValues', JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [assessmentForm]);
 
   function onSubmit(values: z.infer<typeof AssessmentSchema>) {
     const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("assessmentFormValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
@@ -106,13 +134,19 @@ const AssessmentHistory: React.FC = () => {
     console.log(JSON.stringify(values, null, 2));
   }
 
+  useEffect(() => {
+    if (data) {
+      sessionStorage.setItem("signMessageData", JSON.stringify(data));
+    }
+  }, [data]);
+
   return (
     <Form {...assessmentForm}>
       <form onSubmit={assessmentForm.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
         <FormField 
-          key="duration"
+          key="duration.value"
           control={assessmentForm.control}
-          name='duration'
+          name='duration.value'
           render={({ field }) => {
             return (
               <FormItem>
@@ -122,7 +156,36 @@ const AssessmentHistory: React.FC = () => {
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            )
+            );
+          }}
+        />
+        <FormField
+          key="duration.type"
+          control={assessmentForm.control}
+          name="duration.type"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Duration Type</FormLabel>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">{field.value}</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Select Duration Type</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuRadioGroup value={field.value} onValueChange={field.onChange}>
+                      {durationTypes.map((type) => (
+                        <DropdownMenuRadioItem key={type} value={type}>
+                          {type}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <FormMessage />
+              </FormItem>
+            );
           }}
         />
         <FormField 
@@ -137,7 +200,7 @@ const AssessmentHistory: React.FC = () => {
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}  
-                    defaultValue={field.value}
+                    value={field.value}
                     className='flex flex-col space-y-1'                
                   >
                     <FormItem key="yes">
@@ -168,7 +231,7 @@ const AssessmentHistory: React.FC = () => {
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            )
+            );
           }}
         />
         <FormField 
@@ -179,9 +242,10 @@ const AssessmentHistory: React.FC = () => {
             return (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel className="text-base">Assessment Methods</FormLabel>
+                  <FormLabel className="text-base">Methods used to diagnose disability and identify functional
+                  limitations</FormLabel>
                   <FormDescription>
-                    Select the items you want to display in the sidebar.
+                    (select all that apply)
                   </FormDescription>
                 </div>
                 {MethodsInfo.map((item) => (
@@ -217,7 +281,6 @@ const AssessmentHistory: React.FC = () => {
                           <FormLabel className="font-normal">
                             {item.label}
                           </FormLabel>
-                          {/* {methodField.value?.includes(item.id) && ( */}
                           <FormControl>
                             <Controller
                               name={`methodDates.${item.id}`}
@@ -233,7 +296,6 @@ const AssessmentHistory: React.FC = () => {
                               )}
                             />
                           </FormControl>
-                          {/* )} */}
                           {item.id === 'diagnostic' && methodField.value?.includes('diagnostic') && (
                             <div className="ml-4 flex flex-col space-y-2">
                               {['MRI', 'CT', 'EEG', 'X-Ray', 'Other'].map(option => (
@@ -280,12 +342,12 @@ const AssessmentHistory: React.FC = () => {
                             />
                           )}
                         </FormItem>
-                      )
+                      );
                     }}
                   />
                 ))}
               </FormItem>
-            )
+            );
           }}
         />        
         <Button type="submit">Save</Button>
@@ -297,7 +359,7 @@ const AssessmentHistory: React.FC = () => {
         </div>
       )}
     </Form>
-  )
+  );
 }
 
-export default AssessmentHistory
+export default AssessmentHistory;

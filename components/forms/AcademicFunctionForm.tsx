@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, Controller } from "react-hook-form"
-import { z } from "zod"
+import React, { useEffect, useState } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,12 +14,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 
 import { useAccount, useSignMessage } from "wagmi";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 const choiceOptions = ['N/A', 'Mild', 'Mod', 'Serious', 'Severe'] as const;
 
@@ -183,11 +184,11 @@ const ImpactsSchema = z.object({
     medicationDetails: z.string().optional(),
   }),
   additionalInfo: z.string().optional(),
-})
+});
 
 const AcademicFunctionForm: React.FC = () => {
   const { data, signMessage } = useSignMessage();
-  const account = useAccount()
+  const account = useAccount();
   
   const impactsForm = useForm<z.infer<typeof ImpactsSchema>>({
     resolver: zodResolver(ImpactsSchema),
@@ -244,15 +245,35 @@ const AcademicFunctionForm: React.FC = () => {
       },
       additionalInfo: '',
     },
-  })
+  });
+
+  useEffect(() => {
+    const storedValues = sessionStorage.getItem('impactsFormValues');
+    if (storedValues) {
+      impactsForm.reset(JSON.parse(storedValues));
+    }
+    const savedData = sessionStorage.getItem("signMessageData");
+    if (savedData) {
+      signMessage(JSON.parse(savedData));
+    }
+  }, [impactsForm, signMessage]);
+
+  useEffect(() => {
+    const subscription = impactsForm.watch((values) => {
+      sessionStorage.setItem('impactsFormValues', JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [impactsForm]);
 
   function onSubmit(values: z.infer<typeof ImpactsSchema>) {
     const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("impactsFormValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
     });
-    console.log(JSON.stringify(values, null, 2));  }
+    console.log(JSON.stringify(values, null, 2));
+  }
 
   // Render fields
   const renderFields = (fields, impactsForm) => {
@@ -283,74 +304,102 @@ const AcademicFunctionForm: React.FC = () => {
             <FormControl>
               <Textarea
                 placeholder="Comments"
-              value={controllerField.value?.comments || ''}
-              onChange={(e) => controllerField.onChange({ ...controllerField.value, comments: e.target.value })}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  ));
-};
+                value={controllerField.value?.comments || ''}
+                onChange={(e) => controllerField.onChange({ ...controllerField.value, comments: e.target.value })}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ));
+  };
 
   // Define task groups
-const impactsTasks = [
-  { id: "listening", label: "Listening", category: "impacts" },
-  { id: "reading", label: "Reading", category: "impacts" },
-  { id: "takingNotes", label: "Taking Notes", category: "impacts" },
-  { id: "completingAssignments", label: "Completing Assignments/Reports", category: "impacts" },
-  { id: "writingTests", label: "Writing Tests & Exams", category: "impacts" },
-  { id: "deliveringPresentations", label: "Delivering Presentations", category: "impacts" },
-  { id: "meetingDeadlines", label: "Meeting Deadlines", category: "impacts" },
-  { id: "participatingInGroup", label: "Participating in Group Activities", category: "impacts" },
-];
+  const impactsTasks = [
+    { id: "listening", label: "Listening", category: "impacts" },
+    { id: "reading", label: "Reading", category: "impacts" },
+    { id: "takingNotes", label: "Taking Notes", category: "impacts" },
+    { id: "completingAssignments", label: "Completing Assignments/Reports", category: "impacts" },
+    { id: "writingTests", label: "Writing Tests & Exams", category: "impacts" },
+    { id: "deliveringPresentations", label: "Delivering Presentations", category: "impacts" },
+    { id: "meetingDeadlines", label: "Meeting Deadlines", category: "impacts" },
+    { id: "participatingInGroup", label: "Participating in Group Activities", category: "impacts" },
+  ];
 
-const cognitiveTasks = [
-  { id: "attentionConcentration", label: "Attention & Concentration", category: "cognitiveSkills" },
-  { id: "informationProcessing", label: "Information Processing", category: "cognitiveSkills" },
-  { id: "shortTermMemory", label: "Short-Term Memory", category: "cognitiveSkills" },
-  { id: "longTermMemory", label: "Long-Term Memory", category: "cognitiveSkills" },
-];
+  const cognitiveTasks = [
+    { id: "attentionConcentration", label: "Attention & Concentration", category: "cognitiveSkills" },
+    { id: "informationProcessing", label: "Information Processing", category: "cognitiveSkills" },
+    { id: "shortTermMemory", label: "Short-Term Memory", category: "cognitiveSkills" },
+    { id: "longTermMemory", label: "Long-Term Memory", category: "cognitiveSkills" },
+  ];
 
-const socioEmotionalTasks = [
-  { id: "fatigue", label: "Fatigue", category: "socioEmotional" },
-  { id: "managingCourseLoad", label: "Managing a Full Course Load", category: "socioEmotional" },
-  { id: "managingStress", label: "Managing Stress", category: "socioEmotional" },
-  { id: "mood", label: "Mood", category: "socioEmotional" },
-  { id: "socialInteractions", label: "Social Interactions", category: "socioEmotional" },
-  { id: "attendingClass", label: "Attending Class", category: "socioEmotional" },
-];
+  const socioEmotionalTasks = [
+    { id: "fatigue", label: "Fatigue", category: "socioEmotional" },
+    { id: "managingCourseLoad", label: "Managing a Full Course Load", category: "socioEmotional" },
+    { id: "managingStress", label: "Managing Stress", category: "socioEmotional" },
+    { id: "mood", label: "Mood", category: "socioEmotional" },
+    { id: "socialInteractions", label: "Social Interactions", category: "socioEmotional" },
+    { id: "attendingClass", label: "Attending Class", category: "socioEmotional" },
+  ];
 
-const physicalActivityTasks = [
-  { id: "lifting", label: "Lifting", category: "physicalActivity" },
-  { id: "grossMotorReaching", label: "Gross Motor Reaching", category: "physicalActivity" },
-  { id: "bending", label: "Bending", category: "physicalActivity" },
-  { id: "writing", label: "Writing", category: "physicalActivity" },
-  { id: "typing", label: "Typing", category: "physicalActivity" },
-  { id: "otherPhysical", label: "Other", category: "physicalActivity" },
-  { id: "walking", label: "Walking", category: "physicalActivity" },
-  { id: "stairClimbing", label: "Stair Climbing", category: "physicalActivity" },
-  { id: "sittingForPeriods", label: "Sitting for Sustained Periods", category: "physicalActivity" },
-  { id: "standingForPeriods", label: "Standing for Sustained Periods", category: "physicalActivity" },
-  { id: "otherActivity", label: "Other", category: "physicalActivity" },
-];
+  const physicalActivityTasks = [
+    { id: "lifting", label: "Lifting", category: "physicalActivity" },
+    { id: "grossMotorReaching", label: "Gross Motor Reaching", category: "physicalActivity" },
+    { id: "bending", label: "Bending", category: "physicalActivity" },
+    { id: "writing", label: "Writing", category: "physicalActivity" },
+    { id: "typing", label: "Typing", category: "physicalActivity" },
+    { id: "otherPhysical", label: "Other", category: "physicalActivity" },
+    { id: "walking", label: "Walking", category: "physicalActivity" },
+    { id: "stairClimbing", label: "Stair Climbing", category: "physicalActivity" },
+    { id: "sittingForPeriods", label: "Sitting for Sustained Periods", category: "physicalActivity" },
+    { id: "standingForPeriods", label: "Standing for Sustained Periods", category: "physicalActivity" },
+    { id: "otherActivity", label: "Other", category: "physicalActivity" },
+  ];
 
-const sensoryTasks = [
-  { id: "visionRightEye", label: "Vision (Right Eye)", category: "sensory" },
-  { id: "visionLeftEye", label: "Vision (Left Eye)", category: "sensory" },
-  { id: "visionBilateral", label: "Vision (Bilateral)", category: "sensory" },
-  { id: "hearingRightEar", label: "Hearing (Right Ear)", category: "sensory" },
-  { id: "hearingLeftEar", label: "Hearing (Left Ear)", category: "sensory" },
-  { id: "hearingBilateral", label: "Hearing (Bilateral)", category: "sensory" },
-  { id: "speech", label: "Speech", category: "sensory" },
-];
+  const sensoryTasks = [
+    { id: "visionRightEye", label: "Vision (Right Eye)", category: "sensory" },
+    { id: "visionLeftEye", label: "Vision (Left Eye)", category: "sensory" },
+    { id: "visionBilateral", label: "Vision (Bilateral)", category: "sensory" },
+    { id: "hearingRightEar", label: "Hearing (Right Ear)", category: "sensory" },
+    { id: "hearingLeftEar", label: "Hearing (Left Ear)", category: "sensory" },
+    { id: "hearingBilateral", label: "Hearing (Bilateral)", category: "sensory" },
+    { id: "speech", label: "Speech", category: "sensory" },
+  ];
+
+  const instructions = `
+    This assessment form reviews all types of disabilities so there may be questions not relevant to the
+    student. Please assess functional limitations and outline the impact(s) on academic functioning.
+    Mild Student has some functional limitations and may require minimal academic accommodation(s)
+    and/or support.
+    Moderate Student has prominent functional limitations and requires academic accommodation(s) and
+    support.
+    Serious Student has a high degree of functional impairment that interferes with academic functioning
+    and requires extensive academic accommodation(s) and support.
+    Severe Student has extreme functional impairment and may have difficulty meeting academic
+    obligations even with extensive academic accommodations.
+  `;
 
   return (
     <Form {...impactsForm}>
+      {/* Instruction Pop-up */}
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Instructions</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Instructions</DialogTitle>
+          <DialogDescription>
+            {instructions}
+          </DialogDescription>
+          <DialogClose asChild>
+            <Button>Close</Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
       <form onSubmit={impactsForm.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
         {/* Render each section */}
-        <h2>Impacts on Academic Tasks</h2>
+        <h2>Impacts on Academic Functioning</h2>
         {renderFields(impactsTasks, impactsForm)}
 
         <h2>Cognitive Skills</h2>
@@ -442,4 +491,4 @@ const sensoryTasks = [
   );
 }
 
-export default AcademicFunctionForm
+export default AcademicFunctionForm;

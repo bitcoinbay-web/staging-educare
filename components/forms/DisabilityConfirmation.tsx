@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -54,7 +55,7 @@ const DisabilityNatureInfo = [
   },
   {
     id: "other",
-    label: "provide psychoeducational assessment",
+    label: "Other",
   },
 ];
 
@@ -113,14 +114,39 @@ const DisabilityConfirmation: React.FC = () => {
     name: "additionalDiagnoses",
   });
 
+  useEffect(() => {
+    const storedValues = sessionStorage.getItem('disabilityFormValues');
+    if (storedValues) {
+      disabilityForm.reset(JSON.parse(storedValues));
+    }
+    const savedData = sessionStorage.getItem("signMessageData");
+    if (savedData) {
+      signMessage(JSON.parse(savedData));
+    }
+  }, [disabilityForm, signMessage]);
+
+  useEffect(() => {
+    const subscription = disabilityForm.watch((values) => {
+      sessionStorage.setItem('disabilityFormValues', JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [disabilityForm]);
+
   function onSubmit(values: z.infer<typeof DisabilitySchema>) {
     const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("disabilityFormValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
     });
     console.log(JSON.stringify(values, null, 2));
   }
+
+  useEffect(() => {
+    if (data) {
+      sessionStorage.setItem("signMessageData", JSON.stringify(data));
+    }
+  }, [data]);
 
   return (
     <Form {...disabilityForm}>
@@ -207,12 +233,41 @@ const DisabilityConfirmation: React.FC = () => {
         />
 
         <FormField
+          key="primaryNature"
+          control={disabilityForm.control}
+          name="primaryNature"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Primary Nature of Disability</FormLabel>
+              <FormDescription>(Select only one)</FormDescription>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  className="flex flex-col space-y-1"
+                >
+                  {DisabilityNatureInfo.map((item) => (
+                    <FormItem key={item.id}>
+                      <FormControl>
+                        <RadioGroupItem value={item.id} />
+                      </FormControl>
+                      <FormLabel className="font-normal">{item.label}</FormLabel>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
           key="nature"
           control={disabilityForm.control}
           name="nature"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nature of Disability</FormLabel>
+              <FormLabel>Other Disabilities</FormLabel>
+              <FormDescription>(Select all that apply)</FormDescription>
               {DisabilityNatureInfo.map((item) => (
                 <FormItem
                   key={item.id}
@@ -235,33 +290,6 @@ const DisabilityConfirmation: React.FC = () => {
                   <FormLabel className="font-normal">{item.label}</FormLabel>
                 </FormItem>
               ))}
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          key="primaryNature"
-          control={disabilityForm.control}
-          name="primaryNature"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Primary Nature of Disability</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  className="flex flex-col space-y-1"
-                >
-                  {DisabilityNatureInfo.map((item) => (
-                    <FormItem key={item.id}>
-                      <FormControl>
-                        <RadioGroupItem value={item.id} />
-                      </FormControl>
-                      <FormLabel className="font-normal">{item.label}</FormLabel>
-                    </FormItem>
-                  ))}
-                </RadioGroup>
-              </FormControl>
             </FormItem>
           )}
         />
