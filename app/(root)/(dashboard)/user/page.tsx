@@ -17,8 +17,8 @@ const UserProfilePage = async () => {
   const user = await currentUser();
   return (
     <>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
+      
+       
       <div className="dashboard-main">
         <Tabs defaultValue="student" className="w-[400px]">
           <TabsList className="grid w-full grid-cols-5">

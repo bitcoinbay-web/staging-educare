@@ -81,8 +81,8 @@ const SettingsPage = () => {
   };
   return (
     <>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
+      
+       
       <div className="pt-10 pl-20 ml-64 h-full">
         {/* <div className="bg-white p-10 rounded-xl">
           <button onClick={onClick} type="submit">

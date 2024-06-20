@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "../../../../components/Navbar/navbar";
 import Sidebar from "../../../../components/Sidebar/sidebar";
 import { Button } from "@/components/ui/button";
@@ -45,65 +46,25 @@ function getData(): Service[] {
       status: "pending",
       stdID: "101502209",
     },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-
-    // ...
   ];
 }
 
 const StudentDashboardPage: React.FC = () => {
+  const router = useRouter();
   const data = getData();
+
+  const handleUserRedirect = () => {
+    router.push('/user');
+  };
+
+  const handleDoctorRedirect = () => {
+    router.push('/doctor');
+  };
+
   return (
     <div>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
+      
+       
       <div className="pt-10 pl-20 ml-64 h-full">
         <h1 className="font-bold text-2xl mb-4">Welcome!</h1>
         <div className="cards">
@@ -116,7 +77,7 @@ const StudentDashboardPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button>Edit Form</Button>
+                <Button onClick={handleUserRedirect}>Edit Form</Button>
               </CardContent>
               <CardFooter>
                 <p>Pending</p>
@@ -132,7 +93,7 @@ const StudentDashboardPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button>Edit Form</Button>
+                <Button onClick={handleDoctorRedirect}>Edit Form</Button>
               </CardContent>
               <CardFooter>
                 <p>Awaiting Approval</p>
@@ -149,8 +110,6 @@ const StudentDashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* <Button variant="outline">Button</Button> */}
     </div>
   );
 };

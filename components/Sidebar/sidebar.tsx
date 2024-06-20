@@ -21,7 +21,7 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <div className="absolute w-64 h-screen text-white p-12 bg-[#F7F8F9]">
+    <div className="absolute w-64 h-screen text-white p-12 py-32 bg-[#000000] ">
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
           pathname === "/studentdashboard"
@@ -84,7 +84,22 @@ const Sidebar: React.FC = () => {
       >
         <Link href="/user" className="flex items-center text-[#8290AA] ">
           <FaUser className="mr-5 text-[#3E84EC]" />
-          User
+          Student Forms
+        </Link>
+      </div>
+      <div
+        className={`mb-10 font-bold text-md text-[#8290AA] ${
+          pathname === "/studentdashboard/profile"
+            ? "bg-white px-5 py-3 rounded-md"
+            : ""
+        } `}
+      >
+        <Link
+          href="/share"
+          className="flex items-center text-[#8290AA] "
+        >
+          <FaUser className="mr-5 text-[#3E84EC]" />
+          Share QR Code
         </Link>
       </div>
       <div

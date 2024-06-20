@@ -37,8 +37,8 @@ const AdminPage = () => {
   const role = useCurrentRole();
   return (
     <div>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
+      
+       
       <div className="pt-10 pl-20 ml-64 h-full">
         Current Role: ${role}
         <Card className="w-[600px]">

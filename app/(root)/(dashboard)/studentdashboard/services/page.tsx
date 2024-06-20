@@ -10,8 +10,8 @@ import { Separator } from "@/components/ui/separator";
 const ServicesPage: React.FC = () => {
   return (
     <div>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
+      
+       
       <div className="pt-10 pl-20 ml-64 h-full">
         <h1 className="font-bold text-2xl mb-4">Services</h1>
         <div>

@@ -17,8 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const DoctorDashboard: React.FC = () => {
   return (
     <div>
-      <Navbar></Navbar>
-      <Sidebar></Sidebar>
+      
+       
       <div className="dashboard-main">
         <h1>Welcome!</h1>
         <Tabs defaultValue="practitioner" className="w-[400px]">
