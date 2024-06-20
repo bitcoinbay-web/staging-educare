@@ -72,7 +72,7 @@ export const RegisterForm = () => {
   return (
     <div>
       <CardWrapper
-        headerLabel="Create an Account!"
+        headerLabel=""
         backButtonLabel="Already have an account?"
         backButtonHref="/login"
         showSocial
@@ -92,7 +92,6 @@ export const RegisterForm = () => {
                         placeholder="Enter Your Email"
                         type="email"
                         disabled={isPending}
-                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -111,7 +110,6 @@ export const RegisterForm = () => {
                         placeholder="Enter Your Password"
                         type="password"
                         disabled={isPending}
-                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -129,7 +127,6 @@ export const RegisterForm = () => {
                         {...field}
                         placeholder="Enter Your Full Name"
                         disabled={isPending}
-                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -147,7 +144,6 @@ export const RegisterForm = () => {
                         {...field}
                         placeholder="Enter Your Student ID"
                         disabled={isPending}
-                        className="bg-[#E4EDFD]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -167,17 +163,16 @@ export const RegisterForm = () => {
                           placeholder="Click on the button to connect to your wallet"
                           value={address || ""} // Ensure a default empty string if address is null/undefined
                           readOnly
-                          className="bg-[#E4EDFD]"
 
                           // onChange={(e) => setAccount(e.target.value)}
                         />
                         <Button
                           type="button"
-                          className="bg-[#7840B4]"
+                          className="bg-[#7C1749]"
                           id="connect-button"
                           onClick={() => open()}
                         >
-                          {address ? "Connected" : "Connect Wallet"}
+                          {address ? "CONNECTED" : "CONNECT"}
                         </Button>
                       </div>
                     </FormControl>
@@ -189,10 +184,10 @@ export const RegisterForm = () => {
             <FormSuccess message={success} />
             <Button
               type="submit"
-              className="w-full bg-[#7840B4]"
+              className="w-full bg-[#3E84EC]"
               disabled={isPending}
             >
-              Register
+              SIGN UP
             </Button>
           </form>
         </Form>

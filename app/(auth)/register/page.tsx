@@ -4,36 +4,24 @@ import { RegisterForm } from "@/components/auth/register-form";
 import React from "react";
 
 import Image from "next/image";
+import AuthNav from "@/components/Navbar/auth-nav";
 
 const Register: React.FC = () => {
   return (
     <>
-      {/* <h1>Login Page</h1> */}
-      <div className="min-h-screen flex">
-        <div className="flex-1 relative flex items-center justify-center">
-          <Image
-            src="/educare-img.jpeg" // Replace with the actual path to your image
-            alt="Educare Image"
-            fill
-            className="object-cover opacity-70"
-          />
-          {/* <img src="educare-img.jpeg" alt="" layout="fill" /> */}
-          <div className="absolute p-8 text-black text-center">
-            <h1 className="text-4xl font-bold mb-12">
-              Connect with the Community Globally
-            </h1>
-            <p className="text-xl mx-8">
-              With a growing community of 50K+ members, Obsidi offers Black
-              professionals and allies an opportunity to establish meaningful
-              connections with individuals across the global techh ecosystems in
-              seconds.
-            </p>
-          </div>
+      <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-custom1 via-custom2 to-custom3">
+        <AuthNav />
+        <div className="text-white text-center">
+          <h1 className="text-2xl font-bold mb-4">Create Account</h1>
+          <p className="text-sm mx-8">
+            Fill the below information to register new account with EDUCARE.
+          </p>
         </div>
-        <div className="w-1/2 flex items-center justify-center p-8">
+
+        <div className="w-full max-w-md mt-8 mb-20">
           <RegisterForm />
         </div>
-      </div>
+      </main>
     </>
 
     // /* create local state to save account information after signin */

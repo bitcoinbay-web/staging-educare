@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginForm } from "@/components/auth/login-form";
+import AuthNav from "@/components/Navbar/auth-nav";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -72,32 +73,20 @@ const LoginPage: React.FC = () => {
 
   return (
     <>
-      {/* <h1>Login Page</h1> */}
-      <div className="min-h-screen flex">
-        <div className="flex-1 relative flex items-center justify-center">
-          <Image
-            src="/educare-img.jpeg" // Replace with the actual path to your image
-            alt="Educare Image"
-            fill
-            className="object-cover opacity-70"
-          />
-          {/* <img src="educare-img.jpeg" alt="" layout="fill" /> */}
-          <div className="absolute p-8 text-black text-center">
-            <h1 className="text-4xl font-bold mb-12">
-              Connect with the Community Globally
-            </h1>
-            <p className="text-xl mx-8">
-              With a growing community of 50K+ members, Obsidi offers Black
-              professionals and allies an opportunity to establish meaningful
-              connections with individuals across the global techh ecosystems in
-              seconds.
-            </p>
-          </div>
+      <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-custom1 via-custom2 to-custom3">
+        <AuthNav />
+        {/* <h1>Login Page</h1> */}
+
+        {/* <img src="educare-img.jpeg" alt="" layout="fill" /> */}
+        <div className="p-2 text-white text-center">
+          <h1 className="text-4xl font-bold mb-8">Welcome Back!</h1>
+          <p className="text-xl mx-8">Enter your credentials to login</p>
         </div>
+
         <div className="w-1/2 flex items-center justify-center p-8">
           <LoginForm />
         </div>
-      </div>
+      </main>
     </>
     // <div className="main">
     //   <div className="register-screen">
