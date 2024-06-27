@@ -1,29 +1,29 @@
-"use client";
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React from "react";
-import Navbar from "@/components/Navbar/navbar";
-import Sidebar from "@/components/Sidebar/sidebar";
-// import AccessibilityForm from "@/components/forms/AccessibilityForm";
-import PractitionerForm from "@/components/forms/PractitionerForm";
-import AssessmentHistory from "@/components/forms/AssessmentHistory";
-import DisabilityConfirmation from "@/components/forms/DisabilityConfirmation";
-import AcademicFunctionForm from "@/components/forms/AcademicFunctionForm";
-import RecommendationForm from "@/components/forms/RecommendationForm";
-// import StudentOSAP from "@/components/forms/StudentOSAP"
-import OSAPDisabilityConfirmation from "@/components/forms/OSAPDisabilityConfirmation"
+import React from "react"; // Import React library
+import Navbar from "@/components/Navbar/navbar"; // Import Navbar component
+import Sidebar from "@/components/Sidebar/sidebar"; // Import Sidebar component
+// import AccessibilityForm from "@/components/forms/AccessibilityForm"; // Import AccessibilityForm component (commented out)
+import PractitionerForm from "@/components/forms/PractitionerForm"; // Import PractitionerForm component
+import AssessmentHistory from "@/components/forms/AssessmentHistory"; // Import AssessmentHistory component
+import DisabilityConfirmation from "@/components/forms/DisabilityConfirmation"; // Import DisabilityConfirmation component
+import AcademicFunctionForm from "@/components/forms/AcademicFunctionForm"; // Import AcademicFunctionForm component
+import RecommendationForm from "@/components/forms/RecommendationForm"; // Import RecommendationForm component
+// import StudentOSAP from "@/components/forms/StudentOSAP"; // Import StudentOSAP component (commented out)
+import OSAPDisabilityConfirmation from "@/components/forms/OSAPDisabilityConfirmation"; // Import OSAPDisabilityConfirmation component
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
 
+// DoctorDashboard component
 const DoctorDashboard: React.FC = () => {
   return (
     <div>
-      
-       
       <div className="dashboard-main">
         <h1>Welcome!</h1>
+        {/* Tabs component to switch between different forms */}
         <Tabs defaultValue="practitioner" className="w-[400px]">
           <TabsList className="grid w-full grid-cols-5">
-            {/* <TabsTrigger value="student">Student</TabsTrigger> */}
+            {/* Tab triggers for each form */}
             <TabsTrigger value="practitioner">Practitioner</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="confirmation">Confirmation</TabsTrigger>
@@ -32,9 +32,8 @@ const DoctorDashboard: React.FC = () => {
             {/* <TabsTrigger value="studentOSAP">Student OSAP</TabsTrigger> */}
             <TabsTrigger value="osapDisabiity">Disability Verification OSAP</TabsTrigger>
           </TabsList>
-          {/* <TabsContent value="student">
-            <AccessibilityForm />
-          </TabsContent> */}
+
+          {/* Tab content for each form */}
           <TabsContent value="practitioner">
             <PractitionerForm />
           </TabsContent>
@@ -50,9 +49,6 @@ const DoctorDashboard: React.FC = () => {
           <TabsContent value="recommendation">
             <RecommendationForm />
           </TabsContent>
-          {/* <TabsContent value="studentOSAP">
-            <StudentOSAP />
-          </TabsContent> */}
           <TabsContent value="osapDisabiity">
             <OSAPDisabilityConfirmation />
           </TabsContent>
@@ -62,4 +58,4 @@ const DoctorDashboard: React.FC = () => {
   );
 };
 
-export default DoctorDashboard;
+export default DoctorDashboard; // Export the DoctorDashboard component as the default export

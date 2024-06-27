@@ -18,7 +18,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
           <Navbar />
           <Sidebar />
           <div className="w-full">{children}</div>
-          <Footer />
+          {/* <Footer /> */}
         </section>
       </div>
     </main>

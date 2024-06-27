@@ -1,9 +1,9 @@
-"use client";
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
+import { useForm } from "react-hook-form"; // Import React Hook Form utilities
+import { z } from "zod"; // Import zod for schema validation
+import { Button } from "@/components/ui/button"; // Import Button component
 import {
   Form,
   FormControl,
@@ -12,12 +12,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Input } from "@/components/ui/input";
-import { useAccount, useSignMessage } from "wagmi";
-import { useState, useEffect } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+} from "@/components/ui/form"; // Import form components
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; // Import RadioGroup components
+import { Input } from "@/components/ui/input"; // Import Input component
+import { useAccount, useSignMessage } from "wagmi"; // Import wagmi hooks for account and message signing
+import { useState, useEffect } from "react"; // Import React hooks
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"; // Import Dialog components
 
 // Custom hook to handle form state persistence
 const usePersistentFormState = (key, defaultValue) => {
@@ -33,6 +33,7 @@ const usePersistentFormState = (key, defaultValue) => {
   return [state, setState];
 };
 
+// Define student information fields
 const studentInfo = [
   {
     id: "studentName",
@@ -52,6 +53,7 @@ const studentInfo = [
   },
 ] as const;
 
+// Define consent information fields
 const consentInfo = [
   {
     id: "consent",
@@ -63,6 +65,7 @@ const consentInfo = [
   },
 ] as const;
 
+// Define the schema for the form using zod
 const formSchema = z.object({
   studentName: z.string().min(2).max(50),
   studentId: z.coerce.number().nonnegative(),
@@ -72,10 +75,12 @@ const formSchema = z.object({
   authorize: z.enum(["true", "false"]).transform((value) => value === "true"),
 });
 
+// AccessibilityForm component
 const AccessibilityForm: React.FC = () => {
-  const { data, signMessage } = useSignMessage();
-  const account = useAccount();
+  const { data, signMessage } = useSignMessage(); // Initialize wagmi hooks
+  const account = useAccount(); // Get the current account
 
+  // Initialize form state with persistent storage
   const [savedValues, setSavedValues] = usePersistentFormState("accessibilityForm", {
     studentName: "",
     studentId: "",
@@ -85,11 +90,13 @@ const AccessibilityForm: React.FC = () => {
     authorize: "false",
   });
 
+  // Initialize form with default values and validation schema
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: savedValues,
   });
 
+  // Initialize dialog state with persistent storage
   const [dialogValues, setDialogValues] = usePersistentFormState("dialogForm", {
     consent: savedValues.consent,
     authorize: savedValues.authorize,
@@ -97,11 +104,13 @@ const AccessibilityForm: React.FC = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Sync dialog values with form values
   useEffect(() => {
     form.setValue("consent", dialogValues.consent);
     form.setValue("authorize", dialogValues.authorize);
   }, [dialogValues]);
 
+  // Handle dialog save action
   const handleDialogSave = () => {
     setSavedValues((prevValues) => ({
       ...prevValues,
@@ -111,6 +120,7 @@ const AccessibilityForm: React.FC = () => {
     setIsDialogOpen(false);
   };
 
+  // Handle form submission
   function onSubmit(values: z.infer<typeof formSchema>) {
     const jsonString = JSON.stringify(values);
     signMessage({
@@ -275,4 +285,4 @@ const AccessibilityForm: React.FC = () => {
   );
 };
 
-export default AccessibilityForm;
+export default AccessibilityForm; // Export the AccessibilityForm component as the default export

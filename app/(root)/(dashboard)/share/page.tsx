@@ -1,11 +1,11 @@
-import React from 'react'
-import QRCode from "react-qr-code";
+import React from 'react'; // Import React library
+import QRCode from "react-qr-code"; // Import QRCode component from react-qr-code library
 
-import Navbar from "@/components/Navbar/navbar";
-import Sidebar from "@/components/Sidebar/sidebar";
+import Navbar from "@/components/Navbar/navbar"; // Import Navbar component
+import Sidebar from "@/components/Sidebar/sidebar"; // Import Sidebar component
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"; // Import cn utility function
+import { Button } from "@/components/ui/button"; // Import Button component
 import {
   Card,
   CardContent,
@@ -13,18 +13,19 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card"; // Import Card components
 
-const value = "http://192.168.0.215:3000/share"
+// URL value to be used in the QR code
+const value = "http://192.168.0.215:3000/doctor";
 
+// Page component
 const page = () => {
   return (
     <>
-      
-       
       <div className="dashboard-main">
         <p>Choose Sharing Method</p>
         <div className="flex space-x-4">
+          {/* Card for Email sharing method */}
           <Card className="flex-1">
             <CardHeader>
               <CardTitle>Send via Email</CardTitle>
@@ -36,6 +37,8 @@ const page = () => {
               </Button>
             </CardFooter>
           </Card>
+
+          {/* Card for OCEAN MD sharing method */}
           <Card className="flex-1">
             <CardHeader>
               <CardTitle>Send on OCEAN MD</CardTitle>
@@ -47,6 +50,8 @@ const page = () => {
               </Button>
             </CardFooter>
           </Card>
+
+          {/* Card for in-person sharing method */}
           <Card className="flex-1">
             <CardHeader>
               <CardTitle>Show in Person</CardTitle>
@@ -64,6 +69,7 @@ const page = () => {
           <div style={{ height: "auto", maxWidth: 256, width: "100%" }}>
             <div>QR Code Display</div>
             <p>Your generated QR code for sharing with healthcare practitioners</p>
+            {/* QR code component displaying the value */}
             <QRCode
               size={256}
               style={{ height: "auto", maxWidth: "100%", width: "100%" }}
@@ -84,7 +90,7 @@ const page = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default page
+export default page; // Export the page component as the default export

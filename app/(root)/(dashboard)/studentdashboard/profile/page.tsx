@@ -1,11 +1,9 @@
-"use client";
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React from "react";
-import Navbar from "@/components/Navbar/navbar";
-import Sidebar from "@/components/Sidebar/sidebar";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React from "react"; // Import React library
+import { Button } from "@/components/ui/button"; // Import Button component
+import { useRouter } from "next/navigation"; // Import useRouter hook from Next.js for navigation
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
 import {
   Card,
   CardContent,
@@ -13,40 +11,31 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import WagmiReadContractComponent from "@/components/WagmiReadContractComponent";
-import { network } from "@/constants";
-import WagmiUseAccount from "@/components/WagmiUseAccount";
-import WagmiUseSignMessage from "@/components/WagmiUseSignMessage";
-import WagmiVerifyMessage from "@/components/WagmiVerifyMessage";
-import WagmiTransactionComponents from "@/components/WagmiTransactionComponents";
-import SafeMint from "@/components/WagmiSafeMint";
+} from "@/components/ui/card"; // Import Card components
+import { Input } from "@/components/ui/input"; // Import Input component
+import { Label } from "@/components/ui/label"; // Import Label component
+// import WagmiReadContractComponent from "@/components/WagmiReadContractComponent"; // Import WagmiReadContractComponent (not used in this file)
+// import { network } from "@/constants"; // Import network constants (not used in this file)
+// import WagmiUseAccount from "@/components/WagmiUseAccount"; // Import WagmiUseAccount (not used in this file)
+// import WagmiUseSignMessage from "@/components/WagmiUseSignMessage"; // Import WagmiUseSignMessage (not used in this file)
+// import WagmiVerifyMessage from "@/components/WagmiVerifyMessage"; // Import WagmiVerifyMessage (not used in this file)
+// import WagmiTransactionComponents from "@/components/WagmiTransactionComponents"; // Import WagmiTransactionComponents (not used in this file)
+// import SafeMint from "@/components/WagmiSafeMint"; // Import SafeMint (not used in this file)
 
 const ProfilePage = () => {
-  const router = useRouter();
+  const router = useRouter(); // Initialize useRouter hook for navigation
+
+  // Function to handle form submission
   function onSubmit() {
-    router.push("/studentdashboard");
+    router.push("/studentdashboard"); // Navigate to student dashboard on form submission
   }
 
   return (
     <div>
-      <Navbar />
-      <Sidebar />
       <div className="pt-10 pl-20 ml-64 h-full">
         <h1 className="font-bold text-2xl mb-4">Profile Information</h1>
-        {/* <WagmiUseAccount />
-        <WagmiReadContractComponent
-          address="0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
-          functionName="tokenURI"
-          args={[BigInt(123456789)]}
-          currentNetwork={network.sepolia}
-        />
-        <WagmiTransactionComponents />
-        <WagmiUseSignMessage />
-        <WagmiVerifyMessage /> */}
         <div>
+          {/* Tabs component to switch between account and password sections */}
           <Tabs defaultValue="account" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="account">Account</TabsTrigger>
@@ -61,6 +50,7 @@ const ProfilePage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
+                  {/* Input fields for name and username */}
                   <div className="space-y-1">
                     <Label htmlFor="name">Name</Label>
                     <Input id="name" defaultValue="Pedro Duarte" />
@@ -71,7 +61,7 @@ const ProfilePage = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={() => onSubmit()}>Save changes</Button>
+                  <Button onClick={() => onSubmit()}>Save changes</Button> {/* Save button to submit form */}
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -84,6 +74,7 @@ const ProfilePage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
+                  {/* Input fields for current and new passwords */}
                   <div className="space-y-1">
                     <Label htmlFor="current">Current password</Label>
                     <Input id="current" type="password" />
@@ -94,7 +85,7 @@ const ProfilePage = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button>Save password</Button>
+                  <Button>Save password</Button> {/* Save button to change password */}
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -105,4 +96,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default ProfilePage; // Export the ProfilePage component as the default export

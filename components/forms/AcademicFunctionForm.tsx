@@ -1,11 +1,11 @@
-"use client";
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React, { useEffect, useState } from 'react';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
+import React, { useEffect, useState } from 'react'; // Import React and hooks
+import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
+import { useForm, Controller } from "react-hook-form"; // Import React Hook Form utilities
+import { z } from "zod"; // Import zod for schema validation
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; // Import Button component
 import {
   Form,
   FormControl,
@@ -14,16 +14,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/ui/form"; // Import form components
+import { Input } from "@/components/ui/input"; // Import Input component
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; // Import RadioGroup components
+import { Textarea } from "@/components/ui/textarea"; // Import Textarea component
 
-import { useAccount, useSignMessage } from "wagmi";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { useAccount, useSignMessage } from "wagmi"; // Import wagmi hooks for account and message signing
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"; // Import Dialog components
 
+// Define choices for the levels of impact
 const choiceOptions = ['N/A', 'Mild', 'Mod', 'Serious', 'Severe'] as const;
 
+// Define the schema for the form using zod
 const ImpactsSchema = z.object({
   impacts: z.object({
     listening: z.object({
@@ -186,10 +188,12 @@ const ImpactsSchema = z.object({
   additionalInfo: z.string().optional(),
 });
 
+// AcademicFunctionForm component
 const AcademicFunctionForm: React.FC = () => {
-  const { data, signMessage } = useSignMessage();
-  const account = useAccount();
-  
+  const { data, signMessage } = useSignMessage(); // Initialize wagmi hooks
+  const account = useAccount(); // Get the current account
+
+  // Initialize form with default values and validation schema
   const impactsForm = useForm<z.infer<typeof ImpactsSchema>>({
     resolver: zodResolver(ImpactsSchema),
     defaultValues: {
@@ -247,6 +251,7 @@ const AcademicFunctionForm: React.FC = () => {
     },
   });
 
+  // Load stored values from session storage on component mount
   useEffect(() => {
     const storedValues = sessionStorage.getItem('impactsFormValues');
     if (storedValues) {
@@ -258,6 +263,7 @@ const AcademicFunctionForm: React.FC = () => {
     }
   }, [impactsForm, signMessage]);
 
+  // Save form values to session storage on value change
   useEffect(() => {
     const subscription = impactsForm.watch((values) => {
       sessionStorage.setItem('impactsFormValues', JSON.stringify(values));
@@ -265,6 +271,7 @@ const AcademicFunctionForm: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [impactsForm]);
 
+  // Handle form submission
   function onSubmit(values: z.infer<typeof ImpactsSchema>) {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("impactsFormValues", jsonString);
@@ -275,7 +282,7 @@ const AcademicFunctionForm: React.FC = () => {
     console.log(JSON.stringify(values, null, 2));
   }
 
-  // Render fields
+  // Render form fields
   const renderFields = (fields, impactsForm) => {
     return fields.map((field) => (
       <FormField
@@ -287,7 +294,11 @@ const AcademicFunctionForm: React.FC = () => {
             <FormLabel>{field.label}</FormLabel>
             <FormControl>
               <RadioGroup
-                onValueChange={(value) => controllerField.onChange({ ...controllerField.value, level: value })}
+                onValueChange={(value) => {
+                  const updatedValue = { ...controllerField.value, level: value };
+                  controllerField.onChange(updatedValue);
+                  impactsForm.setValue(`${field.category}.${field.id}`, updatedValue);
+                }}
                 defaultValue={controllerField.value?.level || 'N/A'}
                 className='flex space-x-4'
               >
@@ -305,7 +316,11 @@ const AcademicFunctionForm: React.FC = () => {
               <Textarea
                 placeholder="Comments"
                 value={controllerField.value?.comments || ''}
-                onChange={(e) => controllerField.onChange({ ...controllerField.value, comments: e.target.value })}
+                onChange={(e) => {
+                  const updatedValue = { ...controllerField.value, comments: e.target.value };
+                  controllerField.onChange(updatedValue);
+                  impactsForm.setValue(`${field.category}.${field.id}`, updatedValue);
+                }}
               />
             </FormControl>
             <FormMessage />
@@ -491,4 +506,4 @@ const AcademicFunctionForm: React.FC = () => {
   );
 }
 
-export default AcademicFunctionForm;
+export default AcademicFunctionForm; // Export the AcademicFunctionForm component as the default export
