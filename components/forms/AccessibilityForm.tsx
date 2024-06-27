@@ -108,7 +108,7 @@ const AccessibilityForm: React.FC = () => {
   useEffect(() => {
     form.setValue("consent", dialogValues.consent);
     form.setValue("authorize", dialogValues.authorize);
-  }, [dialogValues]);
+  }, [dialogValues, form]);
 
   // Handle dialog save action
   const handleDialogSave = () => {

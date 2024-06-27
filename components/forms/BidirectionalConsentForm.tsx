@@ -79,8 +79,8 @@ const BidirectionalConsentForm: React.FC = () => {
           <div className="text-base">
             <FormLabel>AAS Bidirectional Consent for Release of Student Information</FormLabel>
             <FormDescription>
-              In order to share a student’s information with their family members, guardians, and/or
-              service providers, TMU's Academic Accommodation Support (AAS) needs written consent.
+              In order to share a student&apos;s information with their family members, guardians, and/or
+              service providers, TMU&apos;s Academic Accommodation Support (AAS) needs written consent.
               By completing and submitting this form, you are consenting to sharing your
               information with the person(s) you identify below.
               If you have questions about confidentiality and information sharing, please contact our

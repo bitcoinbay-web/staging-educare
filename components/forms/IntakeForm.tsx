@@ -24,7 +24,7 @@ const primaryDisabilities = [
   "Mental Health (eg. anxiety, depression)",
   "Physical/Functional/Mobility",
   "Mild Intellectual Disability (MID)"
-];
+] as const;
 
 const primaryDisabilitySkips = [
   "Skip to question 6",
@@ -37,7 +37,7 @@ const primaryDisabilitySkips = [
   "Skip to question 22",
   "Skip to question 18",
   "Skip to question 12",
-];
+] as const;
 
 const secondaryDisabilities = [
   "Acquired Brain Injury (ABI/TBI)",
@@ -50,7 +50,7 @@ const secondaryDisabilities = [
   "Mental Health (eg. anxiety, depression)",
   "Physical/Functional/Mobility",
   "Mild Intellectual Disability (MID)",
-];
+] as const;
 
 const secondaryDisabilitySkips = [
   "Skip to question 7",
@@ -63,7 +63,7 @@ const secondaryDisabilitySkips = [
   "Skip to question 23",
   "Skip to question 19",
   "Skip to question 13",
-];
+] as const;
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -305,7 +305,7 @@ const IntakeForm: React.FC = () => {
           (ERO)
         </div>
         <p>
-          Thank you for your interest in registering with Toronto Metropolitan University’s disability
+          Thank you for your interest in registering with Toronto Metropolitan University&apos;s disability
           services office, Academic Accommodation Support (AAS). We support students who require
           academic accommodation due to disability. If you require accommodations to access this
           form, please email <a href='mailto:aasintake1@torontomu.ca' target='_blank' className='underline text-blue-600' >aasintake1@torontomu.ca</a>.
@@ -341,7 +341,7 @@ const IntakeForm: React.FC = () => {
               <li>✔ Identifies required disability-related documentation</li>
               <li>✔ Requires you to upload your disability-related documentation</li>
               <li>✖ Cannot be saved once in progress.</li>
-              <li>✔ Requires you to click 'Submit' when you are done.</li>
+              <li>✔ Requires you to click &apos;Submit&apos; when you are done.</li>
             </ul>
             <br />
             <p>
@@ -352,8 +352,8 @@ const IntakeForm: React.FC = () => {
               ✔ You will know you submitted the form if you receive a confirmation email.
             </ul>
             <p>
-              Didn't receive a confirmation email? Let us know.
-              Let's get started!
+              Didn&apos;t receive a confirmation email? Let us know.
+              Let&apos;s get started!
             </p>
           </p>
 
@@ -368,7 +368,7 @@ const IntakeForm: React.FC = () => {
             The information on this form is collected under the authority of the Ryerson University Act,
             1977 for the purpose of determining a need for academic accommodation. All personal
             information collected will be used, stored, protected and destroyed in accordance with the
-            university's Information Protection and Access Policy and Section 39(2) of the Freedom of
+            university&apos;s Information Protection and Access Policy and Section 39(2) of the Freedom of
             Information and Protection of Privacy Act, 1990 (“FIPPA”).
             <br /><br />
             The following four circumstances are exceptions where AAS is required by law, and in
@@ -806,7 +806,7 @@ const IntakeForm: React.FC = () => {
           name="specializedProgram"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>56. Please indicate if you're in one of the following specialized programs: *</FormLabel>
+              <FormLabel>56. Please indicate if you&apos;re in one of the following specialized programs: *</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
