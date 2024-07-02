@@ -13,6 +13,7 @@ import RecommendationForm from "@/components/forms/RecommendationForm"; // Impor
 import OSAPDisabilityConfirmation from "@/components/forms/OSAPDisabilityConfirmation"; // Import OSAPDisabilityConfirmation component
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
+import HealthPractitionerForm from "@/components/forms/HealthPractitionerForm";
 
 // DoctorDashboard component
 const DoctorDashboard: React.FC = () => {
@@ -25,6 +26,7 @@ const DoctorDashboard: React.FC = () => {
           <TabsList className="grid w-full grid-cols-5">
             {/* Tab triggers for each form */}
             <TabsTrigger value="practitioner">Practitioner</TabsTrigger>
+            <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="confirmation">Confirmation</TabsTrigger>
             <TabsTrigger value="academic">Academic</TabsTrigger>
@@ -36,6 +38,9 @@ const DoctorDashboard: React.FC = () => {
           {/* Tab content for each form */}
           <TabsContent value="practitioner">
             <PractitionerForm />
+          </TabsContent>
+          <TabsContent value="onboarding">
+            <HealthPractitionerForm />
           </TabsContent>
           <TabsContent value="history">
             <AssessmentHistory />

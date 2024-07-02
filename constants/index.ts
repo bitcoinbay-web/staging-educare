@@ -28,4 +28,6 @@ export const network = {
   "sepolia": sepolia
 }
 
-export const contractAddress = "0xa1A5c9E37B4fc8a5d2d8C2C397acCB792dEe2362"
+// export const contractAddress = "0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
+
+export const contractAddress = "0xd184ee1AE307a6597DbE148e57BdDF9F2d62014E"

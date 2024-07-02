@@ -13,21 +13,23 @@ import AccessibilityForm from "@/components/forms/AccessibilityForm";
 import StudentOSAPForm from "@/components/forms/StudentOSAP"
 import BidirectionalConsentForm from "@/components/forms/BidirectionalConsentForm";
 import IntakeForm from "@/components/forms/IntakeForm";
-
+import IntroConsentSection from "@/components/forms/IntroConsentSection";
+import StudentDisabilitySection from "@/components/forms/StudentDisabilitySection";
+import PersonalInfoSection from "@/components/forms/PersonalInfoSection";
 
 const UserProfilePage = async () => {
   const user = await currentUser();
   return (
-    <>
-      
-       
+    <>       
       <div className="dashboard-main">
         <Tabs defaultValue="student" className="w-[400px]">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="student">Student</TabsTrigger>
             <TabsTrigger value="studentOSAP">Student OSAP</TabsTrigger>
             <TabsTrigger value="consentForm">Bidirectional Consent Form</TabsTrigger>
             <TabsTrigger value="intakeForm">Intake Form</TabsTrigger>
+            <TabsTrigger value="studentDisability">Studdent Disability</TabsTrigger>
+            <TabsTrigger value="personalInfo">Personal Information</TabsTrigger>
           </TabsList>
           <TabsContent value="student">
             <AccessibilityForm />
@@ -39,13 +41,16 @@ const UserProfilePage = async () => {
             <BidirectionalConsentForm />
           </TabsContent>     
           <TabsContent value="intakeForm">
-            <IntakeForm />
-          </TabsContent>     
+            <IntroConsentSection />
+          </TabsContent>
+          <TabsContent value="studentDisability">
+            <StudentDisabilitySection />
+          </TabsContent>    
+          <TabsContent value="personalInfo">
+            <PersonalInfoSection />
+          </TabsContent> 
         </Tabs>
       </div>
-      {/* <div className="pt-10 pl-20 ml-64 h-full">
-        <UserInfo label="💻 User Information" user={user} />
-      </div> */}
     </>
   );
 };

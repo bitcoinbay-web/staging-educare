@@ -14,13 +14,7 @@ import {
 } from "@/components/ui/card"; // Import Card components
 import { Input } from "@/components/ui/input"; // Import Input component
 import { Label } from "@/components/ui/label"; // Import Label component
-// import WagmiReadContractComponent from "@/components/WagmiReadContractComponent"; // Import WagmiReadContractComponent (not used in this file)
-// import { network } from "@/constants"; // Import network constants (not used in this file)
-// import WagmiUseAccount from "@/components/WagmiUseAccount"; // Import WagmiUseAccount (not used in this file)
-// import WagmiUseSignMessage from "@/components/WagmiUseSignMessage"; // Import WagmiUseSignMessage (not used in this file)
-// import WagmiVerifyMessage from "@/components/WagmiVerifyMessage"; // Import WagmiVerifyMessage (not used in this file)
-// import WagmiTransactionComponents from "@/components/WagmiTransactionComponents"; // Import WagmiTransactionComponents (not used in this file)
-// import SafeMint from "@/components/WagmiSafeMint"; // Import SafeMint (not used in this file)
+import WagmiReadContractComponent from "@/components/WagmiReadContractComponent"; // Import WagmiReadContractComponent
 
 const ProfilePage = () => {
   const router = useRouter(); // Initialize useRouter hook for navigation
@@ -90,6 +84,7 @@ const ProfilePage = () => {
               </Card>
             </TabsContent>
           </Tabs>
+          <WagmiReadContractComponent />
         </div>
       </div>
     </div>

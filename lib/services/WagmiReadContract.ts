@@ -4,6 +4,7 @@ import { network } from '@/constants'
 import { config } from '@/lib/config'
 
 import { abi } from '@/constants/tempABI';
+import { contractAddress } from "@/constants/index"
 
 type ValidArgs = readonly [] | readonly [`0x${string}`] | readonly [bigint] | readonly [`0x${string}`, `0x${string}`] | readonly [`0x${string}`, bigint];
 
@@ -30,7 +31,7 @@ const WagmiReadContracts = async (functionName, ...args: any[]): Promise<any> =>
     const result = await readContract(config, {
       abi,
       chainId: network.sepolia.id,
-      address: '0xaB238839D44bc09B5090b85B7F1305cC1eef28b6',
+      address: contractAddress,
       functionName,
       args: validArgs,
       account: address,

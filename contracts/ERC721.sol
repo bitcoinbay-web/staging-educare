@@ -4,8 +4,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-// import "@openzeppelin/contracts/utils/Counters.sol";
-// import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract EduCare is 
     ERC721, 
@@ -13,7 +11,7 @@ contract EduCare is
     ERC721Enumerable,
     Ownable
 {
-    constructor() ERC721("EduCare", "EDC") Ownable(msg.sender){}
+    constructor() ERC721("Educare", "EDU") Ownable(msg.sender){}
 
     // Allows minting of a new NFT 
     function safeMint(address to, uint256 tokenId, string memory uri)
@@ -22,6 +20,11 @@ contract EduCare is
     {
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+    }
+
+    function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
+        require(_isAuthorized(ownerOf(tokenId), _msgSender(), tokenId) || owner() == _msgSender(), "Caller is not owner nor approved");
+        _setTokenURI(tokenId, _tokenURI);
     }
 
     // The following functions are overrides required by Solidity.
@@ -57,16 +60,4 @@ contract EduCare is
     {
         return super.supportsInterface(interfaceId);
     }
-
-    // function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-    //     super._burn(tokenId);
-    // }
-    // function tokenURI(uint256 tokenId)
-    //     public
-    //     view
-    //     override(ERC721, ERC721URIStorage)
-    //     returns (string memory)
-    // {
-    //     return super.tokenURI(tokenId);
-    // }
 }

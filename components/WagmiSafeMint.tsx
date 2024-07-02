@@ -1,12 +1,10 @@
-'use client'
+"use client";
 
-import { useState, FormEvent } from 'react'
-import { parseEther } from 'viem'
-import { useAccount, useWaitForTransactionReceipt, useReadContract, useWriteContract } from 'wagmi'
+import { useState, FormEvent } from 'react';
+import { useAccount, useWaitForTransactionReceipt, useReadContract, useWriteContract } from 'wagmi';
 import { abi } from '@/constants/tempABI';
 import { network, contractAddress } from "@/constants";
-
-// const contractAddress = '0xaB238839D44bc09B5090b85B7F1305cC1eef28b6';
+import Loader from './Loader'; // Import the Loader component
 
 function SafeMint() {
   const { address } = useAccount();
@@ -17,12 +15,20 @@ function SafeMint() {
   });
 
   const { data: hash, error, isPending, writeContract } = useWriteContract();
-
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const [recipient, setRecipient] = useState('');
   const [tokenId, setTokenId] = useState('');
   const [uri, setUri] = useState('');
+  const [isLoadingTokenURI, setIsLoadingTokenURI] = useState(false); // New state to track loading state
+
+  const { data: tokenUriData, refetch: refetchTokenUri } = useReadContract({
+    address: contractAddress,
+    abi,
+    functionName: 'tokenURI',
+    args: [BigInt(tokenId)],
+    // enabled: false, // disable automatic fetching
+  });
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,6 +36,16 @@ function SafeMint() {
       alert('Only the contract owner can mint tokens.');
       return;
     }
+
+    setIsLoadingTokenURI(true); // Set loading state to true
+    const { data } = await refetchTokenUri();
+    setIsLoadingTokenURI(false); // Set loading state to false after fetching data
+
+    if (data) {
+      alert('Token ID already exists with a valid URI.');
+      return;
+    }
+
     writeContract({
       address: contractAddress,
       abi,
@@ -39,46 +55,48 @@ function SafeMint() {
   }
 
   return (
-    <div>
-      <h2>Safe Mint</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Recipient Address:
-            <input
-              type="text"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-              required
-            />
-          </label>
+    <div className="max-w-md mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Safe Mint</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col">
+          <label className="mb-2 font-medium">Recipient Address:</label>
+          <input
+            type="text"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            required
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
-        <div>
-          <label>
-            Token ID:
-            <input
-              type="number"
-              value={tokenId}
-              onChange={(e) => setTokenId(e.target.value)}
-              required
-            />
-          </label>
+        <div className="flex flex-col">
+          <label className="mb-2 font-medium">Token ID:</label>
+          <input
+            type="number"
+            value={tokenId}
+            onChange={(e) => setTokenId(e.target.value)}
+            required
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
-        <div>
-          <label>
-            URI:
-            <input
-              type="text"
-              value={uri}
-              onChange={(e) => setUri(e.target.value)}
-              required
-            />
-          </label>
+        <div className="flex flex-col">
+          <label className="mb-2 font-medium">URI:</label>
+          <input
+            type="text"
+            value={uri}
+            onChange={(e) => setUri(e.target.value)}
+            required
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
-        <button type="submit" disabled={isPending}>
-          {isPending ? 'Minting...' : 'Mint'}
+        <button
+          type="submit"
+          disabled={isPending || isLoadingTokenURI} // Disable button if loading
+          className="border border-blue-500 bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          {isPending || isLoadingTokenURI ? 'Loading...' : 'Mint'}
         </button>
       </form>
+      {isLoadingTokenURI && <Loader />} {/* Render Loader if loading */}
       {hash && <div>Transaction Hash: {hash}</div>}
       {isConfirming && 'Waiting for confirmation...'}
       {isConfirmed && 'Transaction confirmed.'}

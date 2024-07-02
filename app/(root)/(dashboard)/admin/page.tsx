@@ -12,6 +12,9 @@ import { admin } from "@/lib/actions/admin";
 import { UserRole } from "@prisma/client";
 import { toast } from "sonner";
 
+import SafeMint from "@/components/WagmiSafeMint";
+
+
 const AdminPage = () => {
   const onServerClick = () => {
     admin().then((data) => {
@@ -59,6 +62,7 @@ const AdminPage = () => {
             </div>
           </CardContent>
         </Card>
+        <SafeMint />
       </div>
     </div>
   );
