@@ -1,6 +1,7 @@
 "use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
 import React from "react"; // Import React library
+import { useSession } from 'next-auth/react';
 import { Button } from "@/components/ui/button"; // Import Button component
 import { useRouter } from "next/navigation"; // Import useRouter hook from Next.js for navigation
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
@@ -15,9 +16,12 @@ import {
 import { Input } from "@/components/ui/input"; // Import Input component
 import { Label } from "@/components/ui/label"; // Import Label component
 import WagmiReadContractComponent from "@/components/WagmiReadContractComponent"; // Import WagmiReadContractComponent
+import BidirectionalConsentForm from "@/components/forms/BidirectionalConsentForm"; // Import BidirectionalConsentForm component
+import FileUpload from '@/components/FileUpload';
 
 const ProfilePage = () => {
   const router = useRouter(); // Initialize useRouter hook for navigation
+  const { data: session } = useSession();
 
   // Function to handle form submission
   function onSubmit() {
@@ -25,15 +29,16 @@ const ProfilePage = () => {
   }
 
   return (
-    <div>
-      <div className="pt-10 pl-20 ml-64 h-full">
+    <div className="min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-5xl p-4">
         <h1 className="font-bold text-2xl mb-4">Profile Information</h1>
         <div>
           {/* Tabs component to switch between account and password sections */}
-          <Tabs defaultValue="account" className="w-[400px]">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="account" className="w-full">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
               <TabsTrigger value="account">Account</TabsTrigger>
               <TabsTrigger value="password">Password</TabsTrigger>
+              <TabsTrigger value="consentForm">Bidirectional Consent Form</TabsTrigger>
             </TabsList>
             <TabsContent value="account">
               <Card>
@@ -83,8 +88,12 @@ const ProfilePage = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
+            <TabsContent value="consentForm">
+              <BidirectionalConsentForm />
+            </TabsContent>
           </Tabs>
           <WagmiReadContractComponent />
+          <FileUpload userId={session.user.id} />
         </div>
       </div>
     </div>

@@ -4,8 +4,7 @@ import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -199,11 +198,11 @@ const OSAPDisabilityVerificationForm: React.FC = () => {
                   control={form.control}
                   name="patient.dateOfBirth"
                   render={({ field }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => field.onChange(date)}
-                      dateFormat="yyyy-MM-dd"
-                      className="input"
+                    <Input
+                      placeholder="Date"
+                      type="date"
+                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
                 />
@@ -422,11 +421,11 @@ const OSAPDisabilityVerificationForm: React.FC = () => {
                   control={form.control}
                   name="signatureDate"
                   render={({ field }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => field.onChange(date)}
-                      dateFormat="yyyy-MM-dd"
-                      className="input"
+                    <Input
+                      placeholder="Date"
+                      type="date"
+                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
                 />

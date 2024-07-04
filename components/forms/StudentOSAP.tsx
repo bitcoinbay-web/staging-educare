@@ -1,11 +1,10 @@
-"use client";
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
 import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox"; // Import the Checkbox component
 import { useAccount, useSignMessage } from "wagmi";
 
+// Define schema using zod for form validation
 const studentOSAPSchema = z.object({
   schoolName: z.string().nonempty("School name is required"),
   socialInsuranceNumber: z.string().nonempty("Social Insurance Number is required"),
@@ -26,11 +26,7 @@ const studentOSAPSchema = z.object({
   oen: z.string().optional(),
   lastName: z.string().nonempty("Last name is required"),
   firstName: z.string().nonempty("First name is required"),
-  dateOfBirth: z.object({
-    day: z.string().nonempty("Day is required"),
-    month: z.string().nonempty("Month is required"),
-    year: z.string().nonempty("Year is required"),
-  }),
+  dateOfBirth: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
   address: z.object({
     street: z.string().nonempty("Street is required"),
     apartment: z.string().optional(),
@@ -45,13 +41,15 @@ const studentOSAPSchema = z.object({
   }),
   optionalConsent: z.boolean().optional(),
   signature: z.string().nonempty("Signature is required"),
-  signatureDate: z.date({ required_error: "Signature date is required" }),
+  signatureDate: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
 });
 
+// StudentOSAPForm component
 const StudentOSAPForm: React.FC = () => {
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
+  // Initialize form with validation schema and default values
   const studentOSAPForm = useForm<z.infer<typeof studentOSAPSchema>>({
     resolver: zodResolver(studentOSAPSchema),
     defaultValues: {
@@ -61,11 +59,7 @@ const StudentOSAPForm: React.FC = () => {
       oen: "",
       lastName: "",
       firstName: "",
-      dateOfBirth: {
-        day: "",
-        month: "",
-        year: "",
-      },
+      dateOfBirth: new Date(),
       address: {
         street: "",
         apartment: "",
@@ -82,6 +76,7 @@ const StudentOSAPForm: React.FC = () => {
     },
   });
 
+  // Load saved form values from sessionStorage on component mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedValues = sessionStorage.getItem("studentOSAPFormValues");
@@ -91,6 +86,7 @@ const StudentOSAPForm: React.FC = () => {
     }
   }, [studentOSAPForm]);
 
+  // Save form values to sessionStorage on change
   useEffect(() => {
     const subscription = studentOSAPForm.watch((values) => {
       if (typeof window !== "undefined") {
@@ -100,12 +96,14 @@ const StudentOSAPForm: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [studentOSAPForm]);
 
+  // Save signed data to sessionStorage when data changes
   useEffect(() => {
     if (data) {
       sessionStorage.setItem("signMessageData", JSON.stringify(data));
     }
   }, [data]);
 
+  // Handle form submission
   function onSubmit(values: z.infer<typeof studentOSAPSchema>) {
     const jsonString = JSON.stringify(values);
     signMessage({
@@ -199,38 +197,29 @@ const StudentOSAPForm: React.FC = () => {
           )}
         />
 
-        <FormItem>
-          <FormLabel>Date of birth</FormLabel>
-          <div className="flex space-x-2">
-            <FormField
-              control={studentOSAPForm.control}
-              name="dateOfBirth.day"
-              render={({ field }) => (
-                <FormControl>
-                  <Input placeholder="Day" {...field} />
-                </FormControl>
-              )}
-            />
-            <FormField
-              control={studentOSAPForm.control}
-              name="dateOfBirth.month"
-              render={({ field }) => (
-                <FormControl>
-                  <Input placeholder="Month" {...field} />
-                </FormControl>
-              )}
-            />
-            <FormField
-              control={studentOSAPForm.control}
-              name="dateOfBirth.year"
-              render={({ field }) => (
-                <FormControl>
-                  <Input placeholder="Year" {...field} />
-                </FormControl>
-              )}
-            />
-          </div>
-        </FormItem>
+        <FormField
+          control={studentOSAPForm.control}
+          name="dateOfBirth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date of birth</FormLabel>
+              <FormControl>
+                <Controller
+                  control={studentOSAPForm.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <Input
+                      placeholder="Date"
+                      type="date"
+                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                    />
+                  )}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
         <FormItem>
           <FormLabel>Mailing address</FormLabel>
@@ -361,11 +350,11 @@ const StudentOSAPForm: React.FC = () => {
                   control={studentOSAPForm.control}
                   name="signatureDate"
                   render={({ field }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => field.onChange(date)}
-                      dateFormat="yyyy-MM-dd"
-                      className="input"
+                    <Input
+                      placeholder="Date"
+                      type="date"
+                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
                 />

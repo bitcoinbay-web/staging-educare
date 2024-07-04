@@ -222,3 +222,7 @@ form button {
 .services-table .container {
   padding-left: 0px;
 }
+
+.add-bg {
+  background-image: url("/public/auth-bg.png");
+}

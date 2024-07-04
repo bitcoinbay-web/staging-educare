@@ -1,20 +1,24 @@
-"use client";
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React from 'react';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useSignMessage, useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import React from 'react'; // Import React library
+import { useForm, FormProvider, Controller } from 'react-hook-form'; // Import useForm, FormProvider, and Controller from react-hook-form
+import { zodResolver } from '@hookform/resolvers/zod'; // Import zodResolver from @hookform/resolvers/zod
+import { z } from 'zod'; // Import z from zod for schema validation
+import { useSignMessage, useAccount } from 'wagmi'; // Import wagmi hooks
+import { Button } from '@/components/ui/button'; // Import Button component
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'; // Import Form components
+import { Input } from '@/components/ui/input'; // Import Input component
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'; // Import RadioGroup components
 
+// Define schema using zod for form validation
 const formSchema = z.object({
   email: z.string().email(),
-  consent: z.string().min(1),
+  consent: z.enum(["yes", "no"]),
 });
 
+// IntroConsentSection component
 const IntroConsentSection: React.FC = () => {
+  // Initialize form with validation schema and default values
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -23,9 +27,11 @@ const IntroConsentSection: React.FC = () => {
     },
   });
 
+  // Initialize wagmi hooks
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
+  // Handle form submission
   const onSubmit = (values: any) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("IntroConsentSectionValues", jsonString);
@@ -72,27 +78,24 @@ const IntroConsentSection: React.FC = () => {
             Express Registration Option (ERO) Intake Form
             This Intake Form:
           </div>
+          <ul>
+            <li>✔ Takes approximately 20-30 minutes to complete</li>
+            <li>✔ Requires you to review the AAS policy and consent agreements</li>
+            <li>✔ Identifies required disability-related documentation</li>
+            <li>✔ Requires you to upload your disability-related documentation</li>
+            <li>✖ Cannot be saved once in progress.</li>
+            <li>✔ Requires you to click &apos;Submit&apos; when you are done.</li>
+          </ul>
           <p>
-            <ul>
-              <li>✔ Takes approximately 20-30 minutes to complete</li>
-              <li>✔ Requires you to review the AAS policy and consent agreements</li>
-              <li>✔ Identifies required disability-related documentation</li>
-              <li>✔ Requires you to upload your disability-related documentation</li>
-              <li>✖ Cannot be saved once in progress.</li>
-              <li>✔ Requires you to click &apos;Submit&apos; when you are done.</li>
-            </ul>
-            <br />
-            <p>
-              Completion of both Part 1 (disability information and documentation upload) and Part 2 (personal
-              information) of the form is required to continue through the registration process.
-            </p>
-            <ul>
-              ✔ You will know you submitted the form if you receive a confirmation email.
-            </ul>
-            <p>
-              Didn&apos;t receive a confirmation email? Let us know.
-              Let&apos;s get started!
-            </p>
+            Completion of both Part 1 (disability information and documentation upload) and Part 2 (personal
+            information) of the form is required to continue through the registration process.
+          </p>
+          <ul>
+            ✔ You will know you submitted the form if you receive a confirmation email.
+          </ul>
+          <p>
+            Didn&apos;t receive a confirmation email? Let us know.
+            Let&apos;s get started!
           </p>
 
           <div>
@@ -112,14 +115,14 @@ const IntroConsentSection: React.FC = () => {
             The following four circumstances are exceptions where AAS is required by law, and in
             accordance with our policies, to disclose your personal information to another department
             within the university or to the appropriate health, safety, police, or legal body:
-
-            <ul>
-              <li>1. If you indicate that you may be a danger to yourself or others;</li>
-              <li>2. In the case of apparent, suspected, or potential child abuse;</li>
-              <li>3. If you report sexual abuse by a regulated health-care professional;</li>
-              <li>4. In instances where the court subpoena your records.</li>
-            </ul>
-            
+          </p>
+          <ul>
+            <li>1. If you indicate that you may be a danger to yourself or others;</li>
+            <li>2. In the case of apparent, suspected, or potential child abuse;</li>
+            <li>3. If you report sexual abuse by a regulated health-care professional;</li>
+            <li>4. In instances where the court subpoena your records.</li>
+          </ul>
+          <p>
             <br />
             <div>Information Security & Records Retention</div>
             Your records are kept securely by Academic Accommodation Support. Files are securely
@@ -136,12 +139,13 @@ const IntroConsentSection: React.FC = () => {
             <br /><br />
             The nature of information AAS may release includes:
             <br /><br />
-            <ul>
-              <li>• Confirmation of the presence of a disability that impacts your learning.</li>
-              <li>• Confirmation of your registration with our office, Academic Accommodation Support.</li>
-              <li>• Your accommodation requirements.</li>
-            </ul>
-
+          </p>
+          <ul>
+            <li>• Confirmation of the presence of a disability that impacts your learning.</li>
+            <li>• Confirmation of your registration with our office, Academic Accommodation Support.</li>
+            <li>• Your accommodation requirements.</li>
+          </ul>
+          <p>
             <br /><br />
             <div>Your Responsibilities</div>
             There are responsibilities associated with your accommodation plan and its implementation.
@@ -162,7 +166,16 @@ const IntroConsentSection: React.FC = () => {
             <FormItem>
               <FormLabel>2. I have read and understand the above Confidentiality and Information Policy *</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <RadioGroup onValueChange={field.onChange} value={field.value}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" />
+                    <label className="text-sm">Yes</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" />
+                    <label className="text-sm">No</label>
+                  </div>
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -180,4 +193,4 @@ const IntroConsentSection: React.FC = () => {
   );
 };
 
-export default IntroConsentSection;
+export default IntroConsentSection; // Export the IntroConsentSection component as the default export

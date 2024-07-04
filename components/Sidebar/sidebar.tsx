@@ -5,23 +5,39 @@ import "@/app/globals.css";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useSession, signOut } from "next-auth/react";
 
+// import { signOut } from "@/auth";
+
 import { FaHome } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { IoIosRocket } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
+
+import Image from "next/image";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const Sidebar: React.FC = () => {
   const onClick = () => {
-    signOut();
-    // { callbackUrl: '/' }
+    signOut({
+      callbackUrl: "/login",
+    });
   };
   const pathname = usePathname();
 
   return (
-    <div className="absolute w-64 h-screen text-white p-12 py-32 bg-[#000000] ">
+    <div className="fixed w-64 h-screen text-white px-12 py-5 bg-[#F7F8F9] ">
+      <div className="mb-20">
+        <Image
+          src="/educare-logo.jpeg"
+          alt="educare-logo"
+          width={200}
+          height={100}
+          className="mb-5"
+        />
+        <hr />
+      </div>
+
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
           pathname === "/studentdashboard"
@@ -89,15 +105,10 @@ const Sidebar: React.FC = () => {
       </div>
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/studentdashboard/profile"
-            ? "bg-white px-5 py-3 rounded-md"
-            : ""
+          pathname === "/share" ? "bg-white px-5 py-3 rounded-md" : ""
         } `}
       >
-        <Link
-          href="/share"
-          className="flex items-center text-[#8290AA] "
-        >
+        <Link href="/share" className="flex items-center text-[#8290AA] ">
           <FaUser className="mr-5 text-[#3E84EC]" />
           Share QR Code
         </Link>

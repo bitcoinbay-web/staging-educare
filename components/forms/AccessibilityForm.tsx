@@ -22,12 +22,18 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } 
 // Custom hook to handle form state persistence
 const usePersistentFormState = (key, defaultValue) => {
   const [state, setState] = useState(() => {
-    const savedState = sessionStorage.getItem(key);
-    return savedState ? JSON.parse(savedState) : defaultValue;
+    if (typeof window !== "undefined") { // Check if running in a client environment
+      const savedState = sessionStorage.getItem(key);
+      return savedState ? JSON.parse(savedState) : defaultValue;
+    } else {
+      return defaultValue;
+    }
   });
 
   useEffect(() => {
-    sessionStorage.setItem(key, JSON.stringify(state));
+    if (typeof window !== "undefined") { // Ensure sessionStorage is accessed in client environment
+      sessionStorage.setItem(key, JSON.stringify(state));
+    }
   }, [key, state]);
 
   return [state, setState];

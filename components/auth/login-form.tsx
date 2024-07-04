@@ -119,7 +119,7 @@ export const LoginForm = () => {
             <FormSuccess message={success} />
             <Button
               type="submit"
-              className="w-full bg-[#7840B4] font-bold"
+              className="w-full bg-[#3E84EC] font-bold"
               disabled={isPending}
             >
               Login

@@ -1,15 +1,14 @@
 // prisma/schema.prisma
 datasource db {
   provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
-  // uncomment next line if you use Prisma <5.10
-  // directUrl = env("DATABASE_URL_UNPOOLED")
+  url       = env("DATABASE_URL")
 }
-generator client{
+
+generator client {
   provider = "prisma-client-js"
 }
 
-enum UserRole{
+enum UserRole {
   STUDENT
   DOCTOR
   ADMIN
@@ -26,6 +25,7 @@ model User {
   walletID      String? @unique
   role          UserRole @default(STUDENT)
   accounts      Account[]
+  files         File[]
 
   @@map("users")
 }
@@ -43,28 +43,57 @@ model Account {
   scope              String?
   id_token           String? @db.Text
   session_state      String?
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
 
 model VerificationToken {
-  id String @id @default(cuid())
-  email String
-  token String @unique
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
   expires DateTime
 
-  @@unique([email,token])
+  @@unique([email, token])
 }
 
 model PasswordResetToken {
-  id String @id @default(cuid())
-  email String
-  token String @unique
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
   expires DateTime
 
-  @@unique([email,token])
-
+  @@unique([email, token])
 }
+
+model File {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  url       String
+  filename  String
+  mimetype  String
+  size      Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// model AccessibilityFormData {
+//   id String @id @default(cuid())
+//   userId             String  @map("user_id")
+//   createdAt    DateTime  @default(now())
+//   updatedAt    DateTime  @updatedAt
+//   studentName  String
+//   studentId    String    // Assuming studentId is a string based on the form
+//   phoneNumber  String    // Assuming phoneNumber is a string based on the form
+//   email        String
+//   consent      Boolean   @default(false)
+//   authorize    Boolean   @default(false)
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  
+
+// }

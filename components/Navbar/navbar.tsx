@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { useAccount } from "wagmi";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 
+import Image from "next/image";
+
 import Link from "next/link";
 
 const Navbar: React.FC = () => {
@@ -28,18 +30,9 @@ const Navbar: React.FC = () => {
   const { address } = useAccount();
 
   return (
-    <div className="w-full p-2 md:p-10 bg-black">
+    <div className="w-full p-2 md:p-4 flex justify-end">
       <NavigationMenu>
-        <NavigationMenuList
-          className={cn("flex justify-between items-center gap-x-10 bg-black")}
-        >
-          <NavigationMenuItem className="nav-logo">
-            <Link href="/studentdashboard" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                <h1>🎓 Educare</h1>
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
+        <NavigationMenuList className={cn("flex items-center gap-x-4")}>
           <div className="flex items-center">
             <NavigationMenuItem className={cn("nav-dp ml-4")}>
               <Link href="/studentdashboard/profile" legacyBehavior passHref>
@@ -52,7 +45,6 @@ const Navbar: React.FC = () => {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem className={cn("nav-button ml-4")}>
-              {/* <Link href="/studentdashboard/profile" legacyBehavior passHref> */}
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 <div className="text-black bg-white">
                   <Button variant="outline" onClick={() => open()}>
@@ -60,7 +52,6 @@ const Navbar: React.FC = () => {
                   </Button>
                 </div>
               </NavigationMenuLink>
-              {/* </Link> */}
             </NavigationMenuItem>
           </div>
         </NavigationMenuList>

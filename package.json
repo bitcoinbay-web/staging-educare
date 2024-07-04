@@ -41,6 +41,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "ethers": "^6.11.1",
+    "formidable": "^3.5.1",
     "fs": "^0.0.1-security",
     "hardhat": "^2.22.2",
     "lucide-react": "^0.364.0",

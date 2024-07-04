@@ -13,6 +13,7 @@ import { UserRole } from "@prisma/client";
 import { toast } from "sonner";
 
 import SafeMint from "@/components/WagmiSafeMint";
+import WagmiWriteContractComponent from "@/components/WagmiWriteContractCompoennt";
 
 
 const AdminPage = () => {
@@ -63,6 +64,7 @@ const AdminPage = () => {
           </CardContent>
         </Card>
         <SafeMint />
+        <WagmiWriteContractComponent />
       </div>
     </div>
   );
