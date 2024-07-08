@@ -2,12 +2,12 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "../../../../components/Navbar/navbar";
-import Sidebar from "../../../../components/Sidebar/sidebar";
+import Navbar from "@/components/Navbar/navbar";
+import Sidebar from "@/components/Sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 
-import { Service, columns } from "./services/columns";
-import { DataTable } from "./services/data-table";
+import { Service, columns } from "../services/columns";
+import { DataTable } from "../services/data-table";
 
 import {
   Card,
@@ -54,17 +54,15 @@ const StudentDashboardPage: React.FC = () => {
   const data = getData();
 
   const handleUserRedirect = () => {
-    router.push('/user');
+    router.push("/student/user");
   };
 
   const handleDoctorRedirect = () => {
-    router.push('/doctor');
+    router.push("/student/user");
   };
 
   return (
     <div>
-      
-       
       <div className="pt-10 pl-20 ml-64 h-full">
         <h1 className="font-bold text-2xl mb-4">Welcome!</h1>
         <div className="cards">

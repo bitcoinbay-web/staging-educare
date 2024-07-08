@@ -1,21 +1,29 @@
 "use client";
 
+// Import necessary modules and components
 import React, { useState } from 'react';
 import { useAccount, useWriteContract } from 'wagmi';
 import { abi } from '@/constants/educareNFTABI';
 import { Button } from './ui/button';
 import { contractAddress } from "@/constants/index";
 
+// Define the main component
 const WagmiWriteContractComponent: React.FC = () => {
+  // State for storing token ID and new token URI
   const [tokenId, setTokenId] = useState<number>(0);
   const [newTokenURI, setNewTokenURI] = useState<string>('');
+  // Destructure address and connection status from useAccount hook
   const { address, isConnected } = useAccount();
 
+  // Destructure write contract function and statuses from useWriteContract hook
   const { writeContract, isPending, isSuccess, error } = useWriteContract();
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Check if wallet is connected
     if (isConnected) {
+      // Call writeContract to update the token URI
       writeContract({
         abi,
         address: contractAddress,
@@ -33,6 +41,7 @@ const WagmiWriteContractComponent: React.FC = () => {
     }
   };
 
+  // Render the component UI
   return (
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Update Token URI</h2>
@@ -61,7 +70,9 @@ const WagmiWriteContractComponent: React.FC = () => {
           {isPending ? 'Updating...' : 'Update Token URI'}
         </Button>
       </form>
+      {/* Display success message */}
       {isSuccess && <p>Token URI updated successfully!</p>}
+      {/* Display error message */}
       {error && <p>Error updating token URI: {error.message}</p>}
     </div>
   );

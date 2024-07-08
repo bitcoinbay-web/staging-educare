@@ -1,6 +1,6 @@
 "use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React, { useEffect } from 'react'; // Import React and hooks
+import React, { useEffect } from "react"; // Import React and hooks
 import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
 import { useForm } from "react-hook-form"; // Import React Hook Form utilities
 import { z } from "zod"; // Import zod for schema validation
@@ -37,17 +37,19 @@ const BidirectionalConsentForm: React.FC = () => {
   const form = useForm<z.infer<typeof BidirectionalConsentFormSchema>>({
     resolver: zodResolver(BidirectionalConsentFormSchema),
     defaultValues: {
-      email: '',
-      studentNumber: '',
-      externalPartyName: '',
-      relationship: '',
-      confirmName: '',
+      email: "",
+      studentNumber: "",
+      externalPartyName: "",
+      relationship: "",
+      confirmName: "",
     },
   });
 
   // Load stored values from session storage on component mount
   useEffect(() => {
-    const storedValues = sessionStorage.getItem('BidirectionalConsentFormValues');
+    const storedValues = sessionStorage.getItem(
+      "BidirectionalConsentFormValues"
+    );
     if (storedValues) {
       form.reset(JSON.parse(storedValues));
     }
@@ -56,13 +58,16 @@ const BidirectionalConsentForm: React.FC = () => {
   // Save form values to session storage on value change
   useEffect(() => {
     const subscription = form.watch((values) => {
-      sessionStorage.setItem('BidirectionalConsentFormValues', JSON.stringify(values));
+      sessionStorage.setItem(
+        "BidirectionalConsentFormValues",
+        JSON.stringify(values)
+      );
     });
     return () => subscription.unsubscribe();
   }, [form]);
 
   // Handle form submission
-  function onSubmit(values: z.infer<typeof BidirectionalConsentFormSchema>) {
+  const onSubmit = async (values: z.infer<typeof BidirectionalConsentFormSchema>) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("BidirectionalConsentFormValues", jsonString);
     signMessage({
@@ -70,6 +75,31 @@ const BidirectionalConsentForm: React.FC = () => {
       account: account.address,
     });
     console.log(JSON.stringify(values, null, 2));
+
+    const userId = account.address; // Replace this with the correct user ID
+    const formData = {
+      ...values,
+      userId,
+    };
+
+    try {
+      const response = await fetch('/api/bidirectionalConsentForm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   }
 
   return (
@@ -77,14 +107,17 @@ const BidirectionalConsentForm: React.FC = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormItem>
           <div className="text-base">
-            <FormLabel>AAS Bidirectional Consent for Release of Student Information</FormLabel>
+            <FormLabel>
+              AAS Bidirectional Consent for Release of Student Information
+            </FormLabel>
             <FormDescription>
-              In order to share a student&apos;s information with their family members, guardians, and/or
-              service providers, TMU&apos;s Academic Accommodation Support (AAS) needs written consent.
-              By completing and submitting this form, you are consenting to sharing your
-              information with the person(s) you identify below.
-              If you have questions about confidentiality and information sharing, please contact our
-              administrative team at aasadmin@torontomu.ca.
+              In order to share a student&apos;s information with their family
+              members, guardians, and/or service providers, TMU&apos;s Academic
+              Accommodation Support (AAS) needs written consent. By completing
+              and submitting this form, you are consenting to sharing your
+              information with the person(s) you identify below. If you have
+              questions about confidentiality and information sharing, please
+              contact our administrative team at aasadmin@torontomu.ca.
             </FormDescription>
           </div>
           <FormMessage />
@@ -94,7 +127,7 @@ const BidirectionalConsentForm: React.FC = () => {
           name="email"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormLabel>Email *</FormLabel>
+              <FormLabel>Email*</FormLabel>
               <FormControl>
                 <Input placeholder="Email" {...field} />
               </FormControl>
@@ -147,7 +180,8 @@ const BidirectionalConsentForm: React.FC = () => {
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormLabel>
-                Please type your name below to indicate that you have read and understand the bi-directional consent release of information *
+                Please type your name below to indicate that you have read and
+                understand the bi-directional consent release of information *
               </FormLabel>
               <FormControl>
                 <Input placeholder="Your Name" {...field} />
@@ -166,6 +200,6 @@ const BidirectionalConsentForm: React.FC = () => {
       )}
     </Form>
   );
-}
+};
 
 export default BidirectionalConsentForm; // Export the BidirectionalConsentForm component as the default export

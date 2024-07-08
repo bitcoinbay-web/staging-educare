@@ -3,7 +3,7 @@ import { getAccount, readContract } from '@wagmi/core'
 import { network } from '@/constants'
 import { config } from '@/lib/config'
 
-import { abi } from '@/constants/tempABI';
+import { abi } from '@/constants/educareNFTABI';
 import { contractAddress } from "@/constants/index"
 
 type ValidArgs = readonly [] | readonly [`0x${string}`] | readonly [bigint] | readonly [`0x${string}`, `0x${string}`] | readonly [`0x${string}`, bigint];

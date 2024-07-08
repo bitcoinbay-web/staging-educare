@@ -9,11 +9,12 @@ import { db } from "@/lib/db";
 
 import authConfig from "@/auth.config";
 
-import { getUserByID } from "@/data/user";
+import { getDoctorByID, getUserByID } from "@/data/user";
 
 // import Users from "@/lib/models/user.model";
 import { getAccountByUserId } from "./data/account";
 import { UserRole } from "@prisma/client";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 // import Users from "@/lib/models/account.model";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -51,6 +52,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider !== "credentials") return true;
 
       const existingUser = await getUserByID(user.id);
+      const existingDoctor = await getDoctorByID(user.id);
+
+      if (existingDoctor) {
+        console.log("Doctor exists:", existingDoctor);
+        // Allow doctor to sign in
+        return true;
+      }
+      // const existingDoctor = await getDoctorByID(user.id);
+
+      // if (existingDoctor) {
+      //   console.log(existingDoctor);
+
+      //   const practitioner = await db.practitioner.findFirst({
+      //     where: { id: user.id },
+      //   });
+
+      //   if (!practitioner) {
+      //     //redirect to onboarding form page
+      //   }
+      // }
+
+      // const existingUser = await getUserByID(user.id);
+
+      // if (existingUser.role === "STUDENT") {
+      //   existingUser.customRedirect = UserDashboard.studentDashboard;
+      // } else if (existingUser.role === "DOCTOR") {
+      //   existingUser.customRedirect = UserDashboard.doctorDashboard;
+      // } else if (existingUser.role === "ADMIN") {
+      //   existingUser.customRedirect = UserDashboard.adminDashboard;
+      // }
 
       // Prevent signin without email verification
       // if (!existingUser?.emailVerified) return false;
@@ -76,8 +107,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
+        // console.log(session.user.role);
         // token.role = "Admin";
       }
+
+      // if (token.customRedirect && session.user) {
+      //   session.user.customRedirect = token.customRedirect as UserDashboard;
+      // }
 
       if (session.user) {
         session.user.name = token.name;
@@ -104,6 +140,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       token.name = existingUser.name;
       token.email = existingUser.email;
       token.role = existingUser.role;
+      // token.customRedirect = existingUser.customRedirect;
 
       return token;
     },

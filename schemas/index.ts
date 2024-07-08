@@ -74,3 +74,43 @@ export const SettingSchema = z
       path: ["password"],
     }
   );
+
+export const DoctorRegisterSchema = z.object({
+  email: z.string().email({
+    message: "Email is Required",
+  }),
+  password: z.string().min(6, {
+    message: "Minimum 6 characters are required",
+  }),
+  name: z.string().min(1, {
+    message: "Name is required",
+  }),
+  walletID: z.string().min(20, {
+    message: "Wallet not found",
+  }),
+});
+
+export const DoctorFormSchema = z.object({
+  phoneNumber: z.string().min(1),
+  gender: z.enum(["Male", "Female", "Other"]),
+  healthCarePractitionerType: z.string().min(1),
+  licenseNumber: z.string().min(1),
+  acceptingNewClients: z.enum(["Yes", "No"]),
+  languages: z
+    .array(z.string())
+    .nonempty({ message: "At least one language is required" }),
+  appointmentTypes: z
+    .array(z.string())
+    .nonempty({ message: "At least one language is required" }),
+  servicesProvided: z
+    .array(z.string())
+    .nonempty({ message: "At least one language is required" }),
+  businessName: z.string().min(1),
+  businessWebsite: z.string().url().optional().or(z.literal("")),
+  businessAddress: z.string().min(1),
+  bookingEmailAddress: z.string().email(),
+  bookingPhoneNumber: z.string().min(1),
+  onlineBookingURL: z.string().url().optional().or(z.literal("")),
+  faxNumber: z.string().optional().or(z.literal("")),
+  bio: z.string().min(1),
+});

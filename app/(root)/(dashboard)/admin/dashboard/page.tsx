@@ -1,20 +1,15 @@
-"use client";
-
-import Navbar from "@/components/Navbar/navbar";
-import Sidebar from "@/components/Sidebar/sidebar";
+// app/(root)/(dashboard)/admin/page.tsx
 import { RoleGate } from "@/components/auth/role-gate";
 import { FormSuccess } from "@/components/form-success";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 import { useCurrentRole } from "@/hooks/useCurrentRole";
 import { admin } from "@/lib/actions/admin";
-// import { UserRole } from "@/lib/models/user.model";
 import { UserRole } from "@prisma/client";
-import { toast } from "sonner";
-
 import SafeMint from "@/components/WagmiSafeMint";
-import WagmiWriteContractComponent from "@/components/WagmiWriteContractCompoennt";
-
+import WagmiWriteContractComponent from "@/components/WagmiWriteContractComponent"
+import AdminFormData from "@/components/AdminFormData";
 
 const AdminPage = () => {
   const onServerClick = () => {
@@ -38,19 +33,17 @@ const AdminPage = () => {
     }),
   ];
 
-  const role = useCurrentRole();
+  // const role = useCurrentRole();
   return (
     <div>
-      
-       
       <div className="pt-10 pl-20 ml-64 h-full">
-        Current Role: ${role}
+        {/* Current Role: ${role} */}
         <Card className="w-[600px]">
           <CardHeader>
             <p className="text-2xl font-semibold">🔑 Admin</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <RoleGate allowedRole={UserRole.ADMIN}>
+            {/* <RoleGate allowedRole={UserRole.ADMIN}>
               <FormSuccess message="You are allowed to see this content" />
             </RoleGate>
             <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-md">
@@ -60,11 +53,12 @@ const AdminPage = () => {
             <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-md">
               <p className="text-sm font-medium">Admin-only Server Action</p>
               <Button onClick={onServerClick}>Click to test</Button>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
         <SafeMint />
         <WagmiWriteContractComponent />
+        <AdminFormData /> {/* Include the new component */}
       </div>
     </div>
   );

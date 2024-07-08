@@ -1,0 +1,139 @@
+"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
+
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router"; // Import useRouter hook
+import PractitionerForm from "@/components/forms/PractitionerForm";
+import AssessmentHistory from "@/components/forms/AssessmentHistory";
+import DisabilityConfirmation from "@/components/forms/DisabilityConfirmation";
+import AcademicFunctionForm from "@/components/forms/AcademicFunctionForm";
+import RecommendationForm from "@/components/forms/RecommendationForm";
+import OSAPDisabilityConfirmation from "@/components/forms/OSAPDisabilityConfirmation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HealthPractitionerForm from "@/components/forms/HealthPractitionerForm";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+// Define a constant studentId for demonstration purposes
+const studentId = "cly7lg1lo0002l6glmrw5ce3c";
+
+// DoctorDashboard component
+const DoctorDashboard: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('practitioner');
+  const [selectedSet, setSelectedSet] = useState<number | null>(null); // State to manage the selected form set
+
+  const tabsSet1 = ['practitioner', 'history', 'confirmation', 'academic', 'recommendation'];
+  const tabsSet2 = ['onboarding', 'OSAP Disabiity'];
+  const allTabs = [...tabsSet1, ...tabsSet2];
+
+  // Function to calculate the progress based on the active tab and selected set
+  const calculateProgress = () => {
+    if (selectedSet === 1) {
+      const filledTabs = tabsSet1.indexOf(currentTab) + 1;
+      return (filledTabs / tabsSet1.length) * 100;
+    } else if (selectedSet === 2) {
+      const filledTabs = tabsSet2.indexOf(currentTab) + 1;
+      return (filledTabs / tabsSet2.length) * 100;
+    }
+    return 0;
+  };
+
+  // Recalculate progress whenever the current tab changes
+  useEffect(() => {
+    calculateProgress();
+  }, [currentTab, selectedSet]);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-5xl p-4">
+        <div className="w-full">
+          <h1 className="text-2xl font-bold mb-6">Welcome!</h1>
+
+          {/* Card component to encapsulate the buttons for better UI */}
+          <div className="flex space-x-4">
+            <Card className="mb-6 flex-1">
+              <CardHeader>
+                <CardTitle>Disability Assessment Form</CardTitle>
+              </CardHeader>
+              <CardContent className="flex space-x-4">
+                <Button onClick={() => { setSelectedSet(1); setCurrentTab(tabsSet1[0]); }}>
+                  Disability Assessment Form
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="mb-6 flex-1">
+              <CardHeader>
+                <CardTitle>OSAP Disabilitly Verification Form</CardTitle>
+              </CardHeader>
+              <CardContent className="flex space-x-4">
+                <Button onClick={() => { setSelectedSet(2); setCurrentTab(tabsSet2[0]); }}>
+                  OSAP Disability Verification Form
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Progress bar to show the progress of forms filled out */}
+          <progress
+            className="w-full mb-6"
+            value={calculateProgress()}
+            max={100}
+          >
+            {calculateProgress()}%
+          </progress>
+
+          {/* Conditionally render Tabs component based on the selected set */}
+          {selectedSet && (
+            <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+              <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 mb-6">
+                {/* Render tab triggers based on the selected set */}
+                {(selectedSet === 1 ? tabsSet1 : tabsSet2).map(tab => (
+                  <TabsTrigger key={tab} value={tab}>
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {/* Render tab content based on the selected set */}
+              {selectedSet === 1 && (
+                <>
+                  <TabsContent value="practitioner">
+                    <PractitionerForm studentId={studentId} />
+                  </TabsContent>
+                  <TabsContent value="history">
+                    <AssessmentHistory studentId={studentId} />
+                  </TabsContent>
+                  <TabsContent value="confirmation">
+                    <DisabilityConfirmation studentId={studentId} />
+                  </TabsContent>
+                  <TabsContent value="academic">
+                    <AcademicFunctionForm studentId={studentId} />
+                  </TabsContent>
+                  <TabsContent value="recommendation">
+                    <RecommendationForm studentId={studentId} />
+                  </TabsContent>
+                </>
+              )}
+              {selectedSet === 2 && (
+                <>
+                  <TabsContent value="onboarding">
+                    <HealthPractitionerForm studentId={studentId} />
+                  </TabsContent>
+                  <TabsContent value="OSAP Disabiity">
+                    <OSAPDisabilityConfirmation studentId={studentId} />
+                  </TabsContent>
+                </>
+              )}
+            </Tabs>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DoctorDashboard;

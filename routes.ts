@@ -27,4 +27,4 @@ export const apiAuthPrefix = "/api/auth";
 /**
  *  Note: The default redirect path after logging in.
  */
-export const DEFAULT_LOGIN_REDIRECT = "/studentdashboard";
+export const DEFAULT_LOGIN_REDIRECT = "/student/dashboard";

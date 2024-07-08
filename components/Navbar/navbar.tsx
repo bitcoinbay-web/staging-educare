@@ -30,11 +30,11 @@ const Navbar: React.FC = () => {
   const { address } = useAccount();
 
   return (
-    <div className="w-full p-2 md:p-4 flex justify-end">
+    <div className="w-full p-5 r-10 md:p-6 flex justify-end">
       <NavigationMenu>
         <NavigationMenuList className={cn("flex items-center gap-x-4")}>
           <div className="flex items-center">
-            <NavigationMenuItem className={cn("nav-dp ml-4")}>
+            <NavigationMenuItem className={cn("nav-dp ml-4 mt-1.5")}>
               <Link href="/studentdashboard/profile" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <Avatar>

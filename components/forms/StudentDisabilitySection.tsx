@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
+import { useSession } from "next-auth/react";
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useSignMessage, useAccount } from 'wagmi';
@@ -10,7 +11,6 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 
 const primaryDisabilities = [
   "Acquired Brain Injury (ABI/TBI)",
@@ -216,16 +216,44 @@ const StudentDisabilitySection: React.FC = () => {
   });
 
   const { data, signMessage } = useSignMessage();
+  const { data: session } = useSession();
+
   const account = useAccount();
 
-  const onSubmit = (values: any) => {
+  const onSubmit = async (values: any) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("StudentDisabilitySectionValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
     });
-    console.log(JSON.stringify(values, null, 2));
+
+    const userId = session.user.id;
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/studentDisabilitySection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   const { control, watch } = form;

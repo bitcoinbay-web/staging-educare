@@ -12,6 +12,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react'; // Import useSession
+
+interface FormProps {
+  studentId: string;
+}
 
 const formSchema = z.object({
   firstName: z.string().min(1),
@@ -35,7 +41,7 @@ const formSchema = z.object({
   bio: z.string().min(1),
 });
 
-const HealthPractitionerForm: React.FC = () => {
+const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,8 +69,9 @@ const HealthPractitionerForm: React.FC = () => {
 
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
+  const { data: session } = useSession(); // Get session data
 
-  const onSubmit = (values: any) => {
+  const onSubmit = async (values: any) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("healthPractitionerFormValues", jsonString);
     signMessage({
@@ -72,6 +79,33 @@ const HealthPractitionerForm: React.FC = () => {
       account: account.address
     });
     console.log(JSON.stringify(values, null, 2));
+
+    const userId = session?.user?.id;
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/healthPractitionerForm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   const { control, watch } = form;

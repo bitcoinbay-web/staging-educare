@@ -18,6 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAccount, useSignMessage } from "wagmi";
 
+const isValidDate = (date: any) => {
+  return date instanceof Date && !isNaN(date.getTime());
+};
+
 const physicianSpecialties = [
   "Audiologist",
   "Ophthalmologist",
@@ -92,7 +96,12 @@ const disabilityVerificationSchema = z.object({
   signatureDate: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
 });
 
-const OSAPDisabilityVerificationForm: React.FC = () => {
+// Define the prop types for form
+interface FormProps {
+  studentId: string;
+}
+
+const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
@@ -148,13 +157,41 @@ const OSAPDisabilityVerificationForm: React.FC = () => {
     }
   }, [data]);
 
-  function onSubmit(values: z.infer<typeof disabilityVerificationSchema>) {
+  const onSubmit = async (values: z.infer<typeof disabilityVerificationSchema>) => {
     const jsonString = JSON.stringify(values);
-    signMessage({
+    sessionStorage.setItem("disabilityVerificationFormValues", jsonString);
+    await signMessage({
       message: jsonString,
       account: account.address
     });
     console.log(jsonString);
+
+    const userId = studentId;
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/osapDisabilityConfirmation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   }
 
   return (
@@ -201,7 +238,7 @@ const OSAPDisabilityVerificationForm: React.FC = () => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={isValidDate(field.value) ? format(field.value, 'yyyy-MM-dd') : ''}
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
@@ -424,7 +461,7 @@ const OSAPDisabilityVerificationForm: React.FC = () => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={isValidDate(field.value) ? format(field.value, 'yyyy-MM-dd') : ''}
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}

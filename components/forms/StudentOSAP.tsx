@@ -1,11 +1,10 @@
-"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
+"use client";
 
 import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,10 +14,10 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox"; // Import the Checkbox component
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSession } from "next-auth/react";
 import { useAccount, useSignMessage } from "wagmi";
 
-// Define schema using zod for form validation
 const studentOSAPSchema = z.object({
   schoolName: z.string().nonempty("School name is required"),
   socialInsuranceNumber: z.string().nonempty("Social Insurance Number is required"),
@@ -44,12 +43,11 @@ const studentOSAPSchema = z.object({
   signatureDate: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
 });
 
-// StudentOSAPForm component
 const StudentOSAPForm: React.FC = () => {
+  const { data: session } = useSession();
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
-  // Initialize form with validation schema and default values
   const studentOSAPForm = useForm<z.infer<typeof studentOSAPSchema>>({
     resolver: zodResolver(studentOSAPSchema),
     defaultValues: {
@@ -76,7 +74,6 @@ const StudentOSAPForm: React.FC = () => {
     },
   });
 
-  // Load saved form values from sessionStorage on component mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedValues = sessionStorage.getItem("studentOSAPFormValues");
@@ -86,7 +83,6 @@ const StudentOSAPForm: React.FC = () => {
     }
   }, [studentOSAPForm]);
 
-  // Save form values to sessionStorage on change
   useEffect(() => {
     const subscription = studentOSAPForm.watch((values) => {
       if (typeof window !== "undefined") {
@@ -96,22 +92,48 @@ const StudentOSAPForm: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [studentOSAPForm]);
 
-  // Save signed data to sessionStorage when data changes
   useEffect(() => {
     if (data) {
       sessionStorage.setItem("signMessageData", JSON.stringify(data));
     }
   }, [data]);
 
-  // Handle form submission
-  function onSubmit(values: z.infer<typeof studentOSAPSchema>) {
+  const onSubmit = async (values: z.infer<typeof studentOSAPSchema>) => {
     const jsonString = JSON.stringify(values);
-    signMessage({
+    await signMessage({
       message: jsonString,
       account: account.address
     });
-    console.log(jsonString);
-  }
+
+    const userId = session.user.id;
+    const formData = {
+      ...values,
+      dateOfBirth: values.dateOfBirth.toISOString(),
+      signatureDate: values.signatureDate.toISOString(),
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/studentOSAPForm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
 
   return (
     <Form {...studentOSAPForm}>
@@ -211,7 +233,7 @@ const StudentOSAPForm: React.FC = () => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
@@ -353,7 +375,7 @@ const StudentOSAPForm: React.FC = () => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { useAccount, useSignMessage } from "wagmi";
+import { useSession } from "next-auth/react";
 
 const MethodsInfo = [
   {
@@ -90,8 +91,14 @@ const AssessmentSchema = z.object({
   path: ["methodDates"]
 });
 
-const AssessmentHistory: React.FC = () => {
+// Define the prop types for form
+interface FormProps {
+  studentId: string;
+}
+
+const AssessmentHistory: React.FC<FormProps> = ({ studentId }) => {
   const { data, signMessage } = useSignMessage();
+  const { data: session } = useSession();
   const account = useAccount();
 
   const assessmentForm = useForm<z.infer<typeof AssessmentSchema>>({
@@ -124,15 +131,43 @@ const AssessmentHistory: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [assessmentForm]);
 
-  function onSubmit(values: z.infer<typeof AssessmentSchema>) {
+  const onSubmit = async (values: z.infer<typeof AssessmentSchema>) => {
     const jsonString = JSON.stringify(values);
-    sessionStorage.setItem("assessmentFormValues", jsonString);
-    signMessage({
+    await signMessage({
       message: jsonString,
-      account: account.address
+      account: account.address,
     });
-    console.log(JSON.stringify(values, null, 2));
-  }
+
+    const userId = session.user.id;
+
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    sessionStorage.setItem("assessmentFormValues", jsonString);
+
+    try {
+      const response = await fetch("/api/assessmentHistory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Form submitted successfully:", result);
+      } else {
+        console.error("Failed to submit form:", result);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+  };
 
   useEffect(() => {
     if (data) {

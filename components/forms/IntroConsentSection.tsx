@@ -1,6 +1,6 @@
 "use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React from 'react'; // Import React library
+import React, { useState, useTransition, useEffect } from 'react'; // Import React library
 import { useForm, FormProvider, Controller } from 'react-hook-form'; // Import useForm, FormProvider, and Controller from react-hook-form
 import { zodResolver } from '@hookform/resolvers/zod'; // Import zodResolver from @hookform/resolvers/zod
 import { z } from 'zod'; // Import z from zod for schema validation
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'; // Import Button component
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'; // Import Form components
 import { Input } from '@/components/ui/input'; // Import Input component
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'; // Import RadioGroup components
+import { useSession } from "next-auth/react"; // Import useSession from next-auth/react
 
 // Define schema using zod for form validation
 const formSchema = z.object({
@@ -16,8 +17,12 @@ const formSchema = z.object({
   consent: z.enum(["yes", "no"]),
 });
 
-// IntroConsentSection component
 const IntroConsentSection: React.FC = () => {
+  const { data: session } = useSession();
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+  const [isPending, startTransition] = useTransition();
+
   // Initialize form with validation schema and default values
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -31,15 +36,46 @@ const IntroConsentSection: React.FC = () => {
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
-  // Handle form submission
-  const onSubmit = (values: any) => {
+  useEffect(() => {
+    if (data) {
+      sessionStorage.setItem("signMessageData", JSON.stringify(data));
+    }
+  }, [data]);
+
+  const onSubmit = async (values) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("IntroConsentSectionValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
     });
-    console.log(JSON.stringify(values, null, 2));
+
+    const userId = session.user.id;
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/introConsentSection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   return (

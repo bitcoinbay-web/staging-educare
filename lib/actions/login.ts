@@ -7,7 +7,7 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 
 import { generateVerificationToken } from "@/lib/tokens";
-import { getUserByEmail } from "@/data/user";
+import { getDoctorByEmail, getUserByEmail } from "@/data/user";
 import { sendVerificationEmail } from "@/lib/mail";
 
 export const login = async (
@@ -26,28 +26,65 @@ export const login = async (
 
   const existingUser = await getUserByEmail(email);
 
-  if (!existingUser || !existingUser.email || !existingUser.password) {
+  const existingDoctor = await getDoctorByEmail(email);
+
+  if (existingUser) {
+    if (!existingUser || !existingUser.email || !existingUser.password) {
+      return { error: "Email does not exists!" };
+    }
+
+    if (!existingUser.emailVerified) {
+      const verificationToken = await generateVerificationToken(
+        existingUser.email
+      );
+
+      await sendVerificationEmail(
+        verificationToken.email,
+        verificationToken.token
+      );
+
+      return { success: "Confirmation Email sent!" };
+    }
+  } else if (existingDoctor) {
+    if (!existingDoctor || !existingDoctor.email || !existingDoctor.password) {
+      return { error: "Email does not exists!" };
+    }
+
+    if (!existingDoctor.emailVerified) {
+      const verificationToken = await generateVerificationToken(
+        existingDoctor.email
+      );
+
+      await sendVerificationEmail(
+        verificationToken.email,
+        verificationToken.token
+      );
+
+      return { success: "Confirmation Email sent!" };
+    }
+  } else {
     return { error: "Email does not exists!" };
   }
 
-  if (!existingUser.emailVerified) {
-    const verificationToken = await generateVerificationToken(
-      existingUser.email
-    );
-
-    await sendVerificationEmail(
-      verificationToken.email,
-      verificationToken.token
-    );
-
-    return { success: "Confirmation Email sent!" };
-  }
-
   try {
+    let redirectUrl = DEFAULT_LOGIN_REDIRECT;
+    if (existingUser) {
+      if (existingUser.role === "STUDENT") {
+        redirectUrl = "/student/dashboard";
+      } else if (existingUser.role === "DOCTOR") {
+        redirectUrl = "/doctor/dashboard";
+      } else if (existingUser.role === "ADMIN") {
+        redirectUrl = "/admin/dashboard";
+      }
+    } else if (existingDoctor) {
+      redirectUrl = "/doctor/dashboard";
+    } else {
+      redirectUrl = DEFAULT_LOGIN_REDIRECT;
+    }
     await signIn("credentials", {
       email,
       password,
-      redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
+      redirectTo: redirectUrl || DEFAULT_LOGIN_REDIRECT,
     });
   } catch (error) {
     if (error instanceof AuthError) {

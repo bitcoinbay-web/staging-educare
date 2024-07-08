@@ -20,3 +20,21 @@ export const getUserByID = async (id: string) => {
     return null;
   }
 };
+
+export const getDoctorByEmail = async (email: string) => {
+  try {
+    const user = await db.doctor.findUnique({ where: { email } });
+    return user;
+  } catch {
+    return null;
+  }
+};
+
+export const getDoctorByID = async (id: string) => {
+  try {
+    const existingUser = await db.doctor.findUnique({ where: { id } });
+    return existingUser;
+  } catch {
+    return null;
+  }
+};

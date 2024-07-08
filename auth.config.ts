@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 
 import { LoginSchema } from "@/schemas";
-import { getUserByEmail } from "@/data/user";
+import { getDoctorByEmail, getUserByEmail } from "@/data/user";
 
 export default {
   providers: [
@@ -27,10 +27,27 @@ export default {
           const { email, password } = validatedFields.data;
 
           const user = await getUserByEmail(email);
-          if (!user || !user.password) return null;
+          const doctor = await getDoctorByEmail(email);
 
-          const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user;
+          if (user) {
+            if (!user || !user.password) return null;
+
+            const passwordsMatch = await bcrypt.compare(
+              password,
+              user.password
+            );
+            if (passwordsMatch) return user;
+          } else if (doctor) {
+            if (!doctor || !doctor.password) return null;
+
+            const passwordsMatched = await bcrypt.compare(
+              password,
+              doctor.password
+            );
+            if (passwordsMatched) return doctor;
+          } else {
+            return null;
+          }
         }
         return null;
       },

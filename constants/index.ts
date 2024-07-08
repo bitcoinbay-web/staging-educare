@@ -28,6 +28,5 @@ export const network = {
   "sepolia": sepolia
 }
 
-// export const contractAddress = "0xaB238839D44bc09B5090b85B7F1305cC1eef28b6"
-
+// Update contract address here - currently deployed on Sepolia Testnet
 export const contractAddress = "0xd184ee1AE307a6597DbE148e57BdDF9F2d62014E"

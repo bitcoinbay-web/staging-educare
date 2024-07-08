@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { useAccount, useSignMessage } from "wagmi";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+
+interface FormProps {
+  studentId: string;
+}
 
 const DisabilityNatureInfo = [
   {
@@ -88,10 +93,11 @@ const DisabilitySchema = z.object({
   additionalDiagnoses: z.array(AdditionalDiagnosisSchema).optional(),
 });
 
-const DisabilityConfirmation: React.FC = () => {
+const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
   const [selectedDisability, setSelectedDisability] = useState("permanent");
   const { data, signMessage } = useSignMessage();
-  const account = useAccount()
+  const account = useAccount();
+  const { data: session } = useSession();
 
   const disabilityForm = useForm<z.infer<typeof DisabilitySchema>>({
     resolver: zodResolver(DisabilitySchema),
@@ -132,15 +138,42 @@ const DisabilityConfirmation: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [disabilityForm]);
 
-  function onSubmit(values: z.infer<typeof DisabilitySchema>) {
+  const onSubmit = async (values: z.infer<typeof DisabilitySchema>) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("disabilityFormValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
     });
-    console.log(JSON.stringify(values, null, 2));
-  }
+
+    const userId = session.user.id;
+
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/disabilityConfirmation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
 
   useEffect(() => {
     if (data) {

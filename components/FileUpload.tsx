@@ -42,7 +42,7 @@ export default function FileUpload({ userId }) {
   return (
     <form onSubmit={handleSubmit}>
       <input type="file" onChange={handleFileChange} />
-      <button type="submit" disabled={uploading}>
+      <button type="submit" disabled={uploading} className='my-5 border px-1 border-gray-400 rounded-sm bg-gray-200' >
         {uploading ? 'Uploading...' : 'Upload File'}
       </button>
       {error && <p>Error: {error}</p>}

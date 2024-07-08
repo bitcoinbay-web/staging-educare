@@ -5,6 +5,10 @@ import React, { useState } from "react";
 import axios from "axios";
 // import "@/app/globals.css";
 
+import { useSession } from "next-auth/react";
+
+// import { UserRole } from "@prisma/client";
+
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -49,6 +53,8 @@ const LoginPage: React.FC = () => {
     },
   });
 
+  const { data: session, status } = useSession();
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     // try {
     //   // Send the form data to the API endpoint
@@ -59,9 +65,9 @@ const LoginPage: React.FC = () => {
     //     },
     //     body: JSON.stringify(values),
     //   });
-
     // if (response.ok) {
     // Redirect to student dashboard if the form submission is successful
+    // console.log("this console is from the choose page", session);
     router.push("/studentdashboard");
     //   } else {
     //     console.error("Failed to submit form:", response.statusText);

@@ -40,13 +40,13 @@ const Sidebar: React.FC = () => {
 
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/studentdashboard"
+          pathname === "/student/dashboard"
             ? "bg-white px-5 py-3 rounded-md"
             : ""
         } `}
       >
         <Link
-          href="/studentdashboard"
+          href="/student/dashboard"
           className="flex items-center text-[#8290AA] "
         >
           <FaHome className="mr-5 text-[#3E84EC]" />
@@ -55,13 +55,13 @@ const Sidebar: React.FC = () => {
       </div>
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/studentdashboard/services"
+          pathname === "/student/services"
             ? "bg-white px-5 py-3 rounded-md"
             : ""
         } `}
       >
         <Link
-          href="/studentdashboard/services"
+          href="/student/services"
           className="flex items-center text-[#8290AA] "
         >
           <FaUser className="mr-5 text-[#3E84EC]" />
@@ -70,57 +70,42 @@ const Sidebar: React.FC = () => {
       </div>
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/studentdashboard/profile"
-            ? "bg-white px-5 py-3 rounded-md"
-            : ""
+          pathname === "/student/profile" ? "bg-white px-5 py-3 rounded-md" : ""
         } `}
       >
         <Link
-          href="/studentdashboard/profile"
+          href="/student/profile"
           className="flex items-center text-[#8290AA] "
         >
           <FaUser className="mr-5 text-[#3E84EC]" />
           Profile
         </Link>
       </div>
+
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/doctor" ? "bg-white px-5 py-3 rounded-md" : ""
+          pathname === "/student/user" ? "bg-white px-5 py-3 rounded-md" : ""
         } `}
       >
-        <Link href="/doctor" className="flex items-center text-[#8290AA] ">
-          <IoIosRocket className="mr-5 text-[#3E84EC]" />
-          Doctor
-        </Link>
-      </div>
-      <div
-        className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/user" ? "bg-white px-5 py-3 rounded-md" : ""
-        } `}
-      >
-        <Link href="/user" className="flex items-center text-[#8290AA] ">
+        <Link
+          href="/student/user"
+          className="flex items-center text-[#8290AA] "
+        >
           <FaUser className="mr-5 text-[#3E84EC]" />
           Student Forms
         </Link>
       </div>
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/share" ? "bg-white px-5 py-3 rounded-md" : ""
+          pathname === "/student/share" ? "bg-white px-5 py-3 rounded-md" : ""
         } `}
       >
-        <Link href="/share" className="flex items-center text-[#8290AA] ">
+        <Link
+          href="/student/share"
+          className="flex items-center text-[#8290AA] "
+        >
           <FaUser className="mr-5 text-[#3E84EC]" />
           Share QR Code
-        </Link>
-      </div>
-      <div
-        className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/admin" ? "bg-white px-5 py-3 rounded-md" : ""
-        } `}
-      >
-        <Link href="/admin" className="flex items-center text-[#8290AA] ">
-          <FaUser className="mr-5 text-[#3E84EC]" />
-          Admin
         </Link>
       </div>
 

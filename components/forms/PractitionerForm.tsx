@@ -15,8 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast } from "@/components/ui/use-toast";
 import { useAccount, useSignMessage } from "wagmi";
+import { useSession } from "next-auth/react";
+
+interface FormProps {
+  studentId: string;
+}
 
 const specialtyInfo = [
   {
@@ -68,8 +72,9 @@ const ProfessionSchema = z
     }
   );
 
-const PractitionerForm: React.FC = () => {
+const PractitionerForm: React.FC<FormProps> = ({ studentId }) => {
   const { data, signMessage } = useSignMessage();
+  const { data: session } = useSession();
   const account = useAccount();
 
   const professionForm = useForm<z.infer<typeof ProfessionSchema>>({
@@ -111,15 +116,43 @@ const PractitionerForm: React.FC = () => {
     }
   }, [showOtherSpecialty, showOtherSpecialistPhysician, professionForm]);
 
-  function onSubmit(values: z.infer<typeof ProfessionSchema>) {
+  const onSubmit = async (values: z.infer<typeof ProfessionSchema>) => {
     const jsonString = JSON.stringify(values);
-    sessionStorage.setItem("professionFormValues", jsonString);
-    signMessage({
+    await signMessage({
       message: jsonString,
       account: account.address,
     });
-    console.log(JSON.stringify(values, null, 2));
-  }
+
+    const userId = session.user.id;
+
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    sessionStorage.setItem("professionFormValues", jsonString);
+
+    try {
+      const response = await fetch("/api/practitionerForm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Form submitted successfully:", result);
+      } else {
+        console.error("Failed to submit form:", result);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+  };
 
   useEffect(() => {
     if (data) {
@@ -134,29 +167,34 @@ const PractitionerForm: React.FC = () => {
         className="w-2/3 space-y-6"
       >
         <div>
-          SECTION B: INFORMATION FOR REGISTERED HEALTH CARE PRACTITIONER
-          Academic Accommodation Support (AAS) at Toronto Metropolitan University facilitates the provision of
-          reasonable and appropriate academic accommodations and supports for students with disabilities.
-          To determine these accommodations and supports, AAS must verify that a student has a disability and
-          understand the impact(s) of the student’s disability on their academic functioning.
-          The student is required to provide the university with documentation that is:
-          ● Based on a current, thorough and appropriate assessment;
-          ● Provided by a registered practitioner, qualified to diagnose the condition; and
-          ● Supportive of the accommodation(s) being considered or requested.
-
-          Please note that a student’s mental health diagnosis is not required to receive accommodations and
-          support from AAS but full details of the impact(s) of the disability on the student’s academic functioning
-          must be included (see Part III). If the student consents to or requests that you provide a diagnosis
-          statement in section A, this information is kept confidential in accordance with the university’s
-          Information Protection and Access Policy.
-          All relevant sections must be completed thoroughly and objectively to ensure accurate assessment of
-          the student’s disability-related needs, which may include access to support services and government
-          and school bursaries while attending university.
-          Careful completion of all relevant sections also ensures that a student who is currently receiving interim
-          accommodations will have a full and appropriate accommodation and support plan once disability
-          documentation is obtained.
-          AAS supports are available to students with documented disabilities. If no disability is present, students
-          will be referred to other supports at the university.
+          <p>
+            SECTION B: INFORMATION FOR REGISTERED HEALTH CARE PRACTITIONER
+            Academic Accommodation Support (AAS) at Toronto Metropolitan University facilitates the provision of
+            reasonable and appropriate academic accommodations and supports for students with disabilities.
+            To determine these accommodations and supports, AAS must verify that a student has a disability and
+            understand the impact(s) of the student’s disability on their academic functioning.
+            The student is required to provide the university with documentation that is:
+          </p>
+          <br />
+          <li>● Based on a current, thorough and appropriate assessment;</li>
+          <li>● Provided by a registered practitioner, qualified to diagnose the condition; and</li>
+          <li>● Supportive of the accommodation(s) being considered or requested.</li>
+          <br />
+          <p>
+            Please note that a student’s mental health diagnosis is not required to receive accommodations and
+            support from AAS but full details of the impact(s) of the disability on the student’s academic functioning
+            must be included (see Part III). If the student consents to or requests that you provide a diagnosis
+            statement in section A, this information is kept confidential in accordance with the university’s
+            Information Protection and Access Policy.
+            All relevant sections must be completed thoroughly and objectively to ensure accurate assessment of
+            the student’s disability-related needs, which may include access to support services and government
+            and school bursaries while attending university.
+            Careful completion of all relevant sections also ensures that a student who is currently receiving interim
+            accommodations will have a full and appropriate accommodation and support plan once disability
+            documentation is obtained.
+            AAS supports are available to students with documented disabilities. If no disability is present, students
+            will be referred to other supports at the university.
+          </p>
         </div>
         <FormField
           key="practitionerName"

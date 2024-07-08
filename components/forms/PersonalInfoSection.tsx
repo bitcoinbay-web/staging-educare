@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import DatePicker from "react-datepicker";
 import { Checkbox } from '../ui/checkbox';
+import { useSession } from 'next-auth/react'; // Import useSession from next-auth/react
 
 const formSchema = z.object({
   firstName: z.string().min(1),
@@ -54,6 +55,7 @@ const formSchema = z.object({
 });
 
 const PersonalInfoSection: React.FC = () => {
+  const { data: session } = useSession();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -89,14 +91,40 @@ const PersonalInfoSection: React.FC = () => {
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
-  const onSubmit = (values: any) => {
+  const onSubmit = async (values: any) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("personalInfoSectionValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address
     });
-    console.log(JSON.stringify(values, null, 2));
+
+    const userId = session?.user?.id;
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/personalInfoSection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
   const { control, watch } = form;

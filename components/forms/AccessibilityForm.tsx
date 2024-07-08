@@ -1,4 +1,4 @@
-"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
+"client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
 import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
 import { useForm } from "react-hook-form"; // Import React Hook Form utilities
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form"; // Import form components
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; // Import RadioGroup components
 import { Input } from "@/components/ui/input"; // Import Input component
+import { useSession } from "next-auth/react";
 import { useAccount, useSignMessage } from "wagmi"; // Import wagmi hooks for account and message signing
 import { useState, useEffect } from "react"; // Import React hooks
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"; // Import Dialog components
@@ -72,7 +73,7 @@ const consentInfo = [
 ] as const;
 
 // Define the schema for the form using zod
-const formSchema = z.object({
+export const formSchema = z.object({
   studentName: z.string().min(2).max(50),
   studentId: z.coerce.number().nonnegative(),
   phoneNumber: z.coerce.number().nonnegative(),
@@ -84,6 +85,7 @@ const formSchema = z.object({
 // AccessibilityForm component
 const AccessibilityForm: React.FC = () => {
   const { data, signMessage } = useSignMessage(); // Initialize wagmi hooks
+  const { data: session } = useSession();
   const account = useAccount(); // Get the current account
 
   // Initialize form state with persistent storage
@@ -127,14 +129,44 @@ const AccessibilityForm: React.FC = () => {
   };
 
   // Handle form submission
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async(values: z.infer<typeof formSchema>) => {
     const jsonString = JSON.stringify(values);
-    signMessage({
+    await signMessage({
       message: jsonString,
       account: account.address,
     });
     console.log(JSON.stringify(values, null, 2));
+
+    const userId = session.user.id;
+
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+    
     setSavedValues(values); // Save values to sessionStorage
+
+    // Submit the form data to the API
+    try {
+      const response = await fetch('/api/accessibilityForm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   }
 
   return (
@@ -258,9 +290,11 @@ const AccessibilityForm: React.FC = () => {
             </DialogContent>
           </Dialog>
           <div>
-            AAS considers this permission valid for as long as you are a student at Toronto Metropolitan University or if you revoke
-            your consent in writing, whichever comes first. 1 Providing false information or altering this form is a violation of
-            Senate Policy 60: Student Code of Academic Conduct. 2 https://www.torontomu.ca/accommodations/registration
+            <p>AAS considers this permission valid for as long as you are a student at Toronto Metropolitan University or if you revoke
+            your consent in writing, whichever comes first.</p>
+            <li> 1 Providing false information or altering this form is a violation of
+            Senate Policy 60: Student Code of Academic Conduct. </li>
+            <li>2 https://www.torontomu.ca/accommodations/registration</li>
           </div>
           <div>
             Why is this information required? To receive reasonable and appropriate accommodations and support from AAS,
@@ -292,3 +326,4 @@ const AccessibilityForm: React.FC = () => {
 };
 
 export default AccessibilityForm; // Export the AccessibilityForm component as the default export
+

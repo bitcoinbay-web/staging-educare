@@ -1,27 +1,36 @@
 "use client";
 
+// Import necessary modules and components
 import { useState, FormEvent } from 'react';
 import { useAccount, useWaitForTransactionReceipt, useReadContract, useWriteContract } from 'wagmi';
-import { abi } from '@/constants/tempABI';
+import { abi } from '@/constants/educareNFTABI';
 import { network, contractAddress } from "@/constants";
 import Loader from './Loader'; // Import the Loader component
 
+// Define the SafeMint component
 function SafeMint() {
+  // Get the user's account address
   const { address } = useAccount();
+  
+  // Read the contract owner's address
   const { data: ownerAddress } = useReadContract({
     address: contractAddress,
     abi,
     functionName: 'owner',
   });
 
+  // Define state for transaction hash, error, and contract writing status
   const { data: hash, error, isPending, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
+  // Define state for recipient address, token ID, and URI
   const [recipient, setRecipient] = useState('');
   const [tokenId, setTokenId] = useState('');
   const [uri, setUri] = useState('');
-  const [isLoadingTokenURI, setIsLoadingTokenURI] = useState(false); // New state to track loading state
+  // Define state to track loading state for token URI
+  const [isLoadingTokenURI, setIsLoadingTokenURI] = useState(false);
 
+  // Read the token URI from the contract
   const { data: tokenUriData, refetch: refetchTokenUri } = useReadContract({
     address: contractAddress,
     abi,
@@ -30,22 +39,27 @@ function SafeMint() {
     // enabled: false, // disable automatic fetching
   });
 
+  // Handle form submission
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Check if the user is the contract owner
     if (address !== ownerAddress) {
       alert('Only the contract owner can mint tokens.');
       return;
     }
 
-    setIsLoadingTokenURI(true); // Set loading state to true
+    // Set loading state to true and refetch token URI
+    setIsLoadingTokenURI(true);
     const { data } = await refetchTokenUri();
     setIsLoadingTokenURI(false); // Set loading state to false after fetching data
 
+    // Check if the token ID already exists with a valid URI
     if (data) {
       alert('Token ID already exists with a valid URI.');
       return;
     }
 
+    // Write the contract to mint the token
     writeContract({
       address: contractAddress,
       abi,
@@ -54,6 +68,7 @@ function SafeMint() {
     });
   }
 
+  // Render the component UI
   return (
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Safe Mint</h2>

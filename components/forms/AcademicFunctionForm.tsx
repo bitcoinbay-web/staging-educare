@@ -1,11 +1,13 @@
-"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
+"use client";
 
-import React, { useEffect, useState } from 'react'; // Import React and hooks
-import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
-import { useForm, Controller } from "react-hook-form"; // Import React Hook Form utilities
-import { z } from "zod"; // Import zod for schema validation
+// Import necessary modules and components from various libraries
+import React, { useEffect, useState } from 'react';
+import { useSession } from "next-auth/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
 
-import { Button } from "@/components/ui/button"; // Import Button component
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,186 +16,93 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"; // Import form components
-import { Input } from "@/components/ui/input"; // Import Input component
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; // Import RadioGroup components
-import { Textarea } from "@/components/ui/textarea"; // Import Textarea component
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 
-import { useAccount, useSignMessage } from "wagmi"; // Import wagmi hooks for account and message signing
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"; // Import Dialog components
+import { useAccount, useSignMessage } from "wagmi";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
-// Define choices for the levels of impact
+// Define the available choices for impact levels
 const choiceOptions = ['N/A', 'Mild', 'Mod', 'Serious', 'Severe'] as const;
 
-// Define the schema for the form using zod
+// Define schema for impact fields using zod for validation
+const impactsSchema = z.object({
+  level: z.enum(choiceOptions),
+  comments: z.string().optional(),
+});
+
+// Define schema for medication impact fields
+const medicationImpactSchema = z.object({
+  takesMedication: z.enum(['yes', 'no']),
+  medicationDetails: z.string().optional(),
+});
+
+// Define the overall schema for the form
 const ImpactsSchema = z.object({
   impacts: z.object({
-    listening: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    reading: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    takingNotes: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    completingAssignments: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    writingTests: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    deliveringPresentations: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    meetingDeadlines: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    participatingInGroup: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
+    listening: impactsSchema,
+    reading: impactsSchema,
+    takingNotes: impactsSchema,
+    completingAssignments: impactsSchema,
+    writingTests: impactsSchema,
+    deliveringPresentations: impactsSchema,
+    meetingDeadlines: impactsSchema,
+    participatingInGroup: impactsSchema,
   }),
   cognitiveSkills: z.object({
-    attentionConcentration: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    informationProcessing: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    shortTermMemory: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    longTermMemory: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
+    attentionConcentration: impactsSchema,
+    informationProcessing: impactsSchema,
+    shortTermMemory: impactsSchema,
+    longTermMemory: impactsSchema,
   }),
   socioEmotional: z.object({
-    fatigue: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    managingCourseLoad: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    managingStress: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    mood: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    socialInteractions: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    attendingClass: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
+    fatigue: impactsSchema,
+    managingCourseLoad: impactsSchema,
+    managingStress: impactsSchema,
+    mood: impactsSchema,
+    socialInteractions: impactsSchema,
+    attendingClass: impactsSchema,
   }),
   physicalActivity: z.object({
-    lifting: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    grossMotorReaching: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    bending: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    writing: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    typing: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    otherPhysical: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    walking: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    stairClimbing: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    sittingForPeriods: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    standingForPeriods: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    otherActivity: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
+    lifting: impactsSchema,
+    grossMotorReaching: impactsSchema,
+    bending: impactsSchema,
+    writing: impactsSchema,
+    typing: impactsSchema,
+    otherPhysical: impactsSchema,
+    walking: impactsSchema,
+    stairClimbing: impactsSchema,
+    sittingForPeriods: impactsSchema,
+    standingForPeriods: impactsSchema,
+    otherActivity: impactsSchema,
   }),
   sensory: z.object({
-    visionRightEye: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    visionLeftEye: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    visionBilateral: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    hearingRightEar: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    hearingLeftEar: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    hearingBilateral: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
-    speech: z.object({
-      level: z.enum(choiceOptions),
-      comments: z.string().optional(),
-    }),
+    visionRightEye: impactsSchema,
+    visionLeftEye: impactsSchema,
+    visionBilateral: impactsSchema,
+    hearingRightEar: impactsSchema,
+    hearingLeftEar: impactsSchema,
+    hearingBilateral: impactsSchema,
+    speech: impactsSchema,
   }),
-  medicationImpact: z.object({
-    takesMedication: z.enum(['yes', 'no']),
-    medicationDetails: z.string().optional(),
-  }),
+  medicationImpact: medicationImpactSchema,
   additionalInfo: z.string().optional(),
 });
 
-// AcademicFunctionForm component
-const AcademicFunctionForm: React.FC = () => {
-  const { data, signMessage } = useSignMessage(); // Initialize wagmi hooks
-  const account = useAccount(); // Get the current account
+// Define props for the form component
+interface FormProps {
+  studentId: string;
+}
 
-  // Initialize form with default values and validation schema
+// Define the main form component
+const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
+  const { data, signMessage } = useSignMessage();
+  const account = useAccount();
+  const { data: session } = useSession();
+
+  // Initialize the form using react-hook-form with zod resolver
   const impactsForm = useForm<z.infer<typeof ImpactsSchema>>({
     resolver: zodResolver(ImpactsSchema),
     defaultValues: {
@@ -251,19 +160,15 @@ const AcademicFunctionForm: React.FC = () => {
     },
   });
 
-  // Load stored values from session storage on component mount
+  // Load stored form values from session storage on component mount
   useEffect(() => {
     const storedValues = sessionStorage.getItem('impactsFormValues');
     if (storedValues) {
       impactsForm.reset(JSON.parse(storedValues));
     }
-    const savedData = sessionStorage.getItem("signMessageData");
-    if (savedData) {
-      signMessage(JSON.parse(savedData));
-    }
-  }, [impactsForm, signMessage]);
+  }, [impactsForm]);
 
-  // Save form values to session storage on value change
+  // Save form values to session storage whenever they change
   useEffect(() => {
     const subscription = impactsForm.watch((values) => {
       sessionStorage.setItem('impactsFormValues', JSON.stringify(values));
@@ -271,18 +176,45 @@ const AcademicFunctionForm: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [impactsForm]);
 
-  // Handle form submission
-  function onSubmit(values: z.infer<typeof ImpactsSchema>) {
+  // Define the form submission handler
+  const onSubmit = async (values: z.infer<typeof ImpactsSchema>) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("impactsFormValues", jsonString);
-    signMessage({
+    await signMessage({
       message: jsonString,
       account: account.address
     });
     console.log(JSON.stringify(values, null, 2));
+
+    const userId = session.user.id;
+    const formData = {
+      ...values,
+      userId,
+      account: account.address,
+      signedMessage: data
+    };
+
+    try {
+      const response = await fetch('/api/academicFunctionForm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Form submitted successfully:', result);
+      } else {
+        console.error('Failed to submit form:', result);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   }
 
-  // Render form fields
+  // Helper function to render form fields based on the provided fields and form instance
   const renderFields = (fields, impactsForm) => {
     return fields.map((field) => (
       <FormField
@@ -330,7 +262,7 @@ const AcademicFunctionForm: React.FC = () => {
     ));
   };
 
-  // Define task groups
+  // Define the tasks for each category
   const impactsTasks = [
     { id: "listening", label: "Listening", category: "impacts" },
     { id: "reading", label: "Reading", category: "impacts" },
@@ -382,6 +314,7 @@ const AcademicFunctionForm: React.FC = () => {
     { id: "speech", label: "Speech", category: "sensory" },
   ];
 
+  // Instructions for the form
   const instructions = `
     This assessment form reviews all types of disabilities so there may be questions not relevant to the
     student. Please assess functional limitations and outline the impact(s) on academic functioning.
@@ -397,7 +330,6 @@ const AcademicFunctionForm: React.FC = () => {
 
   return (
     <Form {...impactsForm}>
-      {/* Instruction Pop-up */}
       <Dialog>
         <DialogTrigger asChild>
           <Button>Instructions</Button>
@@ -413,7 +345,6 @@ const AcademicFunctionForm: React.FC = () => {
         </DialogContent>
       </Dialog>
       <form onSubmit={impactsForm.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
-        {/* Render each section */}
         <h2>Impacts on Academic Functioning</h2>
         {renderFields(impactsTasks, impactsForm)}
 
@@ -429,7 +360,6 @@ const AcademicFunctionForm: React.FC = () => {
         <h2>Sensory</h2>
         {renderFields(sensoryTasks, impactsForm)}
 
-        {/* Medication Impact Field */}
         <FormField
           control={impactsForm.control}
           name="medicationImpact.takesMedication"
@@ -476,7 +406,6 @@ const AcademicFunctionForm: React.FC = () => {
           )}
         />
 
-        {/* Additional Info Field */}
         <FormField
           control={impactsForm.control}
           name="additionalInfo"
@@ -506,4 +435,4 @@ const AcademicFunctionForm: React.FC = () => {
   );
 }
 
-export default AcademicFunctionForm; // Export the AcademicFunctionForm component as the default export
+export default AcademicFunctionForm;

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "deploy-local": "npx hardhat ignition deploy ignition/modules/ERC721.js --network localhost"
+    "deploy-local": "npx hardhat ignition deploy ignition/modules/ERC721.js --network localhost",
+    "prisma-push": "npx prisma generate; npx prisma db push",
+    "studio": "npx prisma studio"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.0.0",
@@ -69,6 +71,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
+    "@types/next-auth": "^3.15.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
