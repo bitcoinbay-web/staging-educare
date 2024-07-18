@@ -36,7 +36,6 @@ model User {
   walletID      String? @unique
   role          UserRole @default(STUDENT)
   accounts      Account[]
-  //  accessibilityForms  AccessibilityFormData[]
   files         File[]
   academicFunctionFormData     AcademicFunctionFormData[]
   accessibilityFormData        AccessibilityFormData[]
@@ -146,7 +145,7 @@ model AccessibilityFormData {
   id            String    @id @default(cuid())
   userId        String    @map("user_id")
   studentName   String
-  studentId     Int
+  studentId     String
   phoneNumber   Int
   email         String
   consent       Boolean
@@ -507,22 +506,3 @@ model Practitioner {
   doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   @@map("practitioners")
 }
-
-
-// model AccessibilityFormData {
-//   id String @id @default(cuid())
-//   userId             String  @map("user_id")
-//   createdAt    DateTime  @default(now())
-//   updatedAt    DateTime  @updatedAt
-//   studentName  String
-//   studentId    String    // Assuming studentId is a string based on the form
-//   phoneNumber  String    // Assuming phoneNumber is a string based on the form
-//   email        String
-//   consent      Boolean   @default(false)
-//   authorize    Boolean   @default(false)
-
-//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  
-
-// }

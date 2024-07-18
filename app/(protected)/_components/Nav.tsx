@@ -2,16 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-// import {
-//   NavigationMenu,
-//   NavigationMenuContent,
-//   NavigationMenuIndicator,
-//   NavigationMenuItem,
-//   NavigationMenuLink,
-//   NavigationMenuList,
-//   NavigationMenuTrigger,
-//   NavigationMenuViewport,
-// } from "@/components/ui/navigation-menu";
 import { usePathname } from "next/navigation";
 
 const Nav = () => {

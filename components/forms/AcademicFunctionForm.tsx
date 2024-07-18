@@ -1,7 +1,7 @@
 "use client";
 
 // Import necessary modules and components from various libraries
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -22,10 +22,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
 import { useAccount, useSignMessage } from "wagmi";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 // Define the available choices for impact levels
-const choiceOptions = ['N/A', 'Mild', 'Mod', 'Serious', 'Severe'] as const;
+const choiceOptions = ["N/A", "Mild", "Mod", "Serious", "Severe"] as const;
 
 // Define schema for impact fields using zod for validation
 const impactsSchema = z.object({
@@ -35,7 +42,7 @@ const impactsSchema = z.object({
 
 // Define schema for medication impact fields
 const medicationImpactSchema = z.object({
-  takesMedication: z.enum(['yes', 'no']),
+  takesMedication: z.enum(["yes", "no"]),
   medicationDetails: z.string().optional(),
 });
 
@@ -107,62 +114,62 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
     resolver: zodResolver(ImpactsSchema),
     defaultValues: {
       impacts: {
-        listening: { level: 'N/A', comments: '' },
-        reading: { level: 'N/A', comments: '' },
-        takingNotes: { level: 'N/A', comments: '' },
-        completingAssignments: { level: 'N/A', comments: '' },
-        writingTests: { level: 'N/A', comments: '' },
-        deliveringPresentations: { level: 'N/A', comments: '' },
-        meetingDeadlines: { level: 'N/A', comments: '' },
-        participatingInGroup: { level: 'N/A', comments: '' },
+        listening: { level: "N/A", comments: "" },
+        reading: { level: "N/A", comments: "" },
+        takingNotes: { level: "N/A", comments: "" },
+        completingAssignments: { level: "N/A", comments: "" },
+        writingTests: { level: "N/A", comments: "" },
+        deliveringPresentations: { level: "N/A", comments: "" },
+        meetingDeadlines: { level: "N/A", comments: "" },
+        participatingInGroup: { level: "N/A", comments: "" },
       },
       cognitiveSkills: {
-        attentionConcentration: { level: 'N/A', comments: '' },
-        informationProcessing: { level: 'N/A', comments: '' },
-        shortTermMemory: { level: 'N/A', comments: '' },
-        longTermMemory: { level: 'N/A', comments: '' },
+        attentionConcentration: { level: "N/A", comments: "" },
+        informationProcessing: { level: "N/A", comments: "" },
+        shortTermMemory: { level: "N/A", comments: "" },
+        longTermMemory: { level: "N/A", comments: "" },
       },
       socioEmotional: {
-        fatigue: { level: 'N/A', comments: '' },
-        managingCourseLoad: { level: 'N/A', comments: '' },
-        managingStress: { level: 'N/A', comments: '' },
-        mood: { level: 'N/A', comments: '' },
-        socialInteractions: { level: 'N/A', comments: '' },
-        attendingClass: { level: 'N/A', comments: '' },
+        fatigue: { level: "N/A", comments: "" },
+        managingCourseLoad: { level: "N/A", comments: "" },
+        managingStress: { level: "N/A", comments: "" },
+        mood: { level: "N/A", comments: "" },
+        socialInteractions: { level: "N/A", comments: "" },
+        attendingClass: { level: "N/A", comments: "" },
       },
       physicalActivity: {
-        lifting: { level: 'N/A', comments: '' },
-        grossMotorReaching: { level: 'N/A', comments: '' },
-        bending: { level: 'N/A', comments: '' },
-        writing: { level: 'N/A', comments: '' },
-        typing: { level: 'N/A', comments: '' },
-        otherPhysical: { level: 'N/A', comments: '' },
-        walking: { level: 'N/A', comments: '' },
-        stairClimbing: { level: 'N/A', comments: '' },
-        sittingForPeriods: { level: 'N/A', comments: '' },
-        standingForPeriods: { level: 'N/A', comments: '' },
-        otherActivity: { level: 'N/A', comments: '' },
+        lifting: { level: "N/A", comments: "" },
+        grossMotorReaching: { level: "N/A", comments: "" },
+        bending: { level: "N/A", comments: "" },
+        writing: { level: "N/A", comments: "" },
+        typing: { level: "N/A", comments: "" },
+        otherPhysical: { level: "N/A", comments: "" },
+        walking: { level: "N/A", comments: "" },
+        stairClimbing: { level: "N/A", comments: "" },
+        sittingForPeriods: { level: "N/A", comments: "" },
+        standingForPeriods: { level: "N/A", comments: "" },
+        otherActivity: { level: "N/A", comments: "" },
       },
       sensory: {
-        visionRightEye: { level: 'N/A', comments: '' },
-        visionLeftEye: { level: 'N/A', comments: '' },
-        visionBilateral: { level: 'N/A', comments: '' },
-        hearingRightEar: { level: 'N/A', comments: '' },
-        hearingLeftEar: { level: 'N/A', comments: '' },
-        hearingBilateral: { level: 'N/A', comments: '' },
-        speech: { level: 'N/A', comments: '' },
+        visionRightEye: { level: "N/A", comments: "" },
+        visionLeftEye: { level: "N/A", comments: "" },
+        visionBilateral: { level: "N/A", comments: "" },
+        hearingRightEar: { level: "N/A", comments: "" },
+        hearingLeftEar: { level: "N/A", comments: "" },
+        hearingBilateral: { level: "N/A", comments: "" },
+        speech: { level: "N/A", comments: "" },
       },
       medicationImpact: {
-        takesMedication: 'no',
-        medicationDetails: '',
+        takesMedication: "no",
+        medicationDetails: "",
       },
-      additionalInfo: '',
+      additionalInfo: "",
     },
   });
 
   // Load stored form values from session storage on component mount
   useEffect(() => {
-    const storedValues = sessionStorage.getItem('impactsFormValues');
+    const storedValues = sessionStorage.getItem("impactsFormValues");
     if (storedValues) {
       impactsForm.reset(JSON.parse(storedValues));
     }
@@ -171,7 +178,7 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
   // Save form values to session storage whenever they change
   useEffect(() => {
     const subscription = impactsForm.watch((values) => {
-      sessionStorage.setItem('impactsFormValues', JSON.stringify(values));
+      sessionStorage.setItem("impactsFormValues", JSON.stringify(values));
     });
     return () => subscription.unsubscribe();
   }, [impactsForm]);
@@ -182,37 +189,37 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
     sessionStorage.setItem("impactsFormValues", jsonString);
     await signMessage({
       message: jsonString,
-      account: account.address
+      account: account.address,
     });
-    console.log(JSON.stringify(values, null, 2));
+    // console.log(JSON.stringify(values, null, 2));
 
     const userId = session.user.id;
     const formData = {
       ...values,
       userId,
       account: account.address,
-      signedMessage: data
+      signedMessage: data,
     };
 
     try {
-      const response = await fetch('/api/academicFunctionForm', {
-        method: 'POST',
+      const response = await fetch("/api/academicFunctionForm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
     }
-  }
+  };
 
   // Helper function to render form fields based on the provided fields and form instance
   const renderFields = (fields, impactsForm) => {
@@ -222,17 +229,23 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
         control={impactsForm.control}
         name={`${field.category}.${field.id}`}
         render={({ field: controllerField }) => (
-          <FormItem className='space-y-4'>
+          <FormItem className="space-y-4">
             <FormLabel>{field.label}</FormLabel>
             <FormControl>
               <RadioGroup
                 onValueChange={(value) => {
-                  const updatedValue = { ...controllerField.value, level: value };
+                  const updatedValue = {
+                    ...controllerField.value,
+                    level: value,
+                  };
                   controllerField.onChange(updatedValue);
-                  impactsForm.setValue(`${field.category}.${field.id}`, updatedValue);
+                  impactsForm.setValue(
+                    `${field.category}.${field.id}`,
+                    updatedValue
+                  );
                 }}
-                defaultValue={controllerField.value?.level || 'N/A'}
-                className='flex space-x-4'
+                defaultValue={controllerField.value?.level || "N/A"}
+                className="flex space-x-4"
               >
                 {choiceOptions.map((level) => (
                   <FormItem key={level}>
@@ -247,11 +260,17 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
             <FormControl>
               <Textarea
                 placeholder="Comments"
-                value={controllerField.value?.comments || ''}
+                value={controllerField.value?.comments || ""}
                 onChange={(e) => {
-                  const updatedValue = { ...controllerField.value, comments: e.target.value };
+                  const updatedValue = {
+                    ...controllerField.value,
+                    comments: e.target.value,
+                  };
                   controllerField.onChange(updatedValue);
-                  impactsForm.setValue(`${field.category}.${field.id}`, updatedValue);
+                  impactsForm.setValue(
+                    `${field.category}.${field.id}`,
+                    updatedValue
+                  );
                 }}
               />
             </FormControl>
@@ -267,40 +286,100 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
     { id: "listening", label: "Listening", category: "impacts" },
     { id: "reading", label: "Reading", category: "impacts" },
     { id: "takingNotes", label: "Taking Notes", category: "impacts" },
-    { id: "completingAssignments", label: "Completing Assignments/Reports", category: "impacts" },
+    {
+      id: "completingAssignments",
+      label: "Completing Assignments/Reports",
+      category: "impacts",
+    },
     { id: "writingTests", label: "Writing Tests & Exams", category: "impacts" },
-    { id: "deliveringPresentations", label: "Delivering Presentations", category: "impacts" },
+    {
+      id: "deliveringPresentations",
+      label: "Delivering Presentations",
+      category: "impacts",
+    },
     { id: "meetingDeadlines", label: "Meeting Deadlines", category: "impacts" },
-    { id: "participatingInGroup", label: "Participating in Group Activities", category: "impacts" },
+    {
+      id: "participatingInGroup",
+      label: "Participating in Group Activities",
+      category: "impacts",
+    },
   ];
 
   const cognitiveTasks = [
-    { id: "attentionConcentration", label: "Attention & Concentration", category: "cognitiveSkills" },
-    { id: "informationProcessing", label: "Information Processing", category: "cognitiveSkills" },
-    { id: "shortTermMemory", label: "Short-Term Memory", category: "cognitiveSkills" },
-    { id: "longTermMemory", label: "Long-Term Memory", category: "cognitiveSkills" },
+    {
+      id: "attentionConcentration",
+      label: "Attention & Concentration",
+      category: "cognitiveSkills",
+    },
+    {
+      id: "informationProcessing",
+      label: "Information Processing",
+      category: "cognitiveSkills",
+    },
+    {
+      id: "shortTermMemory",
+      label: "Short-Term Memory",
+      category: "cognitiveSkills",
+    },
+    {
+      id: "longTermMemory",
+      label: "Long-Term Memory",
+      category: "cognitiveSkills",
+    },
   ];
 
   const socioEmotionalTasks = [
     { id: "fatigue", label: "Fatigue", category: "socioEmotional" },
-    { id: "managingCourseLoad", label: "Managing a Full Course Load", category: "socioEmotional" },
-    { id: "managingStress", label: "Managing Stress", category: "socioEmotional" },
+    {
+      id: "managingCourseLoad",
+      label: "Managing a Full Course Load",
+      category: "socioEmotional",
+    },
+    {
+      id: "managingStress",
+      label: "Managing Stress",
+      category: "socioEmotional",
+    },
     { id: "mood", label: "Mood", category: "socioEmotional" },
-    { id: "socialInteractions", label: "Social Interactions", category: "socioEmotional" },
-    { id: "attendingClass", label: "Attending Class", category: "socioEmotional" },
+    {
+      id: "socialInteractions",
+      label: "Social Interactions",
+      category: "socioEmotional",
+    },
+    {
+      id: "attendingClass",
+      label: "Attending Class",
+      category: "socioEmotional",
+    },
   ];
 
   const physicalActivityTasks = [
     { id: "lifting", label: "Lifting", category: "physicalActivity" },
-    { id: "grossMotorReaching", label: "Gross Motor Reaching", category: "physicalActivity" },
+    {
+      id: "grossMotorReaching",
+      label: "Gross Motor Reaching",
+      category: "physicalActivity",
+    },
     { id: "bending", label: "Bending", category: "physicalActivity" },
     { id: "writing", label: "Writing", category: "physicalActivity" },
     { id: "typing", label: "Typing", category: "physicalActivity" },
     { id: "otherPhysical", label: "Other", category: "physicalActivity" },
     { id: "walking", label: "Walking", category: "physicalActivity" },
-    { id: "stairClimbing", label: "Stair Climbing", category: "physicalActivity" },
-    { id: "sittingForPeriods", label: "Sitting for Sustained Periods", category: "physicalActivity" },
-    { id: "standingForPeriods", label: "Standing for Sustained Periods", category: "physicalActivity" },
+    {
+      id: "stairClimbing",
+      label: "Stair Climbing",
+      category: "physicalActivity",
+    },
+    {
+      id: "sittingForPeriods",
+      label: "Sitting for Sustained Periods",
+      category: "physicalActivity",
+    },
+    {
+      id: "standingForPeriods",
+      label: "Standing for Sustained Periods",
+      category: "physicalActivity",
+    },
     { id: "otherActivity", label: "Other", category: "physicalActivity" },
   ];
 
@@ -308,9 +387,17 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
     { id: "visionRightEye", label: "Vision (Right Eye)", category: "sensory" },
     { id: "visionLeftEye", label: "Vision (Left Eye)", category: "sensory" },
     { id: "visionBilateral", label: "Vision (Bilateral)", category: "sensory" },
-    { id: "hearingRightEar", label: "Hearing (Right Ear)", category: "sensory" },
+    {
+      id: "hearingRightEar",
+      label: "Hearing (Right Ear)",
+      category: "sensory",
+    },
     { id: "hearingLeftEar", label: "Hearing (Left Ear)", category: "sensory" },
-    { id: "hearingBilateral", label: "Hearing (Bilateral)", category: "sensory" },
+    {
+      id: "hearingBilateral",
+      label: "Hearing (Bilateral)",
+      category: "sensory",
+    },
     { id: "speech", label: "Speech", category: "sensory" },
   ];
 
@@ -336,15 +423,16 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
         </DialogTrigger>
         <DialogContent>
           <DialogTitle>Instructions</DialogTitle>
-          <DialogDescription>
-            {instructions}
-          </DialogDescription>
+          <DialogDescription>{instructions}</DialogDescription>
           <DialogClose asChild>
             <Button>Close</Button>
           </DialogClose>
         </DialogContent>
       </Dialog>
-      <form onSubmit={impactsForm.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
+      <form
+        onSubmit={impactsForm.handleSubmit(onSubmit)}
+        className="w-2/3 space-y-6"
+      >
         <h2>Impacts on Academic Functioning</h2>
         {renderFields(impactsTasks, impactsForm)}
 
@@ -364,13 +452,16 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
           control={impactsForm.control}
           name="medicationImpact.takesMedication"
           render={({ field }) => (
-            <FormItem className='space-y-4'>
-              <FormLabel>Does the student take any medication and/or engage in any treatments that may impact their academic functioning?</FormLabel>
+            <FormItem className="space-y-4">
+              <FormLabel>
+                Does the student take any medication and/or engage in any
+                treatments that may impact their academic functioning?
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className='flex space-x-4'
+                  className="flex space-x-4"
                 >
                   <FormItem>
                     <FormControl>
@@ -394,12 +485,9 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
           control={impactsForm.control}
           name="medicationImpact.medicationDetails"
           render={({ field }) => (
-            <FormItem className='space-y-4'>
+            <FormItem className="space-y-4">
               <FormControl>
-                <Textarea
-                  placeholder="If yes, describe impact(s)"
-                  {...field}
-                />
+                <Textarea placeholder="If yes, describe impact(s)" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -410,19 +498,20 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
           control={impactsForm.control}
           name="additionalInfo"
           render={({ field }) => (
-            <FormItem className='space-y-4'>
-              <FormLabel>Use this space to provide any additional functional limitation(s) related to the student’s academic performance and/or to provide any further information.</FormLabel>
+            <FormItem className="space-y-4">
+              <FormLabel>
+                Use this space to provide any additional functional
+                limitation(s) related to the student’s academic performance
+                and/or to provide any further information.
+              </FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Additional information"
-                  {...field}
-                />
+                <Textarea placeholder="Additional information" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <Button type="submit">Submit</Button>
       </form>
       {data && (
@@ -433,6 +522,6 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
       )}
     </Form>
   );
-}
+};
 
 export default AcademicFunctionForm;

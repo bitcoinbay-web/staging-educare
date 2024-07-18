@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { useAccount, useWriteContract } from 'wagmi';
 import { abi } from '@/constants/educareNFTABI';
 import { Button } from './ui/button';
-import { contractAddress } from "@/constants/index";
+import { contractAddress, network } from "@/constants/index";
 
 // Define the main component
 const WagmiWriteContractComponent: React.FC = () => {
@@ -35,6 +35,8 @@ const WagmiWriteContractComponent: React.FC = () => {
         onError: (error) => {
           console.error('Error:', error);
         },
+        chain: network.sepolia,
+        account: address
       });
     } else {
       alert('Please connect your wallet.');

@@ -1,7 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"; // Adjust the import path based on your project structure
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form"; // Adjust the import path based on your project structure
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { useAccount, useSignMessage } from "wagmi";
@@ -26,12 +33,12 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
   const form = useForm({
     resolver: zodResolver(AccommodationSchema),
     defaultValues: {
-      recommendations: '',
+      recommendations: "",
     },
   });
 
   useEffect(() => {
-    const storedValues = sessionStorage.getItem('recommendationFormValues');
+    const storedValues = sessionStorage.getItem("recommendationFormValues");
     if (storedValues) {
       form.reset(JSON.parse(storedValues));
     }
@@ -43,7 +50,10 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
 
   useEffect(() => {
     const subscription = form.watch((values) => {
-      sessionStorage.setItem('recommendationFormValues', JSON.stringify(values));
+      sessionStorage.setItem(
+        "recommendationFormValues",
+        JSON.stringify(values)
+      );
     });
     return () => subscription.unsubscribe();
   }, [form]);
@@ -53,50 +63,57 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
     sessionStorage.setItem("recommendationFormValues", jsonString);
     await signMessage({
       message: jsonString,
-      account: account.address
+      account: account.address,
     });
-    console.log(JSON.stringify(values, null, 2));
+    // console.log(JSON.stringify(values, null, 2));
 
     const userId = session?.user?.id;
     const formData = {
       ...values,
       userId,
       account: account.address,
-      signedMessage: data
+      signedMessage: data,
     };
 
     try {
-      const response = await fetch('/api/recommendationForm', {
-        method: 'POST',
+      const response = await fetch("/api/recommendationForm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
         <h2>Part IV: Accommodation Recommendation(s) - Optional</h2>
-        <p>Based on the functional limitations indicated above, please share your recommendations and rationale for specific academic accommodations. AAS will review and consider these recommendations when determining an appropriate accommodation plan.</p>
-        
+        <p>
+          Based on the functional limitations indicated above, please share your
+          recommendations and rationale for specific academic accommodations.
+          AAS will review and consider these recommendations when determining an
+          appropriate accommodation plan.
+        </p>
+
         <FormField
           control={form.control}
           name="recommendations"
           render={({ field }) => (
-            <FormItem className='space-y-4'>
-              <FormLabel>Suggested academic accommodations (optional):</FormLabel>
+            <FormItem className="space-y-4">
+              <FormLabel>
+                Suggested academic accommodations (optional):
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Enter your recommendations and rationale"
@@ -107,7 +124,7 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
             </FormItem>
           )}
         />
-        
+
         <Button type="submit">Submit</Button>
         <p>Thank you for completing this form.</p>
       </form>

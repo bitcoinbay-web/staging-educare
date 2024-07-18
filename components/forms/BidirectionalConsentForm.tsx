@@ -67,14 +67,16 @@ const BidirectionalConsentForm: React.FC = () => {
   }, [form]);
 
   // Handle form submission
-  const onSubmit = async (values: z.infer<typeof BidirectionalConsentFormSchema>) => {
+  const onSubmit = async (
+    values: z.infer<typeof BidirectionalConsentFormSchema>
+  ) => {
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("BidirectionalConsentFormValues", jsonString);
     signMessage({
       message: jsonString,
       account: account.address,
     });
-    console.log(JSON.stringify(values, null, 2));
+    // console.log(JSON.stringify(values, null, 2));
 
     const userId = account.address; // Replace this with the correct user ID
     const formData = {
@@ -83,24 +85,24 @@ const BidirectionalConsentForm: React.FC = () => {
     };
 
     try {
-      const response = await fetch('/api/bidirectionalConsentForm', {
-        method: 'POST',
+      const response = await fetch("/api/bidirectionalConsentForm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
     }
-  }
+  };
 
   return (
     <Form {...form}>

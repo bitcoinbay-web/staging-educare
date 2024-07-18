@@ -1,19 +1,31 @@
 "use client";
 
-import React from 'react';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useSignMessage, useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react'; // Import useSession
+import React from "react";
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useSignMessage, useAccount } from "wagmi";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react"; // Import useSession
 
 interface FormProps {
   studentId: string;
@@ -32,12 +44,12 @@ const formSchema = z.object({
   appointmentTypes: z.array(z.string()),
   servicesProvided: z.array(z.string()),
   businessName: z.string().min(1),
-  businessWebsite: z.string().url().optional().or(z.literal('')),
+  businessWebsite: z.string().url().optional().or(z.literal("")),
   businessAddress: z.string().min(1),
   bookingEmailAddress: z.string().email(),
   bookingPhoneNumber: z.string().min(1),
-  onlineBookingURL: z.string().url().optional().or(z.literal('')),
-  faxNumber: z.string().optional().or(z.literal('')),
+  onlineBookingURL: z.string().url().optional().or(z.literal("")),
+  faxNumber: z.string().optional().or(z.literal("")),
   bio: z.string().min(1),
 });
 
@@ -76,35 +88,35 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
     sessionStorage.setItem("healthPractitionerFormValues", jsonString);
     signMessage({
       message: jsonString,
-      account: account.address
+      account: account.address,
     });
-    console.log(JSON.stringify(values, null, 2));
+    // console.log(JSON.stringify(values, null, 2));
 
     const userId = session?.user?.id;
     const formData = {
       ...values,
       userId,
       account: account.address,
-      signedMessage: data
+      signedMessage: data,
     };
 
     try {
-      const response = await fetch('/api/healthPractitionerForm', {
-        method: 'POST',
+      const response = await fetch("/api/healthPractitionerForm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
     }
   };
 
@@ -149,11 +161,18 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <Input {...field} value={field.value || "Select Gender"} readOnly />
+                    <Input
+                      {...field}
+                      value={field.value || "Select Gender"}
+                      readOnly
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {["Male", "Female", "Other"].map(gender => (
-                      <DropdownMenuItem key={gender} onSelect={() => field.onChange(gender)}>
+                    {["Male", "Female", "Other"].map((gender) => (
+                      <DropdownMenuItem
+                        key={gender}
+                        onSelect={() => field.onChange(gender)}
+                      >
                         {gender}
                       </DropdownMenuItem>
                     ))}
@@ -201,11 +220,24 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <Input {...field} value={field.value || "Select Type"} readOnly />
+                    <Input
+                      {...field}
+                      value={field.value || "Select Type"}
+                      readOnly
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {["Family Physician", "Psychologist", "Psychiatrist", "Other Specialist Physician", "Other"].map(type => (
-                      <DropdownMenuItem key={type} onSelect={() => field.onChange(type)}>
+                    {[
+                      "Family Physician",
+                      "Psychologist",
+                      "Psychiatrist",
+                      "Other Specialist Physician",
+                      "Other",
+                    ].map((type) => (
+                      <DropdownMenuItem
+                        key={type}
+                        onSelect={() => field.onChange(type)}
+                      >
                         {type}
                       </DropdownMenuItem>
                     ))}
@@ -216,7 +248,8 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
             </FormItem>
           )}
         />
-        {watch("healthCarePractitionerType") === "Other Specialist Physician" && (
+        {watch("healthCarePractitionerType") ===
+          "Other Specialist Physician" && (
           <FormField
             control={control}
             name="healthCarePractitionerType"
@@ -295,22 +328,32 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <Input {...field} value={field.value.length > 0 ? field.value.join(", ") : "Select Languages"} readOnly />
+                    <Input
+                      {...field}
+                      value={
+                        field.value.length > 0
+                          ? field.value.join(", ")
+                          : "Select Languages"
+                      }
+                      readOnly
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {["English", "French", "Spanish", "Chinese", "Other"].map(language => (
-                      <DropdownMenuItem
-                        key={language}
-                        onSelect={() => {
-                          const newValue = field.value.includes(language)
-                            ? field.value.filter(val => val !== language)
-                            : [...field.value, language];
-                          field.onChange(newValue);
-                        }}
-                      >
-                        {language}
-                      </DropdownMenuItem>
-                    ))}
+                    {["English", "French", "Spanish", "Chinese", "Other"].map(
+                      (language) => (
+                        <DropdownMenuItem
+                          key={language}
+                          onSelect={() => {
+                            const newValue = field.value.includes(language)
+                              ? field.value.filter((val) => val !== language)
+                              : [...field.value, language];
+                            field.onChange(newValue);
+                          }}
+                        >
+                          {language}
+                        </DropdownMenuItem>
+                      )
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </FormControl>
@@ -324,17 +367,20 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
           name="appointmentTypes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What appointment types are you offering? (Check all that apply) *</FormLabel>
+              <FormLabel>
+                What appointment types are you offering? (Check all that apply)
+                *
+              </FormLabel>
               <FormControl>
                 <div className="space-y-2">
-                  {["In Person", "Telephone", "Video"].map(type => (
+                  {["In Person", "Telephone", "Video"].map((type) => (
                     <div key={type} className="flex items-center space-x-2">
                       <Checkbox
                         checked={field.value.includes(type)}
                         onCheckedChange={(checked) => {
                           const newValue = checked
                             ? [...field.value, type]
-                            : field.value.filter(value => value !== type);
+                            : field.value.filter((value) => value !== type);
                           field.onChange(newValue);
                         }}
                       />
@@ -353,23 +399,33 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
           name="servicesProvided"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Please list the forms you are currently able to complete for students *</FormLabel>
+              <FormLabel>
+                Please list the forms you are currently able to complete for
+                students *
+              </FormLabel>
               <FormControl>
                 <div className="space-y-2">
-                  {["Accessibility Form", "Disability Verification Form"].map(service => (
-                    <div key={service} className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={field.value.includes(service)}
-                        onCheckedChange={(checked) => {
-                          const newValue = checked
-                            ? [...field.value, service]
-                            : field.value.filter(value => value !== service);
-                          field.onChange(newValue);
-                        }}
-                      />
-                      <span>{service}</span>
-                    </div>
-                  ))}
+                  {["Accessibility Form", "Disability Verification Form"].map(
+                    (service) => (
+                      <div
+                        key={service}
+                        className="flex items-center space-x-2"
+                      >
+                        <Checkbox
+                          checked={field.value.includes(service)}
+                          onCheckedChange={(checked) => {
+                            const newValue = checked
+                              ? [...field.value, service]
+                              : field.value.filter(
+                                  (value) => value !== service
+                                );
+                            field.onChange(newValue);
+                          }}
+                        />
+                        <span>{service}</span>
+                      </div>
+                    )
+                  )}
                 </div>
               </FormControl>
               <FormMessage />

@@ -14,18 +14,17 @@ export const login = async (
   values: z.infer<typeof LoginSchema>,
   callbackUrl?: string
 ) => {
-  //   console.log(values);
+  // console.log(values);
   const validatedFields = LoginSchema.safeParse(values);
 
   if (!validatedFields.success) {
     return { error: "Invalid Fields" };
   }
-  // return { success: "Email sent!" };
 
   const { email, password } = validatedFields.data;
 
   const existingUser = await getUserByEmail(email);
-
+  // console.log(existingUser)
   const existingDoctor = await getDoctorByEmail(email);
 
   if (existingUser) {
@@ -43,7 +42,9 @@ export const login = async (
         verificationToken.token
       );
 
-      return { success: "Confirmation Email sent!" };
+      return {
+        success: "Confirmation Email sent! , please verify your email first",
+      };
     }
   } else if (existingDoctor) {
     if (!existingDoctor || !existingDoctor.email || !existingDoctor.password) {
@@ -60,7 +61,9 @@ export const login = async (
         verificationToken.token
       );
 
-      return { success: "Confirmation Email sent!" };
+      return {
+        success: "Confirmation Email sent!, please verify your email first",
+      };
     }
   } else {
     return { error: "Email does not exists!" };

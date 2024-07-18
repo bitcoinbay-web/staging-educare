@@ -31,7 +31,6 @@ import { doctorRegister } from "@/lib/actions/doctor-register";
 export const DoctorRegisterForm = () => {
   const { open } = useWeb3Modal();
   const { address } = useAccount();
-  // State to store connected account
 
   useEffect(() => {
     if (address) {

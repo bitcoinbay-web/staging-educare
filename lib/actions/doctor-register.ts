@@ -17,10 +17,10 @@ import { sendVerificationEmail } from "@/lib/mail";
 export const doctorRegister = async (
   values: z.infer<typeof DoctorRegisterSchema>
 ) => {
-  console.log(values);
+  // console.log(values);
   const validatedFields = DoctorRegisterSchema.safeParse(values);
 
-  console.log(validatedFields);
+  // console.log(validatedFields);
 
   if (!validatedFields.success) {
     return { error: "Invalid Fields" };

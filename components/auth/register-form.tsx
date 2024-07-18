@@ -34,10 +34,8 @@ export const RegisterForm = () => {
 
   useEffect(() => {
     if (address) {
-      // If the address exists (i.e., connected), set the input field value
       //@ts-ignore
       document.getElementById("wallet-input").value = address;
-      // Change the button text to "Connected"
       //@ts-ignore
       document.getElementById("connect-button").innerText = "Connected";
     }
@@ -161,9 +159,8 @@ export const RegisterForm = () => {
                         <Input
                           id="wallet-input"
                           placeholder="Click on the button to connect to your wallet"
-                          value={address || ""} // Ensure a default empty string if address is null/undefined
+                          value={address || ""}
                           readOnly
-
                           // onChange={(e) => setAccount(e.target.value)}
                         />
                         <Button

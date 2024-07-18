@@ -1,54 +1,55 @@
-// import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { UserRole } from "@prisma/client";
 
-// import { auth } from "@/auth";
+const secret = process.env.AUTH_SECRET;
 
-import NextAuth from "next-auth";
+const roleBasedRoutes: Record<string, UserRole> = {
+  "/student": "STUDENT",
+  "/doctor": "DOCTOR",
+  "/admin": "ADMIN",
+};
 
-import authConfig from "@/auth.config";
-import {
-  DEFAULT_LOGIN_REDIRECT,
-  apiAuthPrefix,
-  authRoutes,
-  publicRoutes,
-} from "@/routes";
+import { publicRoutes } from "./routes";
 
-const { auth } = NextAuth(authConfig);
+export async function middleware(req) {
+  const { pathname } = req.nextUrl;
+  const token = await getToken({ req, secret, salt: undefined });
+  const isLoggedIn = !!token;
+  const userRole = token?.role as UserRole;
 
-export default auth((req) => {
-  // console.log("ROUTE:", req.nextUrl.pathname);
-  // console.log("IS LOGGEDIN:", isLoggedIn);
+  const isPublicRoute = publicRoutes.includes(pathname);
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
 
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+  if (!isLoggedIn && roleBasedRoutes[`/${pathname.split("/")[1]}`]) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  if (!isLoggedIn) {
+    return NextResponse.next();
+  }
 
-  // if (isApiAuthRoute) {
-  //   return null;
-  // }
+  const routePrefix = pathname.split("/")[1];
+  const expectedRole = roleBasedRoutes[`/${routePrefix}`];
 
-  // if (isAuthRoute) {
-  //   if (isLoggedIn) {
-  //     return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
-  //   }
-  //   return null;
-  // }
+  if (!expectedRole) {
+    return NextResponse.next();
+  }
 
-  // if (!isLoggedIn && !isPublicRoute) {
-  //   return Response.redirect(new URL("/login", nextUrl));
-  // }
+  if (userRole !== expectedRole) {
+    return NextResponse.redirect(new URL("/unauthorized", req.nextUrl));
+  }
 
-  return null;
-});
+  return NextResponse.next();
+}
 
 export const config = {
-  unstable_allowDynamic: [
-    // allows a single file
-    // '/lib/utilities.js',
-    // use a glob to allow anything in the function-bind 3rd party module
-    '/node_modules/mongoose/**',
+  matcher: [
+    "/(student|doctor|admin)(/.*)?",
+    "/((?!.*\\..*|_next).*)",
+    "/",
+    "/(api|trpc)(.*)",
   ],
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

@@ -3,7 +3,19 @@
  *  These routes dont require authentication
  */
 
-export const publicRoutes = ["/", "/new-verification"];
+export const publicRoutes = [
+  "/",
+  "/new-verification",
+  "/login",
+  "/register",
+  "/register/student",
+  "/register/doctor",
+  "/error",
+  "/reset",
+  "/new-password",
+  "/login/choose",
+  "/unauthorized",
+];
 
 /**
  *  Note: These routes are used for authentication.

@@ -24,25 +24,20 @@ const AuthNav = () => {
           <div className="px-20">
             <div className="flex space-x-8">
               <div className="flex items-center space-x-2 hover:text-black">
-                <IoIosCube className="text-md" /> {/* Adjust size as needed */}
+                <IoIosCube className="text-md" />
                 <p className="text-md">DASHBOARD</p>{" "}
-                {/* Adjust text size and other styles as needed */}
               </div>
               <div className="flex items-center space-x-2 hover:text-black">
-                <FaUser className="text-md" /> {/* Adjust size as needed */}
+                <FaUser className="text-md" />
                 <p className="text-md">PROFILE</p>{" "}
-                {/* Adjust text size and other styles as needed */}
               </div>
               <div className="flex items-center space-x-2 hover:text-black">
                 <FaUserCircle className="text-md" />{" "}
-                {/* Adjust size as needed */}
                 <p className="text-md">SIGN UP</p>{" "}
-                {/* Adjust text size and other styles as needed */}
               </div>
               <div className="flex items-center space-x-2 hover:text-black">
-                <FaKey className="text-md" /> {/* Adjust size as needed */}
+                <FaKey className="text-md" />
                 <p className="text-md">SIGN IN</p>{" "}
-                {/* Adjust text size and other styles as needed */}
               </div>
             </div>
           </div>
