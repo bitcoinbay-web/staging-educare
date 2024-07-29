@@ -53,7 +53,8 @@ const formSchema = z.object({
   bio: z.string().min(1),
 });
 
-const DoctorOnboardingForm: React.FC<> = () => {
+const DoctorOnboardingForm: React.FC<{}> = () => {
+  
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {

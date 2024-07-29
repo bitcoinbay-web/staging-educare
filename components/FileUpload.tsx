@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function FileUpload({ userId }) {
+export default function FileUpload({ userId  }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,12 +16,13 @@ export default function FileUpload({ userId }) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('userId', userId);
-
+    // formData.append('formType', formType)
+    
     setUploading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/upload-user-files', {
         method: 'POST',
         body: formData,
       });

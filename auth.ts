@@ -78,8 +78,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           session.user.form1 = true;
         }
       }
-      // console.log(session)
-      console.log(session);
       return session;
     },
     async jwt({ token }) {
@@ -94,6 +92,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         existingUser = await getDoctorByID(token.sub)
       };
 
+      if (!existingUser) {
+        console.error('User or Doctor not found');
+        return token;
+      }
+
       const existingAccount = await getAccountByUserId(existingUser.id);
       // console.log(existingAccount)
       token.isOAuth = !!existingAccount;
@@ -104,7 +107,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.form1 = true;
       }
       // token.customRedirect = existingUser.customRedirect;
-      // console.log(token)
+      console.log(token)
       return token;
     },
   },

@@ -18,6 +18,8 @@ export async function middleware(req) {
   const isLoggedIn = !!token;
   const userRole = token?.role as UserRole;
   const isPublicRoute = publicRoutes.includes(pathname);
+  return NextResponse.next();
+
   if (isPublicRoute) {
     return NextResponse.next();
   }
