@@ -25,18 +25,18 @@ const primaryDisabilities = [
   "Mild Intellectual Disability (MID)"
 ] as const;
 
-const primaryDisabilitySkips = [
-  "Skip to question 6",
-  "Skip to question 8",
-  "Skip to question 14",
-  "Skip to question 16",
-  "Skip to question 20",
-  "Skip to question 10",
-  "Skip to question 24",
-  "Skip to question 22",
-  "Skip to question 18",
-  "Skip to question 12",
-] as const;
+// const primaryDisabilitySkips = [
+//   "Skip to question 6",
+//   "Skip to question 8",
+//   "Skip to question 14",
+//   "Skip to question 16",
+//   "Skip to question 20",
+//   "Skip to question 10",
+//   "Skip to question 24",
+//   "Skip to question 22",
+//   "Skip to question 18",
+//   "Skip to question 12",
+// ] as const;
 
 const secondaryDisabilities = [
   "Acquired Brain Injury (ABI/TBI)",
@@ -51,18 +51,18 @@ const secondaryDisabilities = [
   "Mild Intellectual Disability (MID)",
 ] as const;
 
-const secondaryDisabilitySkips = [
-  "Skip to question 7",
-  "Skip to question 9",
-  "Skip to question 15",
-  "Skip to question 17",
-  "Skip to question 21",
-  "Skip to question 11",
-  "Skip to question 25",
-  "Skip to question 23",
-  "Skip to question 19",
-  "Skip to question 13",
-] as const;
+// const secondaryDisabilitySkips = [
+//   "Skip to question 7",
+//   "Skip to question 9",
+//   "Skip to question 15",
+//   "Skip to question 17",
+//   "Skip to question 21",
+//   "Skip to question 11",
+//   "Skip to question 25",
+//   "Skip to question 23",
+//   "Skip to question 19",
+//   "Skip to question 13",
+// ] as const;
 
 const formSchema = z.object({
   primaryDisability: z.enum(primaryDisabilities),
@@ -295,7 +295,7 @@ const StudentDisabilitySection: React.FC = () => {
                         <RadioGroupItem value={disability} />
                         <span>{disability}</span>
                       </label>
-                      <p className="ml-6">{primaryDisabilitySkips[index]}</p>
+                      {/* <p className="ml-6">{primaryDisabilitySkips[index]}</p> */}
                     </div>
                   ))}
                 </RadioGroup>
@@ -350,7 +350,7 @@ const StudentDisabilitySection: React.FC = () => {
                         <RadioGroupItem value={disability} />
                         <span>{disability}</span>
                       </label>
-                      <p className="ml-6">{secondaryDisabilitySkips[index]}</p>
+                      {/* <p className="ml-6">{secondaryDisabilitySkips[index]}</p> */}
                     </div>
                   ))}
                 </RadioGroup>

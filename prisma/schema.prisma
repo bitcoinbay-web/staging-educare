@@ -25,35 +25,36 @@ enum AcceptingNewClients {
 }
 
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  password      String?
-  stdID         String? @unique
-  walletID      String? @unique
-  role          UserRole @default(STUDENT)
-  accounts      Account[]
-  files         File[]
-  academicFunctionFormData     AcademicFunctionFormData[]
-  accessibilityFormData        AccessibilityFormData[]
-  assessmentHistoryFormData    AssessmentHistoryFormData[]
-  bidirectionalConsentFormData BidirectionalConsentFormData[]
-  disabilityConfirmationFormData DisabilityConfirmationFormData[]
-  HealthPractitionerFormData   HealthPractitionerFormData[]
-  IntakeFormData               IntakeFormData[]
-  introConsentSectionData      IntroConsentSectionData[]
-  StudentOSAPFormData          StudentOSAPFormData[]
-  studentDisabilitySectionData StudentDisabilitySectionData[]
-  personalInfoSectionData      PersonalInfoSectionData[]
-  PractitionerFormData         PractitionerFormData[]
-  AssessmentHistoryData        AssessmentHistoryData[]
-  DisabilityConfirmationData   DisabilityConfirmationData[]
-  RecommendationFormData       RecommendationFormData[]
-  OSAPDisabilityConfirmationData OSAPDisabilityConfirmationData[]
 
+model User {
+  id                             String    @id @default(cuid())
+  name                           String?
+  email                          String?   @unique
+  emailVerified                  DateTime? @map("email_verified")
+  image                          String?
+  password                       String?
+  stdID                          String?   @unique
+  walletID                       String?   @unique
+  role                           UserRole  @default(STUDENT)
+  accounts                       Account[]
+  files                          File[]
+  academicFunctionFormData       AcademicFunctionFormData[]
+  accessibilityFormData          AccessibilityFormData[]
+  assessmentHistoryFormData      AssessmentHistoryFormData[]
+  bidirectionalConsentFormData   BidirectionalConsentFormData[]
+  disabilityConfirmationFormData DisabilityConfirmationFormData[]
+  IntakeFormData                 IntakeFormData[]
+  introConsentSectionData        IntroConsentSectionData[]
+  StudentOSAPFormData            StudentOSAPFormData[]
+  studentDisabilitySectionData   StudentDisabilitySectionData[]
+  personalInfoSectionData        PersonalInfoSectionData[]
+  PractitionerFormData           PractitionerFormData[]
+  AssessmentHistoryData          AssessmentHistoryData[]
+  DisabilityConfirmationData     DisabilityConfirmationData[]
+  RecommendationFormData         RecommendationFormData[]
+  OSAPDisabilityConfirmationData OSAPDisabilityConfirmationData[]
+   doctorId     String?  
+  doctor       Doctor?   @relation(fields: [doctorId], references: [id], name: "DoctorToUsers")
   @@map("users")
 }
 
@@ -64,13 +65,16 @@ model Doctor {
   emailVerified DateTime? @map("email_verified")
   image         String?
   password      String?
-  walletID      String? @unique
-  role          UserRole @default(DOCTOR)
-  practitionerForm  Practitioner[]
- 
+  walletID      String?   @unique
+  role          UserRole  @default(DOCTOR)
+  available     Boolean   @default(true)
+  title         String?
+  stars         String    @default("4")
+  practitionerForm Practitioner[]
+  users         User[]    @relation("DoctorToUsers")
+
   @@map("doctors")
 }
-
 
 
 model Account {
@@ -198,35 +202,6 @@ model DisabilityConfirmationFormData {
   otherSpecialty           String?
   otherSpecialistPhysician String?
   createdAt                DateTime @default(now())
-  account       String 
-  signedMessage String 
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model HealthPractitionerFormData {
-  id                         String    @id @default(cuid())
-  userId                     String    @map("user_id")
-  firstName                  String
-  lastName                   String
-  gender                     String
-  emailAddress               String
-  phoneNumber                String
-  healthCarePractitionerType String
-  licenseNumber              String
-  acceptingNewClients        String
-  languages                  String
-  appointmentTypes           String
-  servicesProvided           String
-  businessName               String
-  businessWebsite            String?
-  businessAddress            String
-  bookingEmailAddress        String
-  bookingPhoneNumber         String
-  onlineBookingURL           String?
-  faxNumber                  String?
-  bio                        String
-  createdAt                  DateTime  @default(now())
   account       String 
   signedMessage String 
 

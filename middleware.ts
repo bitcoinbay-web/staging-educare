@@ -17,7 +17,6 @@ export async function middleware(req) {
   const token = await getToken({ req, secret, salt: undefined });
   const isLoggedIn = !!token;
   const userRole = token?.role as UserRole;
-
   const isPublicRoute = publicRoutes.includes(pathname);
   if (isPublicRoute) {
     return NextResponse.next();
@@ -48,7 +47,7 @@ export async function middleware(req) {
 export const config = {
   matcher: [
     "/(student|doctor|admin)(/.*)?",
-    "/((?!.*\\..*|_next).*)",
+    "/((?!.*\\..*|_next|api/auth).*)",
     "/",
     "/(api|trpc)(.*)",
   ],

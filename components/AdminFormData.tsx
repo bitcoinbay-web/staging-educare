@@ -10,7 +10,6 @@ import {
   AssessmentHistoryFormData,
   BidirectionalConsentFormData,
   DisabilityConfirmationFormData,
-  HealthPractitionerFormData,
   IntakeFormData,
   IntroConsentSectionData,
   StudentOSAPFormData,
@@ -29,7 +28,7 @@ const AdminFormData: React.FC = () => {
   const [assessmentData, setAssessmentData] = useState<AssessmentHistoryFormData[]>([]);
   const [bidirectionalConsentData, setBidirectionalConsentData] = useState<BidirectionalConsentFormData[]>([]);
   const [disabilityConfirmationData, setDisabilityConfirmationData] = useState<DisabilityConfirmationFormData[]>([]);
-  const [healthPractitionerData, setHealthPractitionerData] = useState<HealthPractitionerFormData[]>([]);
+  const [healthPractitionerData, setHealthPractitionerData] = useState([]);
   const [intakeData, setIntakeData] = useState<IntakeFormData[]>([]);
   const [introConsentData, setIntroConsentData] = useState<IntroConsentSectionData[]>([]);
   const [studentOsapData, setStudentOsapData] = useState<StudentOSAPFormData[]>([]);
@@ -54,7 +53,6 @@ const AdminFormData: React.FC = () => {
           setAssessmentData(data.assessmentHistoryFormData);
           setBidirectionalConsentData(data.bidirectionalConsentFormData);
           setDisabilityConfirmationData(data.disabilityConfirmationFormData);
-          setHealthPractitionerData(data.healthPractitionerFormData);
           setIntakeData(data.intakeFormData);
           setIntroConsentData(data.introConsentSectionData);
           setStudentOsapData(data.studentOsapFormData);

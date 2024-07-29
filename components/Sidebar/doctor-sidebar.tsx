@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 
 // import { signOut } from "@/auth";
 
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaUserCircle } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { IoIosRocket } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
@@ -51,6 +51,19 @@ const DoctorSidebar: React.FC = () => {
         >
           <FaHome className="mr-5 text-[#3E84EC]" />
           Dashboard
+        </Link>
+      </div>
+      <div
+        className={`mb-10 font-bold text-md text-[#8290AA] ${
+          pathname === "/doctor/profile" ? "bg-white px-5 py-3 rounded-md" : ""
+        } `}
+      >
+        <Link
+          href="/doctor/profile"
+          className="flex items-center text-[#8290AA] "
+        >
+          <FaUserCircle className="mr-5 text-[#3E84EC]" />
+          Profile
         </Link>
       </div>
 

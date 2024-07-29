@@ -35,44 +35,6 @@ const ChooseRegister: React.FC = () => {
           <div className="w-full max-w-md mt-8 mb-20">
             <DoctorRegisterForm />
           </div>
-
-          {/* <div className="bg-white shadow-lg w-[50%] h-[50%] text-center rounded-lg p-20 flex flex-col">
-            <h1 className="font-bold text-[25px] mb-10">
-              Empowering Education and Healthcare
-            </h1>
-            <div className="flex space-x-4 mb-4">
-              <Link href="/register/student">
-                <div className="border rounded-sm flex flex-col items-center text-center p-4 transition duration-300 hover:bg-blue-500 hover:text-white">
-                  <PiStudentFill className="text-[70px] mb-2 mt-4" />
-                  <h1 className="font-bold">Student Register</h1>
-                  <p className="text-sm">
-                    Unlock exclusive educational resources
-                  </p>
-                </div>
-              </Link>
-              <Link href="/register/doctor">
-                <div className="border rounded-sm flex flex-col items-center text-center p-4 transition duration-300 hover:bg-blue-500 hover:text-white">
-                  <FaUserDoctor className="text-[50px] mb-4 mt-4" />
-                  <h1 className="font-bold">
-                    Healthcare Practitioner Register
-                  </h1>
-                  <p className="text-sm">
-                    Access medical records and collaborate with students
-                  </p>
-                </div>
-              </Link>
-             
-            </div>
-            <p className="mt-auto">
-              Already have an account?{" "}
-              <Link
-                className="text-blue-500 font-bold hover:underline"
-                href="/login"
-              >
-                Signin
-              </Link>
-            </p>
-          </div> */}
         </div>
       </main>
     </>

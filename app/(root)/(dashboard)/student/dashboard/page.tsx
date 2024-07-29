@@ -2,9 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar/navbar";
-import Sidebar from "@/components/Sidebar/sidebar";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react"; // Import useSession
 
 import { Service, columns } from "../services/columns";
 import { DataTable } from "../services/data-table";
@@ -18,40 +17,34 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// async Promise<>
-function getData(): Service[] {
-  // Fetch data from API here.
-  return [
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
+// Modify getData to accept token
+async function getData(token: string): Promise<Service[]> {
+  // Fetch data from API here using the token for authentication
+  const response = await fetch("/api/data", {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-    {
-      id: "728ed52f",
-      name: "Tutoring and Learning Services",
-      status: "pending",
-      stdID: "101502209",
-    },
-  ];
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch data");
+  }
+  return response.json();
 }
 
 const StudentDashboardPage: React.FC = () => {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const data = getData();
+  const [data, setData] = React.useState<Service[]>([]);
+  const [formStatus, setFormStatus] = React.useState<string>("Pending");
+
+  React.useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const form1Status = session?.user?.form1;
+      if (form1Status) {
+        setFormStatus("Completed");
+      }
+    }
+  }, [status, session]);
 
   const handleUserRedirect = () => {
     router.push("/student/user");
@@ -61,6 +54,14 @@ const StudentDashboardPage: React.FC = () => {
     router.push("/student/user");
   };
 
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return <div>You need to be authenticated to view this page.</div>;
+  }
+
   return (
     <div>
       <div className="pt-10 pl-20 ml-64 h-full">
@@ -69,7 +70,7 @@ const StudentDashboardPage: React.FC = () => {
           <div className="card-1">
             <Card>
               <CardHeader>
-                <CardTitle>Acessibility Services Form</CardTitle>
+                <CardTitle>Accessibility Services Form</CardTitle>
                 <CardDescription>
                   Fill the form to access services
                 </CardDescription>
@@ -78,7 +79,7 @@ const StudentDashboardPage: React.FC = () => {
                 <Button onClick={handleUserRedirect}>Edit Form</Button>
               </CardContent>
               <CardFooter>
-                <p>Pending</p>
+                <p>{formStatus}</p> {/* Dynamically display the status */}
               </CardFooter>
             </Card>
           </div>

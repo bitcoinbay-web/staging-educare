@@ -23,7 +23,6 @@ const IntroConsentSection: React.FC = () => {
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
-  // Initialize form with validation schema and default values
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,7 +31,6 @@ const IntroConsentSection: React.FC = () => {
     },
   });
 
-  // Initialize wagmi hooks
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 

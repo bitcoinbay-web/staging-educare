@@ -70,33 +70,6 @@ export interface DisabilityConfirmationFormData {
   signedMessage: string;
 }
 
-export interface HealthPractitionerFormData {
-  id: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  emailAddress: string;
-  phoneNumber: string;
-  healthCarePractitionerType: string;
-  licenseNumber: string;
-  acceptingNewClients: string;
-  languages: string;
-  appointmentTypes: string;
-  servicesProvided: string;
-  businessName: string;
-  businessWebsite: string | null;
-  businessAddress: string;
-  bookingEmailAddress: string;
-  bookingPhoneNumber: string;
-  onlineBookingURL: string | null;
-  faxNumber: string | null;
-  bio: string;
-  createdAt: string;
-  account: string;
-  signedMessage: string;
-}
-
 export interface IntakeFormData {
   id: string;
   userId: string;

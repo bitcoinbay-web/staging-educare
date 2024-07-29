@@ -1,56 +1,73 @@
 "use client";
-import { currentUser } from "@/lib/auth";
-
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
-// import { HiMiniWrenchScrewdriver } from "react-icons/hi2";
-// import { PiFilesFill } from "react-icons/pi";
-// import { IoMdCube } from "react-icons/io";
-
 import { useSession } from "next-auth/react";
-
 import Image from "next/image";
 import UserTabs from "./user-tabs";
+import { useState } from "react";
 
 const ProfileNav = () => {
   const { data: session } = useSession();
+  const [image, setImage] = useState(session?.user?.image || "/profile-pic.avif");
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg')) {
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl);
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('email', session?.user?.email);
+
+      try {
+        const response = await fetch('/api/upload-profile-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setImage(data.data.image);
+        } else {
+          console.error('Image upload failed');
+        }
+      } catch (error) {
+        console.error('An error occurred while uploading the image', error);
+      } finally {
+        URL.revokeObjectURL(imageUrl);
+      }
+    } else {
+      console.error('Invalid file type');
+    }
+  };
 
   return (
-    <>
-      <div className="bg-white bg-opacity-90 w-full h-full shadow-lg p-4 rounded-lg">
-        <div className="flex items-center space-x-4">
+    <div className="bg-white bg-opacity-90 w-full h-full shadow-lg p-4 rounded-lg">
+      <div className="flex items-center space-x-4">
+        <div className="relative cursor-pointer">
+          <input
+            type="file"
+            accept="image/jpeg, image/png, image/jpg"
+            onChange={handleImageUpload}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+          />
           <Image
-            src="/profile-pic.avif"
-            alt="Background"
+            src={image}
+            alt="Profile"
             width={75}
             height={75}
-            className="rounded-lg"
+            className="rounded-lg cursor-pointer"
           />
-          <div>
-            <h1 className="font-bold">{session.user.name}</h1>
-            <p className="text-sm text-gray-500">{session.user.email}</p>
-          </div>
-          <div className="w-full flex justify-end items-center">
-            {/* <Tabs defaultValue="account" className="w-full text-center">
-              <TabsList className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                <TabsTrigger value="account">
-                  <HiMiniWrenchScrewdriver className="mr-2" />
-                  Profile
-                </TabsTrigger>
-                <TabsTrigger value="password">
-                  <PiFilesFill className="mr-2" />
-                  Forms
-                </TabsTrigger>
-                <TabsTrigger value="consentForm">
-                  <IoMdCube className="mr-2" />
-                  Bidirectional Consent Form
-                </TabsTrigger>
-              </TabsList>
-            </Tabs> */}
-            <UserTabs />
-          </div>
+        </div>
+        <div>
+          <h1 className="font-bold">{session.user.name}</h1>
+          <p className="text-sm text-gray-500">{session.user.email}</p>
+        </div>
+        <div className="w-full flex justify-end items-center">
+          <UserTabs />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

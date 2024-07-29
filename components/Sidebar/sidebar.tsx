@@ -9,6 +9,12 @@ import { useSession, signOut } from "next-auth/react";
 
 import { FaHome } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
+import { MdMedicalServices } from "react-icons/md";
+import { AiFillProfile } from "react-icons/ai";
+import { FaUserCircle } from "react-icons/fa";
+import { FaFileWaveform } from "react-icons/fa6";
+import { IoQrCode } from "react-icons/io5";
+
 import { IoIosRocket } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 
@@ -64,20 +70,37 @@ const Sidebar: React.FC = () => {
           href="/student/services"
           className="flex items-center text-[#8290AA] "
         >
-          <FaUser className="mr-5 text-[#3E84EC]" />
+          <AiFillProfile className="mr-5 text-[#3E84EC]" />
           Services
         </Link>
       </div>
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${
-          pathname === "/student/profile" ? "bg-white px-5 py-3 rounded-md" : ""
+          pathname === "/student/doctors-directory"
+            ? "bg-white px-5 py-3 rounded-md"
+            : ""
         } `}
       >
         <Link
-          href="/student/profile"
+          href="/student/doctors-directory"
           className="flex items-center text-[#8290AA] "
         >
-          <FaUser className="mr-5 text-[#3E84EC]" />
+          <MdMedicalServices className="mr-5 text-[#3E84EC]" />
+          Directory
+        </Link>
+      </div>
+      <div
+        className={`mb-10 font-bold text-md text-[#8290AA] ${
+          pathname === "/student/profile/user"
+            ? "bg-white px-5 py-3 rounded-md"
+            : ""
+        } `}
+      >
+        <Link
+          href="/student/profile/user"
+          className="flex items-center text-[#8290AA] "
+        >
+          <FaUserCircle className="mr-5 text-[#3E84EC]" />
           Profile
         </Link>
       </div>
@@ -91,7 +114,7 @@ const Sidebar: React.FC = () => {
           href="/student/user"
           className="flex items-center text-[#8290AA] "
         >
-          <FaUser className="mr-5 text-[#3E84EC]" />
+          <FaFileWaveform className="mr-5 text-[#3E84EC]" />
           Student Forms
         </Link>
       </div>
@@ -104,7 +127,7 @@ const Sidebar: React.FC = () => {
           href="/student/share"
           className="flex items-center text-[#8290AA] "
         >
-          <FaUser className="mr-5 text-[#3E84EC]" />
+          <IoQrCode className="mr-5 text-[#3E84EC]" />
           Share QR Code
         </Link>
       </div>

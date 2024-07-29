@@ -18,24 +18,26 @@ const UserTabs = () => {
       <div className="flex items-center space-x-10 pt-10 pr-10">
         <div
           className={`mb-10 font-bold text-md shadow-lg ${
-            pathname === "/student/profile"
+            pathname === "/student/profile/user"
               ? "bg-white px-5 py-3 rounded-md"
               : ""
           } `}
         >
-          <Link href="/student/profile" className="flex items-center">
+          <Link href="/student/profile/user" className="flex items-center">
             <HiMiniWrenchScrewdriver className="mr-2" />
             Profile
           </Link>
         </div>
         <div
           className={`mb-10 font-bold text-md ${
-            pathname === "/student/user" ? "bg-white px-5 py-3 rounded-md" : ""
+            pathname === "/student/profile/docs"
+              ? "bg-white px-5 py-3 rounded-md"
+              : ""
           } `}
         >
-          <Link href="/student/user" className="flex items-center">
+          <Link href="/student/profile/docs" className="flex items-center">
             <PiFilesFill className="mr-2" />
-            Forms
+            My Documents
           </Link>
         </div>
         <div className={`mb-10 font-bold text-md`}>

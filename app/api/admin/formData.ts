@@ -12,7 +12,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const assessmentHistoryFormData = await prisma.assessmentHistoryFormData.findMany();
     const bidirectionalConsentFormData = await prisma.bidirectionalConsentFormData.findMany();
     const disabilityConfirmationFormData = await prisma.disabilityConfirmationFormData.findMany();
-    const healthPractitionerFormData = await prisma.healthPractitionerFormData.findMany();
     const intakeFormData = await prisma.intakeFormData.findMany();
     const introConsentSectionData = await prisma.introConsentSectionData.findMany();
     const studentOsapFormData = await prisma.studentOSAPFormData.findMany();
@@ -30,7 +29,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       assessmentHistoryFormData,
       bidirectionalConsentFormData,
       disabilityConfirmationFormData,
-      healthPractitionerFormData,
       intakeFormData,
       introConsentSectionData,
       studentOsapFormData,

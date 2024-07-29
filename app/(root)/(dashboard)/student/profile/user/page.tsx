@@ -1,36 +1,24 @@
-"use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
+"use client";
 
-import React from "react"; // Import React library
+import React from "react";
 import { useSession } from "next-auth/react";
-import { Button } from "@/components/ui/button"; // Import Button component
-import { useRouter } from "next/navigation"; // Import useRouter hook from Next.js for navigation
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"; // Import Card components
-import { Input } from "@/components/ui/input"; // Import Input component
-import { Label } from "@/components/ui/label"; // Import Label component
+import { useRouter } from "next/navigation"; 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
+
 import WagmiReadContractComponent from "@/components/WagmiReadContractComponent"; // Import WagmiReadContractComponent
 import BidirectionalConsentForm from "@/components/forms/BidirectionalConsentForm"; // Import BidirectionalConsentForm component
 import FileUpload from "@/components/FileUpload";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import Image from "next/image";
 import UserProfilePage from "@/components/user/user-card";
 import ProfileNav from "@/components/user/profile-nav";
 
 const ProfilePage = () => {
-  const router = useRouter(); // Initialize useRouter hook for navigation
+  const router = useRouter(); 
   const { data: session } = useSession();
 
-  // Function to handle form submission
   function onSubmit() {
-    router.push("/studentdashboard"); // Navigate to student dashboard on form submission
+    router.push("/student/dashboard"); 
   }
 
   return (
@@ -50,11 +38,9 @@ const ProfilePage = () => {
         <div className="w-[95%] h-[10%]">
           <ProfileNav />
         </div>
-        {/* <p>{user.email}</p> */}
 
         <div className="w-full max-w-5xl">
           <div>
-            {/* Tabs component to switch between account and password sections */}
             <Tabs defaultValue="account" className="w-full text-center mt-10">
               <TabsList className="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-1">
                 <TabsTrigger value="account">Account</TabsTrigger>
@@ -71,10 +57,8 @@ const ProfilePage = () => {
             </Tabs>
 
             <WagmiReadContractComponent />
-            <h2 className="font-bold text-2xl mb-4 text-center">
-              Upload Files
-            </h2>
-            <div className="flex space-x-2 w-[80%]">
+
+            {/* <div className="flex space-x-2 w-[80%]">
               <Card className="flex-1 w-[350px]">
                 <CardHeader>
                   <CardTitle>Accessibility Form</CardTitle>
@@ -110,7 +94,7 @@ const ProfilePage = () => {
                   <FileUpload userId={session.user.id} />
                 </CardFooter>
               </Card>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

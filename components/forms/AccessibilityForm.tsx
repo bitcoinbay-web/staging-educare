@@ -40,7 +40,6 @@ const usePersistentFormState = (key, defaultValue) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Ensure sessionStorage is accessed in client environment
       sessionStorage.setItem(key, JSON.stringify(state));
     }
   }, [key, state]);
@@ -48,7 +47,6 @@ const usePersistentFormState = (key, defaultValue) => {
   return [state, setState];
 };
 
-// Define student information fields
 const studentInfo = [
   {
     id: "studentName",
@@ -88,6 +86,7 @@ export const formSchema = z.object({
   email: z.string().email(),
   consent: z.enum(["true", "false"]).transform((value) => value === "true"),
   authorize: z.enum(["true", "false"]).transform((value) => value === "true"),
+  selectedDoctor : z.string()
 });
 
 const AccessibilityForm: React.FC = () => {
@@ -104,8 +103,28 @@ const AccessibilityForm: React.FC = () => {
       email: "",
       consent: "false",
       authorize: "false",
+      selectedDoctor: ""
     }
   );
+
+  const [doctors, setDoctors] = useState([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch('/api/allDoctors');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setDoctors(data);
+      } catch (error) {
+        console.error('Failed to fetch doctors:', error);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -147,6 +166,7 @@ const AccessibilityForm: React.FC = () => {
       userId,
       account: account.address,
       signedMessage: data,
+      selectedDoctor: values.selectedDoctor, 
     };
     console.log(formData);
     setSavedValues(values);
@@ -353,6 +373,24 @@ const AccessibilityForm: React.FC = () => {
             information by TMU, contact Academic Accommodation Support:
             416-979-5290, aasintake1@torontomu.ca.
           </div>
+          <FormItem>
+            <FormLabel htmlFor="selectedDoctor">Select Doctor **:</FormLabel>
+            <FormControl>
+              <select
+                id="selectedDoctor"
+                {...form.register("selectedDoctor")}
+                className="form-select"
+              >
+                <option value="">Select a doctor</option>
+                {doctors.map((doctor: { id: string; name: string }) => (
+                  <option key={doctor.id} value={doctor.id}>
+                    {doctor.name}
+                  </option>
+                ))}
+              </select>
+            </FormControl>
+          </FormItem>
+
           <Button type="submit">Submit</Button>
         </form>
         {data && (
@@ -366,4 +404,4 @@ const AccessibilityForm: React.FC = () => {
   );
 };
 
-export default AccessibilityForm; // Export the AccessibilityForm component as the default export
+export default AccessibilityForm;

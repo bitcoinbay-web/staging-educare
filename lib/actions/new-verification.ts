@@ -25,12 +25,14 @@ export const newVerification = async (token: string) => {
     });
     user = existingDoctor;
     flag = "doctor";
+  }else{
+    user = existingUser
   }
 
   if (!user) {
     return { error: "User does not exist!" };
   }
-
+  
   if (flag == "student") {
     await db.user.update({
       where: { id: user.id },

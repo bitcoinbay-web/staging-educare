@@ -64,36 +64,34 @@ export async function POST(req: NextRequest) {
       signedMessage,
     } = validatedData;
 
-    // Create a new entry in the database with the validated data
-    const createdForm = await prisma.healthPractitionerFormData.create({
-      data: {
-        firstName,
-        lastName,
-        gender,
-        emailAddress,
-        phoneNumber,
-        healthCarePractitionerType,
-        licenseNumber,
-        acceptingNewClients,
-        languages: JSON.stringify(languages),
-        appointmentTypes: JSON.stringify(appointmentTypes),
-        servicesProvided: JSON.stringify(servicesProvided),
-        businessName,
-        businessWebsite,
-        businessAddress,
-        bookingEmailAddress,
-        bookingPhoneNumber,
-        onlineBookingURL,
-        faxNumber,
-        bio,
-        userId,
-        account,
-        signedMessage,
-      },
-    });
+    // // Create a new entry in the database with the validated data
+    // const createdForm = await prisma.Practitioner.create({
+    //   data: {
+    //     gender,
+    //     emailAddress,
+    //     phoneNumber,
+    //     healthCarePractitionerType,
+    //     licenseNumber,
+    //     acceptingNewClients,
+    //     languages: JSON.stringify(languages),
+    //     appointmentTypes: JSON.stringify(appointmentTypes),
+    //     servicesProvided: JSON.stringify(servicesProvided),
+    //     businessName,
+    //     businessWebsite,
+    //     businessAddress,
+    //     bookingEmailAddress,
+    //     bookingPhoneNumber,
+    //     onlineBookingURL,
+    //     faxNumber,
+    //     bio,
+    //     userId,
+    //     account,
+    //     signedMessage,
+    //   },
+    // });
 
-    // Return a successful response with the created form data
-    return NextResponse.json(createdForm, { status: 201 });
+    // // Return a successful response with the created form data
+    // return NextResponse.json(createdForm, { status: 201 });
   } catch (error) {
     console.error('Error creating form data:', error);
     // Return an error response if the form data could not be saved

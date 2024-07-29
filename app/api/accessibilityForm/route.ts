@@ -19,8 +19,6 @@ const formSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validatedData = formSchema.parse(body);
-    console.log(validatedData);
     const {
       studentName,
       studentId,
@@ -31,9 +29,9 @@ export async function POST(req: NextRequest) {
       userId,
       account,
       signedMessage,
-    } = validatedData;
+      selectedDoctor
+    } = body;
 
-    // Check if the user exists
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -61,11 +59,26 @@ export async function POST(req: NextRequest) {
         email,
         consent,
         authorize,
-        userId,
         account,
         signedMessage,
+        user: {
+          connect: { id: userId }
+        }
       },
     });
+    console.log(selectedDoctor)
+    if (selectedDoctor) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          doctor: {
+            connect: { id: selectedDoctor }
+          }
+        },
+      });
+    } else {
+      console.warn("No doctor ID provided for linking.");
+    }
 
     return NextResponse.json(createdForm, { status: 201 });
   } catch (error) {
