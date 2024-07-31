@@ -21,13 +21,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing file or email' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
+    let user : any = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      const doctor = await prisma.doctor.findUnique({
         where: { email },
       });
-  
-      if (!user) {
+
+      if (!doctor) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
+
+      user = doctor;
+    }
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -37,13 +45,19 @@ export async function POST(req: Request) {
     });
 
     const imageUrl = uploadResponse.url;
-    
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: { image: imageUrl },
-    });
+    if (user.role === 'DOCTOR') {
+      await prisma.doctor.update({
+        where: { id: user.id },
+        data: { image: imageUrl },
+      });
+    } else {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { image: imageUrl },
+      });
+    }
 
-    return NextResponse.json({ status: 201, data: updatedUser }, { status: 201 });
+    return NextResponse.json({ status: 201 });
 
   } catch (error) {
     console.error('Error creating form data:', error);

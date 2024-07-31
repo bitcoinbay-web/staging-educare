@@ -1,6 +1,6 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -24,18 +24,16 @@ enum AcceptingNewClients {
   No
 }
 
-
-
 model User {
-  id                             String    @id @default(cuid())
+  id                             String                           @id @default(cuid())
   name                           String?
-  email                          String?   @unique
-  emailVerified                  DateTime? @map("email_verified")
+  email                          String?                          @unique
+  emailVerified                  DateTime?                        @map("email_verified")
   image                          String?
   password                       String?
-  stdID                          String?   @unique
-  walletID                       String?   @unique
-  role                           UserRole  @default(STUDENT)
+  stdID                          String?                          @unique
+  walletID                       String?                          @unique
+  role                           UserRole                         @default(STUDENT)
   accounts                       Account[]
   files                          File[]
   academicFunctionFormData       AcademicFunctionFormData[]
@@ -53,43 +51,43 @@ model User {
   DisabilityConfirmationData     DisabilityConfirmationData[]
   RecommendationFormData         RecommendationFormData[]
   OSAPDisabilityConfirmationData OSAPDisabilityConfirmationData[]
-   doctorId     String?  
-  doctor       Doctor?   @relation(fields: [doctorId], references: [id], name: "DoctorToUsers")
+  doctorId                       String?
+  doctor                         Doctor?                          @relation(fields: [doctorId], references: [id], name: "DoctorToUsers")
+
   @@map("users")
 }
 
 model Doctor {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  password      String?
-  walletID      String?   @unique
-  role          UserRole  @default(DOCTOR)
-  available     Boolean   @default(true)
-  title         String?
-  stars         String    @default("4")
+  id               String         @id @default(cuid())
+  name             String?
+  email            String?        @unique
+  emailVerified    DateTime?      @map("email_verified")
+  image            String?
+  password         String?
+  walletID         String?        @unique
+  role             UserRole       @default(DOCTOR)
+  available        Boolean        @default(true)
+  title            String?
+  stars            String         @default("4")
   practitionerForm Practitioner[]
-  users         User[]    @relation("DoctorToUsers")
+  users            User[]         @relation("DoctorToUsers")
 
   @@map("doctors")
 }
 
-
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -139,15 +137,15 @@ model AcademicFunctionFormData {
   medicationImpact String?
   additionalInfo   String?
   createdAt        DateTime @default(now())
-  account       String 
-  signedMessage String 
+  account          String
+  signedMessage    String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AccessibilityFormData {
-  id            String    @id @default(cuid())
-  userId        String    @map("user_id")
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
   studentName   String
   studentId     String
   phoneNumber   Int
@@ -155,46 +153,46 @@ model AccessibilityFormData {
   consent       Boolean
   authorize     Boolean
   createdAt     DateTime @default(now())
-  account       String 
-  signedMessage String 
+  account       String
+  signedMessage String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AssessmentHistoryFormData {
-  id            String    @id @default(cuid())
-  userId        String    @map("user_id")
-  duration      Json
-  continue      String
-  methods       Json
+  id                 String   @id @default(cuid())
+  userId             String   @map("user_id")
+  duration           Json
+  continue           String
+  methods            Json
   otherMethodDetails String
-  diagnosticOptions Json
-  methodDates   Json
-  createdAt     DateTime @default(now())
-  account       String 
-  signedMessage String 
+  diagnosticOptions  Json
+  methodDates        Json
+  createdAt          DateTime @default(now())
+  account            String
+  signedMessage      String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model BidirectionalConsentFormData {
-  id             String    @id @default(cuid())
-  userId         String    @map("user_id")
-  email          String
-  studentNumber  String
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  email             String
+  studentNumber     String
   externalPartyName String
-  relationship   String
-  confirmName    String
-  createdAt      DateTime @default(now())
-  account       String 
-  signedMessage String 
+  relationship      String
+  confirmName       String
+  createdAt         DateTime @default(now())
+  account           String
+  signedMessage     String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DisabilityConfirmationFormData {
-  id                       String    @id @default(cuid())
-  userId                   String    @map("user_id")
+  id                       String   @id @default(cuid())
+  userId                   String   @map("user_id")
   practitionerName         String
   licenseNo                String
   qualified                Boolean
@@ -202,104 +200,104 @@ model DisabilityConfirmationFormData {
   otherSpecialty           String?
   otherSpecialistPhysician String?
   createdAt                DateTime @default(now())
-  account       String 
-  signedMessage String 
+  account                  String
+  signedMessage            String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model IntakeFormData {
-  id                            String   @id @default(cuid())
-  userId                        String   @map("user_id")
-  email                         String
-  consent                       String
-  primaryDisability             String
-  secondaryDisabilities         String
-  secondaryDisability           String?
-  abiFormStatus                 String?
-  secondaryAbiFormStatus        String?
-  adhdFormStatus                String?
-  secondaryAdhdFormStatus       String?
-  ldFormStatus                  String?
-  secondaryLdFormStatus         String?
-  midFormStatus                 String?
-  secondaryMidFormStatus        String?
-  asdFormStatus                 String?
-  secondaryAsdFormStatus        String?
-  chronicFormStatus             String?
-  secondaryChronicFormStatus    String?
-  physicalFormStatus            String?
-  secondaryPhysicalFormStatus   String?
-  deafFormStatus                String?
-  secondaryDeafFormStatus       String?
-  mentalHealthFormStatus        String?
+  id                              String   @id @default(cuid())
+  userId                          String   @map("user_id")
+  email                           String
+  consent                         String
+  primaryDisability               String
+  secondaryDisabilities           String
+  secondaryDisability             String?
+  abiFormStatus                   String?
+  secondaryAbiFormStatus          String?
+  adhdFormStatus                  String?
+  secondaryAdhdFormStatus         String?
+  ldFormStatus                    String?
+  secondaryLdFormStatus           String?
+  midFormStatus                   String?
+  secondaryMidFormStatus          String?
+  asdFormStatus                   String?
+  secondaryAsdFormStatus          String?
+  chronicFormStatus               String?
+  secondaryChronicFormStatus      String?
+  physicalFormStatus              String?
+  secondaryPhysicalFormStatus     String?
+  deafFormStatus                  String?
+  secondaryDeafFormStatus         String?
+  mentalHealthFormStatus          String?
   secondaryMentalHealthFormStatus String?
-  visionFormStatus              String?
-  secondaryVisionFormStatus     String?
-  firstName                     String
-  lastName                      String
-  chosenName                    String?
-  pronoun                       String?
-  studentNumber                 String
-  phoneNumber                   String
-  canLeaveMessage               String
-  emergencyContact              String
-  eligibleForOsap               String
-  sourceBeforeTmu               String
-  levelOfStudy                  String
-  faculty                       String
-  specializedProgram            String
-  involvesPracticums            String
-  yearOfStudy                   String
-  startNextCourse               String
-  coursesNextSemester           String
-  anticipatedGraduation         String
-  disabilityImpact              String
-  receivedAccommodationsBefore  String
-  previousAccommodations        String
-  additionalInfo                String?
-  currentSupport                String?
-  strengths                     String
-  academicChallenges            String
-  academicChallengesDetails     String
-  createdAt                     DateTime @default(now())
-  account       String 
-  signedMessage String 
-  
+  visionFormStatus                String?
+  secondaryVisionFormStatus       String?
+  firstName                       String
+  lastName                        String
+  chosenName                      String?
+  pronoun                         String?
+  studentNumber                   String
+  phoneNumber                     String
+  canLeaveMessage                 String
+  emergencyContact                String
+  eligibleForOsap                 String
+  sourceBeforeTmu                 String
+  levelOfStudy                    String
+  faculty                         String
+  specializedProgram              String
+  involvesPracticums              String
+  yearOfStudy                     String
+  startNextCourse                 String
+  coursesNextSemester             String
+  anticipatedGraduation           String
+  disabilityImpact                String
+  receivedAccommodationsBefore    String
+  previousAccommodations          String
+  additionalInfo                  String?
+  currentSupport                  String?
+  strengths                       String
+  academicChallenges              String
+  academicChallengesDetails       String
+  createdAt                       DateTime @default(now())
+  account                         String
+  signedMessage                   String
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model IntroConsentSectionData {
-  id       String   @id @default(cuid())
-  userId   String
-  email    String
-  consent  String
-  createdAt DateTime @default(now())
-  account       String 
-  signedMessage String 
+  id            String   @id @default(cuid())
+  userId        String
+  email         String
+  consent       String
+  createdAt     DateTime @default(now())
+  account       String
+  signedMessage String
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model StudentOSAPFormData {
-  id                      String  @id @default(cuid())
-  userId                  String  @map("user_id")
-  schoolName              String
-  socialInsuranceNumber   String
-  studentNumber           String
-  oen                     String?
-  lastName                String
-  firstName               String
-  dateOfBirth             DateTime
-  address                 Json
-  phoneNumber             String
-  consent                 Boolean
-  optionalConsent         Boolean?
-  signature               String
-  signatureDate           DateTime
-  createdAt               DateTime @default(now())
-  account       String 
-  signedMessage String 
+  id                    String   @id @default(cuid())
+  userId                String   @map("user_id")
+  schoolName            String
+  socialInsuranceNumber String
+  studentNumber         String
+  oen                   String?
+  lastName              String
+  firstName             String
+  dateOfBirth           DateTime
+  address               Json
+  phoneNumber           String
+  consent               Boolean
+  optionalConsent       Boolean?
+  signature             String
+  signatureDate         DateTime
+  createdAt             DateTime @default(now())
+  account               String
+  signedMessage         String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -331,8 +329,8 @@ model StudentDisabilitySectionData {
   visionFormStatus                String?
   secondaryVisionFormStatus       String?
   createdAt                       DateTime @default(now())
-  account       String 
-  signedMessage String 
+  account                         String
+  signedMessage                   String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -365,63 +363,63 @@ model PersonalInfoSectionData {
   strengths                    String
   academicChallenges           String
   academicChallengesDetails    String
-  userId                       String?  // Ensure this is present
+  userId                       String? // Ensure this is present
   createdAt                    DateTime @default(now())
   updatedAt                    DateTime @updatedAt
-  account       String 
-  signedMessage String 
+  account                      String
+  signedMessage                String
 
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)  // Ensure this is present
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade) // Ensure this is present
 }
 
 model PractitionerFormData {
-  id                        String   @id @default(uuid())
-  practitionerName          String
-  licenseNo                 String
-  qualified                 Boolean
-  specialty                 String
-  otherSpecialty            String?
-  otherSpecialistPhysician  String?
-  userId                    String
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
-  account       String 
-  signedMessage String 
- 
+  id                       String   @id @default(uuid())
+  practitionerName         String
+  licenseNo                String
+  qualified                Boolean
+  specialty                String
+  otherSpecialty           String?
+  otherSpecialistPhysician String?
+  userId                   String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  account                  String
+  signedMessage            String
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AssessmentHistoryData {
-  id                  String   @id @default(cuid())
-  duration            Json
-  continue            String
-  methods             String
-  otherMethodDetails  String?
-  diagnosticOptions   String?
-  methodDates         String
-  userId              String
-  createdAt           DateTime @default(now())
-  account       String 
-  signedMessage String 
- 
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(cuid())
+  duration           Json
+  continue           String
+  methods            String
+  otherMethodDetails String?
+  diagnosticOptions  String?
+  methodDates        String
+  userId             String
+  createdAt          DateTime @default(now())
+  account            String
+  signedMessage      String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DisabilityConfirmationData {
-  id                Int      @id @default(autoincrement())
-  disability        String
-  startDate         String?
-  endDate           String?
-  nature            String   // Store as JSON
-  primaryNature     String
+  id                  Int      @id @default(autoincrement())
+  disability          String
+  startDate           String?
+  endDate             String?
+  nature              String // Store as JSON
+  primaryNature       String
   additionalDiagnoses String // Store as JSON
-  userId            String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  account       String 
-  signedMessage String 
- 
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  account             String
+  signedMessage       String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model RecommendationFormData {
@@ -430,37 +428,37 @@ model RecommendationFormData {
   userId          String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  account       String 
-  signedMessage String 
- 
+  account         String
+  signedMessage   String
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OSAPDisabilityConfirmationData {
-  id                        String   @id @default(cuid())
-  patient                   Json
-  physician                 Json
-  disabilityStatus          String
-  disabilities              Json
+  id                          String    @id @default(cuid())
+  patient                     Json
+  physician                   Json
+  disabilityStatus            String
+  disabilities                Json
   psychoEducationalAssessment Boolean?
-  assessmentDate            DateTime?
+  assessmentDate              DateTime?
   learningDisabilityConfirmed Boolean?
-  mobilityImpacts           Json
-  cognitiveImpacts          Json
-  signature                 String
-  signatureDate             DateTime
-  userId                    String
-  createdAt                 DateTime @default(now())
-  account       String 
-  signedMessage String 
- 
-  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mobilityImpacts             Json
+  cognitiveImpacts            Json
+  signature                   String
+  signatureDate               DateTime
+  userId                      String
+  createdAt                   DateTime  @default(now())
+  account                     String
+  signedMessage               String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Doctor Onboarding form by Athika
 model Practitioner {
-  id                         String   @id @default(uuid())
-  doctorId                   String @map("doctor_id")
+  id                         String              @id @default(uuid())
+  doctorId                   String              @map("doctor_id")
   phoneNumber                String
   gender                     Gender
   healthCarePractitionerType String
@@ -470,14 +468,17 @@ model Practitioner {
   appointmentTypes           String[]
   servicesProvided           String[]
   businessName               String
-  businessWebsite            String?  // Optional field
+  businessWebsite            String? // Optional field
   businessAddress            String
   bookingEmailAddress        String
   bookingPhoneNumber         String
-  onlineBookingURL           String?  // Optional field
-  faxNumber                  String?  // Optional field
+  onlineBookingURL           String? // Optional field
+  faxNumber                  String? // Optional field
   bio                        String
+  account                    String
+  signedMessage              String
 
   doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
   @@map("practitioners")
 }

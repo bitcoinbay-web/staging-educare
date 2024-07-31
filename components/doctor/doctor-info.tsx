@@ -35,7 +35,7 @@ export const DoctorInfo = ({ doctor, label }: DoctorInfoProps) => {
         <p className="text-2xl font-semibold text-center">{label}</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
+        {/* <div className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
           <p className="test-sm font-medium">First Name</p>
           <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
             {doctor?.fname}
@@ -46,7 +46,7 @@ export const DoctorInfo = ({ doctor, label }: DoctorInfoProps) => {
           <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
             {doctor?.lname}
           </p>
-        </div>
+        </div> */}
         <div className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
           <p className="test-sm font-medium">Email</p>
           <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">

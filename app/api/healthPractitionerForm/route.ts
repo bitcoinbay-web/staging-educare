@@ -1,49 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'; // Import necessary modules from Next.js server
-import { PrismaClient } from '@prisma/client'; // Import PrismaClient from Prisma
-import { z } from 'zod'; // Import zod for schema validation
+import { NextRequest, NextResponse } from 'next/server'; 
+import { PrismaClient } from '@prisma/client';
 
-// Initialize PrismaClient instance
 const prisma = new PrismaClient();
 
-// Define the schema for the form using zod
-const formSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  gender: z.enum(["Male", "Female", "Other"]),
-  emailAddress: z.string().email(),
-  phoneNumber: z.string().min(1),
-  healthCarePractitionerType: z.string().min(1),
-  licenseNumber: z.string().min(1),
-  acceptingNewClients: z.enum(["Yes", "No"]),
-  languages: z.array(z.string()),
-  appointmentTypes: z.array(z.string()),
-  servicesProvided: z.array(z.string()),
-  businessName: z.string().min(1),
-  businessWebsite: z.string().url().optional().or(z.literal('')),
-  businessAddress: z.string().min(1),
-  bookingEmailAddress: z.string().email(),
-  bookingPhoneNumber: z.string().min(1),
-  onlineBookingURL: z.string().url().optional().or(z.literal('')),
-  faxNumber: z.string().optional().or(z.literal('')),
-  bio: z.string().min(1),
-  userId: z.string(),
-  account: z.string(),
-  signedMessage: z.string(),
-});
 
-// Define the POST request handler
 export async function POST(req: NextRequest) {
   try {
-    // Parse the request body
     const body = await req.json();
-    // Validate the request body against the schema
-    const validatedData = formSchema.parse(body);
 
     const {
-      firstName,
-      lastName,
       gender,
-      emailAddress,
       phoneNumber,
       healthCarePractitionerType,
       licenseNumber,
@@ -62,36 +28,47 @@ export async function POST(req: NextRequest) {
       userId,
       account,
       signedMessage,
-    } = validatedData;
+    } = body;
 
-    // // Create a new entry in the database with the validated data
-    // const createdForm = await prisma.Practitioner.create({
-    //   data: {
-    //     gender,
-    //     emailAddress,
-    //     phoneNumber,
-    //     healthCarePractitionerType,
-    //     licenseNumber,
-    //     acceptingNewClients,
-    //     languages: JSON.stringify(languages),
-    //     appointmentTypes: JSON.stringify(appointmentTypes),
-    //     servicesProvided: JSON.stringify(servicesProvided),
-    //     businessName,
-    //     businessWebsite,
-    //     businessAddress,
-    //     bookingEmailAddress,
-    //     bookingPhoneNumber,
-    //     onlineBookingURL,
-    //     faxNumber,
-    //     bio,
-    //     userId,
-    //     account,
-    //     signedMessage,
-    //   },
-    // });
+    const doctor = await prisma.doctor.findUnique({
+      where: { id: userId },
+      include: { practitionerForm: true },
+    });
 
-    // // Return a successful response with the created form data
-    // return NextResponse.json(createdForm, { status: 201 });
+    if (!doctor) {
+      return NextResponse.json({ error: 'Doctor not found' }, { status: 404 });
+    }
+
+    // Check if the doctor has already filled a practitioner form
+    if (doctor.practitionerForm.length > 0) {
+      return NextResponse.json({ error: 'Practitioner form already filled' }, { status: 400 });
+    }
+
+    const createdPractitioner = await prisma.practitioner.create({
+      data: {
+        doctorId: doctor.id,
+        phoneNumber,
+        gender,
+        healthCarePractitionerType,
+        licenseNumber,
+        acceptingNewClients,
+        languages,
+        appointmentTypes,
+        servicesProvided,
+        businessName,
+        businessWebsite,
+        businessAddress,
+        bookingEmailAddress,
+        bookingPhoneNumber,
+        onlineBookingURL,
+        faxNumber,
+        bio,
+        account,
+        signedMessage,
+      },
+    });
+
+    return NextResponse.json(createdPractitioner, { status: 201 });
   } catch (error) {
     console.error('Error creating form data:', error);
     // Return an error response if the form data could not be saved

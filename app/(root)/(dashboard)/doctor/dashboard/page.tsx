@@ -27,7 +27,7 @@ const DoctorDashboard: React.FC = () => {
     const fetchDoctorStatus = async () => {
       try {
         const response = await fetch(
-          `/api/practitionerform?doctorId=${session?.user?.id}`
+          `/api/practitionerForm?doctorId=${session?.user?.id}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
