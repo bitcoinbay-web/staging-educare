@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
+import { sendDoctorInvitationEmail } from "@/lib/mail"; 
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,9 @@ const formSchema = z.object({
   userId: z.string(),
   account: z.string(),
   signedMessage: z.string(),
+  selectedDoctor: z.string().optional(),
+  doctorEmail: z.string().email().optional(),
+  doctorName: z.string().min(2).max(50).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,7 +33,9 @@ export async function POST(req: NextRequest) {
       userId,
       account,
       signedMessage,
-      selectedDoctor
+      selectedDoctor,
+      doctorEmail,
+      doctorName
     } = body;
 
     const user = await prisma.user.findUnique({
@@ -51,6 +57,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (selectedDoctor === 'other' && doctorEmail && doctorName) {
+      await sendDoctorInvitationEmail(doctorEmail, doctorName);
+    } else if (selectedDoctor) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          doctor: {
+            connect: { id: selectedDoctor }
+          }
+        },
+      });
+    } else {
+      console.warn("No doctor ID provided for linking.");
+    }
+    
     const createdForm = await prisma.accessibilityFormData.create({
       data: {
         studentName,
@@ -66,19 +87,6 @@ export async function POST(req: NextRequest) {
         }
       },
     });
-    console.log(selectedDoctor)
-    if (selectedDoctor) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          doctor: {
-            connect: { id: selectedDoctor }
-          }
-        },
-      });
-    } else {
-      console.warn("No doctor ID provided for linking.");
-    }
 
     return NextResponse.json(createdForm, { status: 201 });
   } catch (error) {

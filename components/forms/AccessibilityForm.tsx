@@ -1,9 +1,9 @@
-"client"; // This directive is used in Next.js to indicate that the file contains client-side code.
+"client";
 
-import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
-import { useForm } from "react-hook-form"; // Import React Hook Form utilities
-import { z } from "zod"; // Import zod for schema validation
-import { Button } from "@/components/ui/button"; // Import Button component
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,31 +12,30 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"; // Import form components
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; // Import RadioGroup components
-import { Input } from "@/components/ui/input"; // Import Input component
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { useSession } from "next-auth/react";
-import { useAccount, useSignMessage } from "wagmi"; // Import wagmi hooks for account and message signing
-import { useState, useEffect } from "react"; // Import React hooks
+import { useAccount, useSignMessage } from "wagmi";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"; // Import Dialog components
+} from "@/components/ui/dialog";
 
-// Custom hook to handle form state persistence
 const usePersistentFormState = (key, defaultValue) => {
   const [state, setState] = useState(() => {
     if (typeof window !== "undefined") {
-      // Check if running in a client environment
       const savedState = sessionStorage.getItem(key);
       return savedState ? JSON.parse(savedState) : defaultValue;
     } else {
       return defaultValue;
     }
   });
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -66,7 +65,6 @@ const studentInfo = [
   },
 ] as const;
 
-// Define consent information fields
 const consentInfo = [
   {
     id: "consent",
@@ -78,7 +76,6 @@ const consentInfo = [
   },
 ] as const;
 
-// Define the schema for the form using zod
 export const formSchema = z.object({
   studentName: z.string().min(2).max(50),
   studentId: z.string().regex(/^[a-zA-Z0-9]+$/),
@@ -86,13 +83,16 @@ export const formSchema = z.object({
   email: z.string().email(),
   consent: z.enum(["true", "false"]).transform((value) => value === "true"),
   authorize: z.enum(["true", "false"]).transform((value) => value === "true"),
-  selectedDoctor : z.string()
+  selectedDoctor: z.string(),
+  doctorName: z.string().optional(),
+  doctorEmail: z.string().optional()
 });
 
 const AccessibilityForm: React.FC = () => {
   const { data, signMessage } = useSignMessage();
   const { data: session } = useSession();
   const account = useAccount();
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
 
   const [savedValues, setSavedValues] = usePersistentFormState(
     "accessibilityForm",
@@ -101,9 +101,11 @@ const AccessibilityForm: React.FC = () => {
       studentId: "",
       phoneNumber: "",
       email: "",
-      consent: "false",
-      authorize: "false",
-      selectedDoctor: ""
+      consent: "true",
+      authorize: "true",
+      selectedDoctor: "",
+      doctorName: "",
+      doctorEmail: ""
     }
   );
 
@@ -112,14 +114,14 @@ const AccessibilityForm: React.FC = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch('/api/allDoctors');
+        const response = await fetch("/api/allDoctors");
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setDoctors(data);
       } catch (error) {
-        console.error('Failed to fetch doctors:', error);
+        console.error("Failed to fetch doctors:", error);
       }
     };
 
@@ -154,6 +156,23 @@ const AccessibilityForm: React.FC = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const jsonString = JSON.stringify(values);
+
+    if (values.authorize !== true || values.consent !== true) {
+      alert("you must give consent and authorization to proceed");
+      setIsDialogOpen(true);
+      return;
+    }
+
+    if(values.selectedDoctor == 'other'){
+      if(values.doctorName == "" || values.doctorEmail == ""){
+        alert("You must give doctor name and email!")
+        return
+      }
+    }else if(values.selectedDoctor == ""){
+      alert("you need to select a doctor or enter their details")
+      return
+    }
+
     await signMessage({
       message: jsonString,
       account: account.address,
@@ -166,9 +185,9 @@ const AccessibilityForm: React.FC = () => {
       userId,
       account: account.address,
       signedMessage: data,
-      selectedDoctor: values.selectedDoctor, 
+      selectedDoctor: values.selectedDoctor,
     };
-    console.log(formData);
+    // console.log(formData);
     setSavedValues(values);
 
     try {
@@ -379,7 +398,15 @@ const AccessibilityForm: React.FC = () => {
               <select
                 id="selectedDoctor"
                 {...form.register("selectedDoctor")}
-                className="form-select"
+                className="form-select border-2 m-2"
+                onChange={(e) => {
+                  console.log('working?')
+                  if (e.target.value === "other") {
+                    setIsOtherSelected(true);
+                  } else {
+                    setIsOtherSelected(false);
+                  }
+                }}
               >
                 <option value="">Select a doctor</option>
                 {doctors.map((doctor: { id: string; name: string }) => (
@@ -387,10 +414,41 @@ const AccessibilityForm: React.FC = () => {
                     {doctor.name}
                   </option>
                 ))}
+                <option value="other">other</option>
               </select>
             </FormControl>
           </FormItem>
 
+          {isOtherSelected && (
+            <>
+              <FormField
+                control={form.control}
+                name="doctorName"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormLabel>Doctor Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter doctor name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="doctorEmail"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormLabel>Doctor Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter doctor email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
           <Button type="submit">Submit</Button>
         </form>
         {data && (

@@ -1,50 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useSession } from "next-auth/react"; // Import useSession
-
+import { useSession } from "next-auth/react"; 
 import { Service, columns } from "../services/columns";
 import { DataTable } from "../services/data-table";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-// Modify getData to accept token
-async function getData(token: string): Promise<Service[]> {
-  // Fetch data from API here using the token for authentication
-  const response = await fetch("/api/data", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  return response.json();
-}
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const StudentDashboardPage: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [data, setData] = React.useState<Service[]>([]);
-  const [formStatus, setFormStatus] = React.useState<string>("Pending");
+  const [data, setData] = useState<Service[]>([]);
+  const [formStatus, setFormStatus] = useState<string>("Pending");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === "authenticated" && session?.user) {
+      const isAccessible = session?.user?.form1;
+
+      if (!isAccessible) {
+        router.push("/student/user");
+      }
+
       const form1Status = session?.user?.form1;
       if (form1Status) {
         setFormStatus("Completed");
       }
     }
-  }, [status, session]);
+  }, [status, session, router]);
 
   const handleUserRedirect = () => {
     router.push("/student/user");
@@ -79,7 +62,7 @@ const StudentDashboardPage: React.FC = () => {
                 <Button onClick={handleUserRedirect}>Edit Form</Button>
               </CardContent>
               <CardFooter>
-                <p>{formStatus}</p> {/* Dynamically display the status */}
+                <p>{formStatus}</p> 
               </CardFooter>
             </Card>
           </div>

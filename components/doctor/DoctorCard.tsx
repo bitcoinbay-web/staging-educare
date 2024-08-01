@@ -26,7 +26,7 @@ const DoctorCard = ({ doctor }) => {
         <div className="relative w-[250px] h-[250px]">
           <Image
             className="w-64 h-64"
-            src={doctor.image ? doctor.image : "/derek.jpg"}
+            src={doctor.image ? doctor.image : "/doctor.jpg"}
             alt={doctor.name}
             layout="fixed"
             objectFit="cover"
