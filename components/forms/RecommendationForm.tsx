@@ -65,9 +65,8 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
       message: jsonString,
       account: account.address,
     });
-    // console.log(JSON.stringify(values, null, 2));
 
-    const userId = session?.user?.id;
+    const userId = studentId
     const formData = {
       ...values,
       userId,

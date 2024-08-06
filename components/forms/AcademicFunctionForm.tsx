@@ -193,7 +193,7 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
     });
     // console.log(JSON.stringify(values, null, 2));
 
-    const userId = session.user.id;
+    const userId = studentId
     const formData = {
       ...values,
       userId,

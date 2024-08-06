@@ -400,7 +400,6 @@ const AccessibilityForm: React.FC = () => {
                 {...form.register("selectedDoctor")}
                 className="form-select border-2 m-2"
                 onChange={(e) => {
-                  console.log('working?')
                   if (e.target.value === "other") {
                     setIsOtherSelected(true);
                   } else {

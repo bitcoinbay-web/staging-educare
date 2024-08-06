@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -72,7 +73,7 @@ const ProfessionSchema = z
     }
   );
 
-const PractitionerForm: React.FC<FormProps> = ({ studentId }) => {
+const PractitionerForm: React.FC<FormProps> = ({studentId}) => {
   const { data, signMessage } = useSignMessage();
   const { data: session } = useSession();
   const account = useAccount();
@@ -123,7 +124,7 @@ const PractitionerForm: React.FC<FormProps> = ({ studentId }) => {
       account: account.address,
     });
 
-    const userId = session.user.id;
+    const userId = studentId;
 
     const formData = {
       ...values,

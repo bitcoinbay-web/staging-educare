@@ -107,7 +107,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.form1 = true;
       }
       // token.customRedirect = existingUser.customRedirect;
-      console.log(token)
+      // console.log(token)
       return token;
     },
   },

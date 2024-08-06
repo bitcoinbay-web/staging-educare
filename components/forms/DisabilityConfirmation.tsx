@@ -146,7 +146,7 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
       account: account.address
     });
 
-    const userId = session.user.id;
+    const userId = studentId;
 
     const formData = {
       ...values,

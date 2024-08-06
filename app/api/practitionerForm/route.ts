@@ -1,77 +1,74 @@
-import { NextRequest, NextResponse } from 'next/server'; // Import necessary modules from Next.js server
-import { PrismaClient } from '@prisma/client'; // Import PrismaClient from Prisma
-import { z } from 'zod'; // Import zod for schema validation
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
 
-// Initialize PrismaClient instance
 const prisma = new PrismaClient();
 
-// Define the schema for the form using zod
-// const formSchema = z.object({
-//   practitionerName: z.string().min(2).max(50),
-//   licenseNo: z.string().min(1, { message: "License number is required" }),
-//   qualified: z.boolean(),
-//   specialty: z.enum([
-//     "family",
-//     "psychiatrist",
-//     "psychologist",
-//     "otherPhysician",
-//     "other",
-//   ]),
-//   otherSpecialty: z.string().optional(),
-//   otherSpecialistPhysician: z.string().optional(),
-//   userId: z.string(),
-//   account: z.string(),
-//   signedMessage: z.string(),
-// });
+const formSchema = z.object({
+  practitionerName: z.string().min(2).max(50),
+  licenseNo: z.string().min(1, { message: "License number is required" }),
+  qualified: z.boolean(),
+  specialty: z.enum([
+    "family",
+    "psychiatrist",
+    "psychologist",
+    "otherPhysician",
+    "other",
+  ]),
+  otherSpecialty: z.string().optional(),
+  otherSpecialistPhysician: z.string().optional(),
+  userId: z.string(),
+  account: z.string(),
+  signedMessage: z.string(),
+});
 
-// // Define the POST request handler
-// export async function POST(req: NextRequest) {
-//   try {
-//     // Parse the request body
-//     const body = await req.json();
-//     // Validate the request body against the schema
-//     const validatedData = formSchema.parse(body);
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const validatedData = formSchema.parse(body);
 
-//     const {
-//       practitionerName,
-//       licenseNo,
-//       qualified,
-//       specialty,
-//       otherSpecialty,
-//       otherSpecialistPhysician,
-//       userId,
-//       account,
-//       signedMessage,
-//     } = validatedData;
+    const {
+      practitionerName,
+      licenseNo,
+      qualified,
+      specialty,
+      otherSpecialty,
+      otherSpecialistPhysician,
+      userId,
+      account,
+      signedMessage,
+    } = validatedData;
 
-//     // Create a new entry in the database with the validated data
-//     const createdForm = await prisma.practitionerForm.create({
-//       data: {
-//         practitionerName,
-//         licenseNo,
-//         qualified,
-//         specialty,
-//         otherSpecialty,
-//         otherSpecialistPhysician,
-//         userId,
-//         account,
-//         signedMessage,
-//         doctor: {
-//           connect: { id: userId },
-//         },
-//       },
-//     });
+    const userWithForm = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { PractitionerFormData: true },
+    });
 
-//     // Return a successful response with the created form data
-//     return NextResponse.json(createdForm, { status: 201 });
-//   } catch (error) {
-//     console.error('Error creating form data:', error);
-//     // Return an error response if the form data could not be saved
-//     return NextResponse.json({ error: 'Failed to save form data' }, { status: 500 });
-//   }
-// }
+    if (userWithForm?.PractitionerFormData.length > 0) {
+      return NextResponse.json({ error: 'Form already filled' }, { status: 400 });
+    }
 
-// Define the GET request handler
+    const createdForm = await prisma.practitionerFormData.create({
+      data: {
+        practitionerName,
+        licenseNo,
+        qualified,
+        specialty,
+        otherSpecialty,
+        otherSpecialistPhysician,
+        userId,
+        account,
+        signedMessage,
+      },
+    });
+
+    return NextResponse.json(createdForm, { status: 201 });
+  } catch (error) {
+    console.error('Error creating form data:', error);
+    return NextResponse.json({ error: 'Failed to save form data' }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const doctorId = searchParams.get('doctorId');

@@ -155,6 +155,7 @@ model AccessibilityFormData {
   createdAt     DateTime @default(now())
   account       String
   signedMessage String
+  status        String?  @default("pending")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -186,6 +187,7 @@ model BidirectionalConsentFormData {
   createdAt         DateTime @default(now())
   account           String
   signedMessage     String
+    status        String?  @default("pending")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -263,6 +265,7 @@ model IntakeFormData {
   createdAt                       DateTime @default(now())
   account                         String
   signedMessage                   String
+    status        String?  @default("pending")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -275,6 +278,7 @@ model IntroConsentSectionData {
   createdAt     DateTime @default(now())
   account       String
   signedMessage String
+    status        String?  @default("pending")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -298,6 +302,7 @@ model StudentOSAPFormData {
   createdAt             DateTime @default(now())
   account               String
   signedMessage         String
+  status                String? @default("pending")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -331,6 +336,7 @@ model StudentDisabilitySectionData {
   createdAt                       DateTime @default(now())
   account                         String
   signedMessage                   String
+    status        String?  @default("pending")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -368,6 +374,7 @@ model PersonalInfoSectionData {
   updatedAt                    DateTime @updatedAt
   account                      String
   signedMessage                String
+  status        String?  @default("pending")
 
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade) // Ensure this is present
 }
@@ -441,12 +448,12 @@ model OSAPDisabilityConfirmationData {
   disabilityStatus            String
   disabilities                Json
   psychoEducationalAssessment Boolean?
-  assessmentDate              DateTime?
+  assessmentDate              String?
   learningDisabilityConfirmed Boolean?
   mobilityImpacts             Json
   cognitiveImpacts            Json
   signature                   String
-  signatureDate               DateTime
+  signatureDate               String
   userId                      String
   createdAt                   DateTime  @default(now())
   account                     String

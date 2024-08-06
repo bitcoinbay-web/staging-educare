@@ -192,6 +192,16 @@ export async function POST(req: NextRequest) {
       signedMessage,
     } = validatedData;
 
+    // Check if the user already has a filled form
+    const userWithForm = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { academicFunctionFormData: true },
+    });
+
+    if (userWithForm?.academicFunctionFormData.length > 0) {
+      return NextResponse.json({ error: 'Form already filled' }, { status: 400 });
+    }
+
     // Create a new entry in the database with the validated data
     const createdForm = await prisma.academicFunctionFormData.create({
       data: {

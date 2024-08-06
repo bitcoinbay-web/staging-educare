@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,91 +8,74 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import Link from "next/link";
-
-import { FaUser } from "react-icons/fa";
-import { FaFileAlt } from "react-icons/fa";
+import { useSession } from "next-auth/react";
 
 const DoctorDashboardTable = () => {
-  const requests = [
-    {
-      id: 1,
-      studentName: "John Doe",
-      status: "Approved",
-    },
-    {
-      id: 2,
-      studentName: "Jane Doe",
-      status: "Pending",
-    },
-    // Add more requests as needed
-  ];
+  const { data: session } = useSession();
+  const [requests, setRequests] = useState([]);
+
+  useEffect(() => {
+    if (session) {
+      fetch(`/api/applications?doctorId=${session?.user?.id}`)
+        .then((response) => response.json())
+        .then((data) =>{
+          console.log(data)
+          if(data?.error){
+            setRequests([])
+          }else{
+            setRequests(data)
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching user form data:", error)
+        );
+    }
+  }, [session]);
+
   return (
-    <>
-      <div className="w-[80%]">
-        <Table>
-          <TableCaption>A list of recent requests.</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Request No</TableHead>
-              <TableHead>Files</TableHead>
-              <TableHead>Student Name</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.map((request) => (
+    <div className="w-[80%]">
+      <Table>
+        <TableCaption>A list of recent requests.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[200px]">Request No</TableHead>
+            <TableHead>Student Email</TableHead>
+            <TableHead>Student Name</TableHead>
+            <TableHead className="text-center">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {requests.map((request, index) => {
+            // console.log(request);
+            return (
               <TableRow
-                key={request.id}
-                className="cursor-pointer hover:bg-gray-100"
+                key={index}
+                className="cursor-pointer"
               >
                 <TableCell className="font-medium">
-                  <Link
-                    href={`/doctor/${request.id}`}
-                    className="block w-full h-full"
-                  >
-                    Request #{request.id}
-                  </Link>
+                  Request #{index + 1}
                 </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/doctor/${request.id}`}
-                    className="flex w-full h-full items-center"
-                  >
-                    <FaUser />
-                    <FaFileAlt className="ml-2" />
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/doctor/${request.id}`}
-                    className="block w-full h-full"
-                  >
-                    {request.studentName}
-                  </Link>
-                </TableCell>
+                <TableCell>{request.email}</TableCell>
+                <TableCell>{request.name}</TableCell>
                 <TableCell className="text-right">
                   <Link
-                    href={`/doctor/${request.id}`}
-                    className="block w-full h-full"
+                    href={{
+                      pathname: `/doctor/${request.id}/stdForm`,
+                      query: { data: JSON.stringify(request) },
+                    }}
+                    className="block w-full h-full border-4	text-center hover:bg-gray-100"
                   >
-                    {request.status}
+                    Pending
                   </Link>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
 export default DoctorDashboardTable;
-
-//  <div className="flex items-center">
-//     {" "}
-//     <FaUser />
-//     <FaFileAlt className="ml-2" />
-//   </div>
