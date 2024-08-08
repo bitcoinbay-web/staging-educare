@@ -25,6 +25,11 @@ export const sendDoctorInvitationEmail = async (email: string, doctorName: strin
   await sendEmail(email, "Join EduCare!", body);
 };
 
+export const sendFormStatusUpdateEmail = async (email: string, formName: string, status: string) => {
+  const body = `<p>Your request for ${formName} was ${status}.</p>`;
+  await sendEmail(email, `Form Status Update: ${formName}`, body);
+};
+
 export async function sendEmail(email: string, subject: string, body: string) {
   try {
     let transporter = nodemailer.createTransport({

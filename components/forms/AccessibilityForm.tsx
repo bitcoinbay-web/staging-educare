@@ -90,7 +90,7 @@ export const formSchema = z.object({
 
 const AccessibilityForm: React.FC = () => {
   const { data, signMessage } = useSignMessage();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const account = useAccount();
   const [isOtherSelected, setIsOtherSelected] = useState(false);
 
@@ -114,7 +114,7 @@ const AccessibilityForm: React.FC = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch("/api/allDoctors");
+        const response = await fetch(`/api/allDoctors?test=idk`); 
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -124,8 +124,9 @@ const AccessibilityForm: React.FC = () => {
         console.error("Failed to fetch doctors:", error);
       }
     };
-
-    fetchDoctors();
+    if(status === "authenticated" && session?.user) {
+      fetchDoctors();
+    }
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({

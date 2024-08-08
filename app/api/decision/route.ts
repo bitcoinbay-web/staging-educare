@@ -2,6 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { sendFormStatusUpdateEmail } from "@/lib/mail";
+
 
 const prisma = new PrismaClient();
 
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     const doctor = user.doctor;
 
-    // Placeholder for email sending
+    await sendFormStatusUpdateEmail(user.email, formType, action);
 
 
     return NextResponse.json({

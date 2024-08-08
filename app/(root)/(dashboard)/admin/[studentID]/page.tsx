@@ -1,6 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, FormEvent } from "react";
 import { useSearchParams, useParams, useRouter } from "next/navigation";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useReadContract,
+  useWriteContract,
+} from "wagmi";
+import { abi } from "@/constants/educareNFTABI";
+import { network, contractAddress } from "@/constants";
 
 interface FormData {
   [key: string]: any;
@@ -21,6 +29,29 @@ const OSAP = () => {
   const searchParams = useSearchParams();
   const formType = searchParams.get("formType");
 
+  const { address } = useAccount();
+  const { data: ownerAddress } = useReadContract({
+    address: contractAddress,
+    abi,
+    functionName: "owner",
+  });
+
+  const { data: hash, error, isPending, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({ hash });
+
+  const [recipient, setRecipient] = useState("");
+  const [tokenId, setTokenId] = useState("");
+  const [uri, setUri] = useState("");
+  const [isLoadingTokenURI, setIsLoadingTokenURI] = useState(false);
+
+  const { data: tokenUriData, refetch: refetchTokenUri } = useReadContract({
+    address: contractAddress,
+    abi,
+    functionName: "tokenURI",
+    args: [BigInt(tokenId)],
+  });
+
   useEffect(() => {
     if (studentID && formType) {
       fetch(`/api/adminCheck?studentId=${studentID}&formType=${formType}`)
@@ -28,39 +59,57 @@ const OSAP = () => {
         .then((data) => {
           const [form] = data;
           setFormData(form.formData);
+          setRecipient(form.formData.account)
           setAssociatedForms(form.associatedForms || {});
-          setIsLoading(false);
           setIsDataLoaded(true);
         })
         .catch((error) => {
           console.error("Error fetching form data:", error);
-          setIsLoading(false);
           setIsDataLoaded(false);
         });
     }
   }, [studentID, formType]);
 
-  const handleAction = (action: string) => {
-    fetch(`/api/decision`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ action, studentID, formType }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Action response:", data);
-        router.push("/admin/dashboard");
-      })
-      .catch((error) => {
-        console.error("Error submitting action:", error);
+  const handleAction = async (action: string) => {
+    try {
+      const response = await fetch(`/api/decision`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action, studentID, formType }),
       });
+      const data = await response.json();
+      console.log("Action response:", data);
+
+      if(action === "approve") {
+        setIsLoadingTokenURI(true);
+        const { data: tokenUriCheck } = await refetchTokenUri();
+        setIsLoadingTokenURI(false);
+  
+        if (tokenUriCheck) {
+          alert("Token ID already exists with a valid URI.");
+          return;
+        }
+  
+        writeContract({
+          address: contractAddress,
+          abi,
+          functionName: "safeMint",
+          args: [recipient, BigInt(tokenId), uri],
+          chain: network.sepolia,
+          account: address,
+        });
+      }
+
+    
+
+      router.push("/admin/dashboard");
+    } catch (error) {
+      console.error("Error submitting action:", error);
+    }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="pt-10 pl-20 ml-64 h-full">

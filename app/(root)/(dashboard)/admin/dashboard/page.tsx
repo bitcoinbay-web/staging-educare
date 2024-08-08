@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from 'react';
 import {
   Table,
@@ -11,24 +11,27 @@ import {
 } from "@/components/ui/table";
 import { FaFileAlt, FaUser } from "react-icons/fa";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const AdminPage = () => {
   const [requests, setRequests] = useState([]);
+  const { data: session, status } = useSession();
+
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch('/api/adminFetch'); 
+        const response = await fetch(`/api/adminFetch?test=${session?.user?.id}`); 
         const data = await response.json();
-        console.log(data)
-        console.log("working?")
+        console.log(data);
         setRequests(data);
       } catch (error) {
         console.error('Error fetching requests:', error);
       }
     };
-
-    fetchRequests();
+    if(status === "authenticated" && session?.user) {
+      fetchRequests();
+    }
   }, []);
 
   const getFormPath = (formName) => {
@@ -65,7 +68,7 @@ const AdminPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.map((request , i) => {
+              {requests.map((request, i) => {
                 const formPath = getFormPath(request.formType);
                 return (
                   <TableRow
@@ -77,7 +80,7 @@ const AdminPage = () => {
                         href={`/admin/${request.id}?formType=${formPath}`}
                         className="block w-full h-full"
                       >
-                        Request #{i+1}
+                        Request #{i + 1}
                       </Link>
                     </TableCell>
                     <TableCell>

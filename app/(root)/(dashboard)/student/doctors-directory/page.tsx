@@ -8,7 +8,7 @@ const Directory = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch('/api/allDoctors'); 
+        const response = await fetch(`/api/allDoctors?test=idk`); 
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
