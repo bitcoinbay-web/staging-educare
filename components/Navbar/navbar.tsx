@@ -34,8 +34,8 @@ const Navbar: React.FC = () => {
       <NavigationMenu>
         <NavigationMenuList className={cn("flex items-center gap-x-4")}>
           <div className="flex items-center">
-            <NavigationMenuItem className={cn("nav-dp ml-4 mt-1.5")}>
-              <Link href="/studentdashboard/profile" legacyBehavior passHref>
+            {/* <NavigationMenuItem className={cn("nav-dp ml-4 mt-1.5")}>
+              <Link href="/student/dashboard/profile" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <Avatar>
                     <AvatarImage src="https://github.com/shadcn.png" />
@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
                   </Avatar>
                 </NavigationMenuLink>
               </Link>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
             <NavigationMenuItem className={cn("nav-button ml-4")}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 <div className="text-black bg-white">
