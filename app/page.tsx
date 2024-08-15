@@ -16,9 +16,12 @@ const HomePage = () => {
   return (
     <main className="flex h-full flex-col items-center justify-center bg-gradient-to-b from-custom1 via-custom2 to-custom3">
       <div className="space-y-6 text-center">
-        <h1 className="text-6xl font-semibold text-white drop-shadow-md">
+        {/* <h1 className="text-6xl font-semibold text-white drop-shadow-md">
           🎓 educare
-        </h1>
+        </h1> */}
+        <div className="flex items-center justify-center">
+          <img src="educare-logo.jpeg" alt="" className="max-h-48" />
+        </div>
         <p className={cn("text-white text-lg", font.className)}>
           A blockchain based accessibility service provider for your
           institution.

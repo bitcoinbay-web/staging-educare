@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,19 +17,19 @@ const AdminPage = () => {
   const [requests, setRequests] = useState([]);
   const { data: session, status } = useSession();
 
-
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch(`/api/adminFetch?test=${session?.user?.id}`); 
+        const response = await fetch(
+          `/api/adminFetch?test=${session?.user?.id}`
+        );
         const data = await response.json();
-        console.log(data);
         setRequests(data);
       } catch (error) {
-        console.error('Error fetching requests:', error);
+        console.error("Error fetching requests:", error);
       }
     };
-    if(status === "authenticated" && session?.user) {
+    if (status === "authenticated" && session?.user) {
       fetchRequests();
     }
   }, []);
@@ -114,8 +114,8 @@ const AdminPage = () => {
                         href={`/admin/${request.id}?formType=${formPath}`}
                         className="block w-full h-full"
                       >
-                        Pending
-                      </Link>
+                        {request.formData.status}
+                        </Link>
                     </TableCell>
                   </TableRow>
                 );
