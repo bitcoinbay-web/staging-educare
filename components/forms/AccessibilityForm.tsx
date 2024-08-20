@@ -1,4 +1,4 @@
-"client";
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -35,7 +35,6 @@ const usePersistentFormState = (key, defaultValue) => {
       return defaultValue;
     }
   });
-
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -79,20 +78,24 @@ const consentInfo = [
 export const formSchema = z.object({
   studentName: z.string().min(2).max(50),
   studentId: z.string().regex(/^[a-zA-Z0-9]+$/),
-  phoneNumber: z.coerce.number().nonnegative(),
+  phoneNumber: z.string(),
   email: z.string().email(),
-  consent: z.enum(["true", "false"]).transform((value) => value === "true"),
-  authorize: z.enum(["true", "false"]).transform((value) => value === "true"),
+  consent: z.boolean(),
+  authorize: z.boolean(),
   selectedDoctor: z.string(),
   doctorName: z.string().optional(),
-  doctorEmail: z.string().optional()
+  doctorEmail: z.string().optional(),
 });
 
 const AccessibilityForm: React.FC = () => {
-  const { data, signMessage } = useSignMessage();
+  const { data: signedData, signMessage, isError } = useSignMessage();
   const { data: session, status } = useSession();
   const account = useAccount();
   const [isOtherSelected, setIsOtherSelected] = useState(false);
+
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [savedValues, setSavedValues] = usePersistentFormState(
     "accessibilityForm",
@@ -101,11 +104,11 @@ const AccessibilityForm: React.FC = () => {
       studentId: "",
       phoneNumber: "",
       email: "",
-      consent: "true",
-      authorize: "true",
+      consent: true,
+      authorize: true,
       selectedDoctor: "",
       doctorName: "",
-      doctorEmail: ""
+      doctorEmail: "",
     }
   );
 
@@ -114,7 +117,7 @@ const AccessibilityForm: React.FC = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch(`/api/allDoctors?test=idk`); 
+        const response = await fetch(`/api/allDoctors?test=idk`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -124,10 +127,10 @@ const AccessibilityForm: React.FC = () => {
         console.error("Failed to fetch doctors:", error);
       }
     };
-    if(status === "authenticated" && session?.user) {
+    if (status === "authenticated" && session?.user) {
       fetchDoctors();
     }
-  }, []);
+  }, [status, session?.user]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -156,60 +159,90 @@ const AccessibilityForm: React.FC = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const jsonString = JSON.stringify(values);
+    setIsSubmitting(true);
+    console.log("Form submitted with values:", values);
 
     if (values.authorize !== true || values.consent !== true) {
-      alert("you must give consent and authorization to proceed");
+      alert("You must give consent and authorization to proceed");
       setIsDialogOpen(true);
+      setIsSubmitting(false);
       return;
     }
 
-    if(values.selectedDoctor == 'other'){
-      if(values.doctorName == "" || values.doctorEmail == ""){
-        alert("You must give doctor name and email!")
-        return
+    if (values.selectedDoctor === "other") {
+      if (values.doctorName === "" || values.doctorEmail === "") {
+        alert("You must provide the doctor's name and email!");
+        setIsSubmitting(false);
+        return;
       }
-    }else if(values.selectedDoctor == ""){
-      alert("you need to select a doctor or enter their details")
-      return
+    } else if (values.selectedDoctor === "") {
+      alert("You need to select a doctor or enter their details");
+      setIsSubmitting(false);
+      return;
     }
 
-    await signMessage({
+    const jsonString = JSON.stringify(values);
+    console.log("JSON stringified form data for signing:", jsonString);
+
+    console.log("Attempting to sign the message...");
+    signMessage({
       message: jsonString,
       account: account.address,
     });
-
-    const userId = session.user.id;
-
-    const formData = {
-      ...values,
-      userId,
-      account: account.address,
-      signedMessage: data,
-      selectedDoctor: values.selectedDoctor,
-    };
-    // console.log(formData);
-    setSavedValues(values);
-
-    try {
-      const response = await fetch("/api/accessibilityForm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log("Form submitted successfully:", result);
-      } else {
-        console.error("Failed to submit form:", result);
-      }
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
   };
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error occurred during message signing");
+      alert("Failed to sign the message. Please try again.");
+      setIsSubmitting(false);
+    }
+
+    if (signedData) {
+      console.log("Message signed successfully:", signedData);
+
+      const userId = session?.user?.id || "";
+      const formData = {
+        ...form.getValues(), // Assuming form.getValues() gets the current form state
+        userId,
+        account: account.address,
+        signedMessage: signedData,
+      };
+
+      // Save form data to sessionStorage
+      setSavedValues(formData);
+      console.log("Form data saved to session storage:", formData);
+
+      const submitForm = async () => {
+        try {
+          const response = await fetch("/api/accessibilityForm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            console.log("Form submitted successfully:", result);
+            setSuccess("Form submitted successfully!");
+            setIsSubmitting(false);
+          } else {
+            console.error("Failed to submit form:", result);
+            setError("Failed to submit form.");
+            setIsSubmitting(false);
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          setError("An unexpected error occurred. Please try again later.");
+          setIsSubmitting(false);
+        }
+      };
+
+      submitForm();
+    }
+  }, [signedData, isError, form, account.address, session?.user?.id]);
 
   return (
     <>
@@ -240,20 +273,18 @@ const AccessibilityForm: React.FC = () => {
               key={item.id}
               control={form.control}
               name={item.id}
-              render={({ field }) => {
-                return (
-                  <FormItem
-                    key={item.id}
-                    className="flex flex-row items-start space-x-3 space-y-0"
-                  >
-                    <FormLabel>{item.label}: </FormLabel>
-                    <FormControl>
-                      <Input placeholder="" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem
+                  key={item.id}
+                  className="flex flex-row items-start space-x-3 space-y-0"
+                >
+                  <FormLabel>{item.label}: </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           ))}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -284,10 +315,10 @@ const AccessibilityForm: React.FC = () => {
                         onValueChange={(value) =>
                           setDialogValues((prev) => ({
                             ...prev,
-                            consent: value,
+                            consent: value === "true",
                           }))
                         }
-                        value={dialogValues.consent}
+                        value={dialogValues.consent ? "true" : "false"}
                         className="flex flex-col space-y-1"
                       >
                         <FormItem className="flex items-center space-x-3 space-y-0">
@@ -326,10 +357,10 @@ const AccessibilityForm: React.FC = () => {
                         onValueChange={(value) =>
                           setDialogValues((prev) => ({
                             ...prev,
-                            authorize: value,
+                            authorize: value === "true",
                           }))
                         }
-                        value={dialogValues.authorize}
+                        value={dialogValues.authorize ? "true" : "false"}
                         className="flex flex-col space-y-1"
                       >
                         <FormItem className="flex items-center space-x-3 space-y-0">
@@ -449,14 +480,18 @@ const AccessibilityForm: React.FC = () => {
               />
             </>
           )}
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
         </form>
-        {data && (
+        {signedData && (
           <div>
             <h3>Signed Data:</h3>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            <pre>{JSON.stringify(signedData, null, 2)}</pre>
           </div>
         )}
+        {error && <div className="text-red-600">{error}</div>}
+        {success && <div className="text-green-600">{success}</div>}
       </Form>
     </>
   );

@@ -7,6 +7,7 @@ const UserProfilePage = () => {
 
   return (
     <>
+      {console.log(session)}
       <div className="pt-10 h-full">
         <UserInfo label="💻 User Information" user={session.user} />
       </div>

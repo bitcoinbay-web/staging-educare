@@ -4,20 +4,18 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -90,7 +88,10 @@ const ImpactsSchema = z.object({
     visionLeftEye: impactsSchema,
     visionBilateral: impactsSchema,
     hearingRightEar: impactsSchema,
-    hearingLeftEar: impactsSchema,
+    hearingLeftEar: z.object({
+      level: z.enum(choiceOptions),
+      comments: z.string().optional(),
+    }), // Ensure this is treated as an object
     hearingBilateral: impactsSchema,
     speech: impactsSchema,
   }),
@@ -105,9 +106,13 @@ interface FormProps {
 
 // Define the main form component
 const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
-  const { data, signMessage } = useSignMessage();
+  const { data, signMessage, error: signError } = useSignMessage(); // Use signError as the alias
   const account = useAccount();
   const { data: session } = useSession();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
 
   // Initialize the form using react-hook-form with zod resolver
   const impactsForm = useForm<z.infer<typeof ImpactsSchema>>({
@@ -155,7 +160,7 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
         visionLeftEye: { level: "N/A", comments: "" },
         visionBilateral: { level: "N/A", comments: "" },
         hearingRightEar: { level: "N/A", comments: "" },
-        hearingLeftEar: { level: "N/A", comments: "" },
+        hearingLeftEar: { level: "N/A", comments: "" }, // Adjusted default value for hearingLeftEar
         hearingBilateral: { level: "N/A", comments: "" },
         speech: { level: "N/A", comments: "" },
       },
@@ -175,6 +180,12 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
     }
   }, [impactsForm]);
 
+  useEffect(() => {
+    if (data && isSubmitting) {
+      handleFinalSubmit();
+    }
+  }, [data]);
+
   // Save form values to session storage whenever they change
   useEffect(() => {
     const subscription = impactsForm.watch((values) => {
@@ -185,15 +196,38 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
 
   // Define the form submission handler
   const onSubmit = async (values: z.infer<typeof ImpactsSchema>) => {
+    setIsSubmitting(true);
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("impactsFormValues", jsonString);
+
     await signMessage({
       message: jsonString,
       account: account.address,
     });
-    // console.log(JSON.stringify(values, null, 2));
 
-    const userId = studentId
+    // Check for signError and handle it
+    if (signError) {
+      setError("Failed to sign the message. Please try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (data) {
+      handleFinalSubmit();
+    }
+  };
+
+  const handleFinalSubmit = async () => {
+    const values = impactsForm.getValues();
+    const userId = studentId;
+
+    if (!userId || !data) {
+      console.error("User ID or signed message data is missing.");
+      setError("User ID or signed message data is missing.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = {
       ...values,
       userId,
@@ -213,11 +247,16 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
       const result = await response.json();
       if (response.ok) {
         console.log("Form submitted successfully:", result);
+        setSuccess("Form submitted successfully!");
       } else {
         console.error("Failed to submit form:", result);
+        setError("Failed to submit form.");
       }
     } catch (error) {
       console.error("An error occurred:", error);
+      setError("An error occurred during submission.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -280,6 +319,57 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
       />
     ));
   };
+
+  const renderSensoryFields = (impactsForm) => (
+    <>
+      <FormField
+        control={impactsForm.control}
+        name="sensory.hearingLeftEar"
+        render={({ field }) => (
+          <FormItem className="space-y-4">
+            <FormLabel>Hearing (Left Ear)</FormLabel>
+            <FormControl>
+              <RadioGroup
+                onValueChange={(value) => {
+                  const updatedValue = {
+                    ...field.value,
+                    level: value,
+                  };
+                  field.onChange(updatedValue);
+                }}
+                defaultValue={field.value.level}
+                className="flex space-x-4"
+              >
+                {choiceOptions.map((level) => (
+                  <FormItem key={level}>
+                    <FormControl>
+                      <RadioGroupItem value={level} />
+                    </FormControl>
+                    <FormLabel className="font-normal">{level}</FormLabel>
+                  </FormItem>
+                ))}
+              </RadioGroup>
+            </FormControl>
+            <FormControl>
+              <Textarea
+                placeholder="Comments"
+                value={field.value.comments || ""}
+                onChange={(e) => {
+                  const updatedValue = {
+                    ...field.value,
+                    comments: e.target.value,
+                  };
+                  field.onChange(updatedValue);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      {/* Repeat similar structures for other fields */}
+    </>
+  );
 
   // Define the tasks for each category
   const impactsTasks = [
@@ -446,7 +536,7 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
         {renderFields(physicalActivityTasks, impactsForm)}
 
         <h2>Sensory</h2>
-        {renderFields(sensoryTasks, impactsForm)}
+        {renderSensoryFields(impactsForm)}
 
         <FormField
           control={impactsForm.control}
@@ -512,7 +602,11 @@ const AcademicFunctionForm: React.FC<FormProps> = ({ studentId }) => {
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          Submit
+        </Button>
+        {success && <p className="text-green-500">{success}</p>}
+        {error && <p className="text-red-500">{error}</p>}
       </form>
       {data && (
         <div>

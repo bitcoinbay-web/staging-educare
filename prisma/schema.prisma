@@ -12,6 +12,12 @@ enum UserRole {
   DOCTOR
   ADMIN
 }
+enum OnboardingStatus {
+  PENDING
+  REGISTERED
+  APPROVED
+  REJECTED
+}
 
 enum Gender {
   Male
@@ -34,6 +40,8 @@ model User {
   stdID                          String?                          @unique
   walletID                       String?                          @unique
   role                           UserRole                         @default(STUDENT)
+  onboarding                     OnboardingStatus                 @default(PENDING)
+  tokenURI                       String?
   accounts                       Account[]
   files                          File[]
   academicFunctionFormData       AcademicFunctionFormData[]
@@ -125,7 +133,6 @@ model File {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-//Forms by Jerry
 model AcademicFunctionFormData {
   id               String   @id @default(cuid())
   userId           String
@@ -148,7 +155,7 @@ model AccessibilityFormData {
   userId        String   @map("user_id")
   studentName   String
   studentId     String
-  phoneNumber   Int
+  phoneNumber   String
   email         String
   consent       Boolean
   authorize     Boolean

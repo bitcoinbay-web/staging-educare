@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -20,12 +20,16 @@ import { useAccount, useSignMessage } from "wagmi";
 
 const studentOSAPSchema = z.object({
   schoolName: z.string().nonempty("School name is required"),
-  socialInsuranceNumber: z.string().nonempty("Social Insurance Number is required"),
+  socialInsuranceNumber: z
+    .string()
+    .nonempty("Social Insurance Number is required"),
   studentNumber: z.string().nonempty("Student number is required"),
   oen: z.string().optional(),
   lastName: z.string().nonempty("Last name is required"),
   firstName: z.string().nonempty("First name is required"),
-  dateOfBirth: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
+  dateOfBirth: z.date().refine((date) => !isNaN(date.getTime()), {
+    message: "Valid date is required",
+  }),
   address: z.object({
     street: z.string().nonempty("Street is required"),
     apartment: z.string().optional(),
@@ -40,13 +44,19 @@ const studentOSAPSchema = z.object({
   }),
   optionalConsent: z.boolean().optional(),
   signature: z.string().nonempty("Signature is required"),
-  signatureDate: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
+  signatureDate: z.date().refine((date) => !isNaN(date.getTime()), {
+    message: "Valid date is required",
+  }),
 });
 
 const StudentOSAPForm: React.FC = () => {
   const { data: session } = useSession();
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
 
   const studentOSAPForm = useForm<z.infer<typeof studentOSAPSchema>>({
     resolver: zodResolver(studentOSAPSchema),
@@ -93,45 +103,62 @@ const StudentOSAPForm: React.FC = () => {
   }, [studentOSAPForm]);
 
   useEffect(() => {
-    if (data) {
-      sessionStorage.setItem("signMessageData", JSON.stringify(data));
+    if (data && isSubmitting) {
+      handleFinalSubmit();
     }
   }, [data]);
 
-  const onSubmit = async (values: z.infer<typeof studentOSAPSchema>) => {
-    const jsonString = JSON.stringify(values);
-    await signMessage({
-      message: jsonString,
-      account: account.address
-    });
+  const handleFinalSubmit = async () => {
+    const values = studentOSAPForm.getValues();
+    const userId = session?.user?.id;
 
-    const userId = session.user.id;
+    if (!userId || !data) {
+      console.error("User ID or signed message data is missing.");
+      return;
+    }
+
     const formData = {
       ...values,
       dateOfBirth: values.dateOfBirth.toISOString(),
       signatureDate: values.signatureDate.toISOString(),
       userId,
       account: account.address,
-      signedMessage: data
+      signedMessage: data,
     };
 
     try {
-      const response = await fetch('/api/studentOSAPForm', {
-        method: 'POST',
+      const response = await fetch("/api/studentOSAPForm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
+        setSuccess("Form submitted successfully!");
+        setIsSubmitting(false);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
+        setError("Failed to submit form.");
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
+      setError("An error occurred during submission.");
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof studentOSAPSchema>) => {
+    setIsSubmitting(true);
+    await signMessage({
+      message: JSON.stringify(values),
+      account: account.address,
+    });
+
+    if (data) {
+      handleFinalSubmit();
     }
   };
 
@@ -146,7 +173,9 @@ const StudentOSAPForm: React.FC = () => {
           name="schoolName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What is the name of the school you plan to attend?</FormLabel>
+              <FormLabel>
+                What is the name of the school you plan to attend?
+              </FormLabel>
               <FormControl>
                 <Input placeholder="School Name" {...field} />
               </FormControl>
@@ -185,7 +214,9 @@ const StudentOSAPForm: React.FC = () => {
           name="oen"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Ontario Education Number (OEN), if assigned to you</FormLabel>
+              <FormLabel>
+                Ontario Education Number (OEN), if assigned to you
+              </FormLabel>
               <FormControl>
                 <Input placeholder="OEN" {...field} />
               </FormControl>
@@ -233,7 +264,11 @@ const StudentOSAPForm: React.FC = () => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={
+                        field.value instanceof Date
+                          ? format(field.value, "yyyy-MM-dd")
+                          : ""
+                      }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
@@ -250,7 +285,10 @@ const StudentOSAPForm: React.FC = () => {
             name="address.street"
             render={({ field }) => (
               <FormControl>
-                <Input placeholder="Street number and name, rural route, or post office box" {...field} />
+                <Input
+                  placeholder="Street number and name, rural route, or post office box"
+                  {...field}
+                />
               </FormControl>
             )}
           />
@@ -308,7 +346,7 @@ const StudentOSAPForm: React.FC = () => {
             <FormItem>
               <FormLabel>Area code and telephone number</FormLabel>
               <FormControl>
-                <Input placeholder="Phone Number" {...field} />
+                <Input required placeholder="Phone Number" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -343,7 +381,9 @@ const StudentOSAPForm: React.FC = () => {
                   ref={field.ref}
                 />
               </FormControl>
-              <FormLabel>I agree to the optional consent and declaration</FormLabel>
+              <FormLabel>
+                I agree to the optional consent and declaration
+              </FormLabel>
             </FormItem>
           )}
         />
@@ -375,7 +415,11 @@ const StudentOSAPForm: React.FC = () => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={
+                        field.value instanceof Date
+                          ? format(field.value, "yyyy-MM-dd")
+                          : ""
+                      }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
@@ -385,7 +429,9 @@ const StudentOSAPForm: React.FC = () => {
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
       </form>
       {data && (
         <div>
@@ -393,6 +439,8 @@ const StudentOSAPForm: React.FC = () => {
           <pre>{JSON.stringify(data, null, 2)}</pre>
         </div>
       )}
+      {error && <div className="text-red-600">{error}</div>}
+      {success && <div className="text-green-600">{success}</div>}
     </Form>
   );
 };

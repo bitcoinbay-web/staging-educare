@@ -1,18 +1,25 @@
 "use client";
 
-import React from 'react';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useSignMessage, useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import DatePicker from "react-datepicker";
-import { Checkbox } from '../ui/checkbox';
-import { useSession } from 'next-auth/react'; // Import useSession from next-auth/react
+import React, { useState, useEffect } from "react";
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useSignMessage, useAccount } from "wagmi";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSession } from "next-auth/react";
+import { format } from "date-fns";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 const formSchema = z.object({
   firstName: z.string().min(1),
@@ -24,7 +31,13 @@ const formSchema = z.object({
   canLeaveMessage: z.enum(["Yes", "No"]),
   emergencyContact: z.string().min(1),
   eligibleForOsap: z.enum(["Yes", "No", "Not sure"]),
-  sourceBeforeTmu: z.enum(["High school", "College", "Another University", "The Workforce", "Other"]),
+  sourceBeforeTmu: z.enum([
+    "High school",
+    "College",
+    "Another University",
+    "The Workforce",
+    "Other",
+  ]),
   levelOfStudy: z.enum(["Undergraduate", "Graduate", "Continuing Education"]),
   faculty: z.enum([
     "Faculty of Arts",
@@ -36,14 +49,36 @@ const formSchema = z.object({
     "Faculty of Law",
     "Ted Rogers School of Management",
     "Yeates School of Graduate Studies",
-    "Chang School of Continuing Education"
+    "Chang School of Continuing Education",
   ]),
-  specializedProgram: z.enum(["Law Practice Program (LPP)", "Juris Doctor (JD)", "Midwifery", "Nursing", "N/A"]),
+  specializedProgram: z.enum([
+    "Law Practice Program (LPP)",
+    "Juris Doctor (JD)",
+    "Midwifery",
+    "Nursing",
+    "N/A",
+  ]),
   involvesPracticums: z.enum(["Yes", "No", "Not sure"]),
-  yearOfStudy: z.enum(["Incoming Student", "First year", "Second year", "Third year", "Fourth year", "Fifth year", "Other"]),
-  startNextCourse: z.enum(["Winter 2024", "Spring/Summer 2024", "Fall 2024", "Other (Fast Track/Acceleration/Intensive Program or Course)", "None of the above"]),
+  yearOfStudy: z.enum([
+    "Incoming Student",
+    "First year",
+    "Second year",
+    "Third year",
+    "Fourth year",
+    "Fifth year",
+    "Other",
+  ]),
+  startNextCourse: z.enum([
+    "Winter 2024",
+    "Spring/Summer 2024",
+    "Fall 2024",
+    "Other (Fast Track/Acceleration/Intensive Program or Course)",
+    "None of the above",
+  ]),
   coursesNextSemester: z.enum(["1", "2", "3", "4", "5", "6+"]),
-  anticipatedGraduation: z.string().min(1),
+  anticipatedGraduation: z.date().refine((date) => !isNaN(date.getTime()), {
+    message: "Valid date is required",
+  }),
   disabilityImpact: z.string().min(1),
   receivedAccommodationsBefore: z.enum(["Yes", "No", "I'm not sure"]),
   previousAccommodations: z.string().min(1),
@@ -51,11 +86,15 @@ const formSchema = z.object({
   currentSupport: z.string().optional(),
   strengths: z.array(z.string()),
   academicChallenges: z.array(z.string()),
-  academicChallengesDetails: z.string().min(1)
+  academicChallengesDetails: z.string().min(1),
 });
 
 const PersonalInfoSection: React.FC = () => {
   const { data: session } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,7 +115,7 @@ const PersonalInfoSection: React.FC = () => {
       yearOfStudy: undefined,
       startNextCourse: undefined,
       coursesNextSemester: undefined,
-      anticipatedGraduation: "",
+      anticipatedGraduation: new Date(),
       disabilityImpact: "",
       receivedAccommodationsBefore: undefined,
       previousAccommodations: "",
@@ -91,43 +130,70 @@ const PersonalInfoSection: React.FC = () => {
   const { data, signMessage } = useSignMessage();
   const account = useAccount();
 
-  const onSubmit = async (values: any) => {
-    const jsonString = JSON.stringify(values);
-    sessionStorage.setItem("personalInfoSectionValues", jsonString);
-    signMessage({
-      message: jsonString,
-      account: account.address
-    });
+  useEffect(() => {
+    if (data && isSubmitting) {
+      handleFinalSubmit();
+    }
+  }, [data]);
 
+  const handleFinalSubmit = async () => {
+    const values = form.getValues();
     const userId = session?.user?.id;
+
+    if (!userId || !data) {
+      console.error("User ID or signed message data is missing.");
+      setError("User ID or signed message data is missing.");
+      return;
+    }
+
     const formData = {
       ...values,
+      anticipatedGraduation: values.anticipatedGraduation.toISOString(),
       userId,
       account: account.address,
-      signedMessage: data
+      signedMessage: data,
     };
 
     try {
-      const response = await fetch('/api/personalInfoSection', {
-        method: 'POST',
+      const response = await fetch("/api/personalInfoSection", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
+        setSuccess("Form submitted successfully!");
+        setIsSubmitting(false);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
+        setError("Failed to submit form.");
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
+      setError("An error occurred during submission.");
     }
   };
 
-  const { control, watch } = form;
+  const onSubmit = async (values: any) => {
+    setIsSubmitting(true);
+    const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("personalInfoSectionValues", jsonString);
+
+    await signMessage({
+      message: jsonString,
+      account: account.address,
+    });
+
+    if (data) {
+      handleFinalSubmit();
+    }
+  };
+
+  const { control } = form;
 
   return (
     <FormProvider {...form}>
@@ -204,7 +270,7 @@ const PersonalInfoSection: React.FC = () => {
             <FormItem>
               <FormLabel>49. Phone Number *</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input required {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -215,7 +281,9 @@ const PersonalInfoSection: React.FC = () => {
           name="canLeaveMessage"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>50. Can we leave a message at this number? *</FormLabel>
+              <FormLabel>
+                50. Can we leave a message at this number? *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -241,7 +309,9 @@ const PersonalInfoSection: React.FC = () => {
           name="emergencyContact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>51. Emergency Contact (Name/Relationship/Contact Number) *</FormLabel>
+              <FormLabel>
+                51. Emergency Contact (Name/Relationship/Contact Number) *
+              </FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -284,14 +354,22 @@ const PersonalInfoSection: React.FC = () => {
           name="sourceBeforeTmu"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>53. Where did you come from before attending TMU? *</FormLabel>
+              <FormLabel>
+                53. Where did you come from before attending TMU? *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   value={field.value}
                   className="space-y-2"
                 >
-                  {["High school", "College", "Another University", "The Workforce", "Other"].map((option) => (
+                  {[
+                    "High school",
+                    "College",
+                    "Another University",
+                    "The Workforce",
+                    "Other",
+                  ].map((option) => (
                     <label key={option} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} />
                       <span>{option}</span>
@@ -315,12 +393,17 @@ const PersonalInfoSection: React.FC = () => {
                   value={field.value}
                   className="space-y-2"
                 >
-                  {["Undergraduate", "Graduate", "Continuing Education"].map((option) => (
-                    <label key={option} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option} />
-                      <span>{option}</span>
-                    </label>
-                  ))}
+                  {["Undergraduate", "Graduate", "Continuing Education"].map(
+                    (option) => (
+                      <label
+                        key={option}
+                        className="flex items-center space-x-2"
+                      >
+                        <RadioGroupItem value={option} />
+                        <span>{option}</span>
+                      </label>
+                    )
+                  )}
                 </RadioGroup>
               </FormControl>
               <FormMessage />
@@ -349,7 +432,7 @@ const PersonalInfoSection: React.FC = () => {
                     "Faculty of Law",
                     "Ted Rogers School of Management",
                     "Yeates School of Graduate Studies",
-                    "Chang School of Continuing Education"
+                    "Chang School of Continuing Education",
                   ].map((option) => (
                     <label key={option} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} />
@@ -367,14 +450,23 @@ const PersonalInfoSection: React.FC = () => {
           name="specializedProgram"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>56. Please indicate if you&apos;re in one of the following specialized programs: *</FormLabel>
+              <FormLabel>
+                56. Please indicate if you&apos;re in one of the following
+                specialized programs: *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   value={field.value}
                   className="space-y-2"
                 >
-                  {["Law Practice Program (LPP)", "Juris Doctor (JD)", "Midwifery", "Nursing", "N/A"].map((option) => (
+                  {[
+                    "Law Practice Program (LPP)",
+                    "Juris Doctor (JD)",
+                    "Midwifery",
+                    "Nursing",
+                    "N/A",
+                  ].map((option) => (
                     <label key={option} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} />
                       <span>{option}</span>
@@ -391,7 +483,10 @@ const PersonalInfoSection: React.FC = () => {
           name="involvesPracticums"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>57. Does your program involve practicums/placements/field work? *</FormLabel>
+              <FormLabel>
+                57. Does your program involve practicums/placements/field work?
+                *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -422,7 +517,15 @@ const PersonalInfoSection: React.FC = () => {
                   value={field.value}
                   className="space-y-2"
                 >
-                  {["Incoming Student", "First year", "Second year", "Third year", "Fourth year", "Fifth year", "Other"].map((option) => (
+                  {[
+                    "Incoming Student",
+                    "First year",
+                    "Second year",
+                    "Third year",
+                    "Fourth year",
+                    "Fifth year",
+                    "Other",
+                  ].map((option) => (
                     <label key={option} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} />
                       <span>{option}</span>
@@ -439,14 +542,22 @@ const PersonalInfoSection: React.FC = () => {
           name="startNextCourse"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>59. When do you anticipate starting your next course/s? *</FormLabel>
+              <FormLabel>
+                59. When do you anticipate starting your next course/s? *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   value={field.value}
                   className="space-y-2"
                 >
-                  {["Winter 2024", "Spring/Summer 2024", "Fall 2024", "Other (Fast Track/Acceleration/Intensive Program or Course)", "None of the above"].map((option) => (
+                  {[
+                    "Winter 2024",
+                    "Spring/Summer 2024",
+                    "Fall 2024",
+                    "Other (Fast Track/Acceleration/Intensive Program or Course)",
+                    "None of the above",
+                  ].map((option) => (
                     <label key={option} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} />
                       <span>{option}</span>
@@ -463,7 +574,11 @@ const PersonalInfoSection: React.FC = () => {
           name="coursesNextSemester"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>60. How many courses are you currently taking this semester? If you are not currently enrolled, how many courses are you planning on taking next semester? *</FormLabel>
+              <FormLabel>
+                60. How many courses are you currently taking this semester? If
+                you are not currently enrolled, how many courses are you
+                planning on taking next semester? *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -487,14 +602,25 @@ const PersonalInfoSection: React.FC = () => {
           name="anticipatedGraduation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>61. What is your approximate anticipated graduation date? *</FormLabel>
+              <FormLabel>
+                61. What is your approximate anticipated graduation date? *
+              </FormLabel>
               <FormControl>
-                <DatePicker
-                  placeholderText="mm/dd/yyyy"
-                  selected={field.value ? new Date(field.value) : null}
-                  onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
-                  dateFormat="yyyy-MM-dd"
-                  className="input"
+                <Controller
+                  control={control}
+                  name="anticipatedGraduation"
+                  render={({ field }) => (
+                    <Input
+                      placeholder="Date"
+                      type="date"
+                      value={
+                        field.value instanceof Date
+                          ? format(field.value, "yyyy-MM-dd")
+                          : ""
+                      }
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                    />
+                  )}
                 />
               </FormControl>
               <FormMessage />
@@ -506,7 +632,10 @@ const PersonalInfoSection: React.FC = () => {
           name="disabilityImpact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>62. Briefly describe how your disability(ies) impacts you and your academic functioning *</FormLabel>
+              <FormLabel>
+                62. Briefly describe how your disability(ies) impacts you and
+                your academic functioning *
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -519,7 +648,9 @@ const PersonalInfoSection: React.FC = () => {
           name="receivedAccommodationsBefore"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>63. Have you ever received academic accommodations before? *</FormLabel>
+              <FormLabel>
+                63. Have you ever received academic accommodations before? *
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -543,7 +674,12 @@ const PersonalInfoSection: React.FC = () => {
           name="previousAccommodations"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>64. Please describe your previous accommodations (please note that accommodations received in high school, college, or another university won’t necessarily be the same as your Toronto Metropolitan accommodation plan) *</FormLabel>
+              <FormLabel>
+                64. Please describe your previous accommodations (please note
+                that accommodations received in high school, college, or another
+                university won’t necessarily be the same as your Toronto
+                Metropolitan accommodation plan) *
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -556,7 +692,10 @@ const PersonalInfoSection: React.FC = () => {
           name="additionalInfo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>65. Is there anything else you would like us to know about your disability and supporting your academics? (Optional)</FormLabel>
+              <FormLabel>
+                65. Is there anything else you would like us to know about your
+                disability and supporting your academics? (Optional)
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -569,7 +708,10 @@ const PersonalInfoSection: React.FC = () => {
           name="currentSupport"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>66. Please list any treatment, support, or therapies which you are currently accessing that supports your studies? (Optional)</FormLabel>
+              <FormLabel>
+                66. Please list any treatment, support, or therapies which you
+                are currently accessing that supports your studies? (Optional)
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -582,10 +724,22 @@ const PersonalInfoSection: React.FC = () => {
           name="strengths"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>67. What are your strengths? (check all that apply) *</FormLabel>
+              <FormLabel>
+                67. What are your strengths? (check all that apply) *
+              </FormLabel>
               <FormControl>
                 <div className="space-y-2">
-                  {["Organization", "Time Management", "Test taking", "Studying", "Writing Assignments", "Note taking", "Participation/presentations", "Processing Information", "Other"].map((strength) => (
+                  {[
+                    "Organization",
+                    "Time Management",
+                    "Test taking",
+                    "Studying",
+                    "Writing Assignments",
+                    "Note taking",
+                    "Participation/presentations",
+                    "Processing Information",
+                    "Other",
+                  ].map((strength) => (
                     <div key={strength} className="flex items-center space-x-2">
                       <Checkbox
                         checked={field.value.includes(strength)}
@@ -610,17 +764,34 @@ const PersonalInfoSection: React.FC = () => {
           name="academicChallenges"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>68. What are your academic challenges? (check all that apply) *</FormLabel>
+              <FormLabel>
+                68. What are your academic challenges? (check all that apply) *
+              </FormLabel>
               <FormControl>
                 <div className="space-y-2">
-                  {["Organization", "Time Management", "Test taking", "Studying", "Writing Assignments", "Note taking", "Participation/presentations", "Processing Information", "Other"].map((challenge) => (
-                    <div key={challenge} className="flex items-center space-x-2">
+                  {[
+                    "Organization",
+                    "Time Management",
+                    "Test taking",
+                    "Studying",
+                    "Writing Assignments",
+                    "Note taking",
+                    "Participation/presentations",
+                    "Processing Information",
+                    "Other",
+                  ].map((challenge) => (
+                    <div
+                      key={challenge}
+                      className="flex items-center space-x-2"
+                    >
                       <Checkbox
                         checked={field.value.includes(challenge)}
                         onCheckedChange={(checked) => {
                           const newValue = checked
                             ? [...field.value, challenge]
-                            : field.value.filter((value) => value !== challenge);
+                            : field.value.filter(
+                                (value) => value !== challenge
+                              );
                           field.onChange(newValue);
                         }}
                       />
@@ -638,7 +809,9 @@ const PersonalInfoSection: React.FC = () => {
           name="academicChallengesDetails"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>69. Please expand on the academic challenges selected above: *</FormLabel>
+              <FormLabel>
+                69. Please expand on the academic challenges selected above: *
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -646,7 +819,9 @@ const PersonalInfoSection: React.FC = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
       </form>
       {data && (
         <div>
@@ -654,6 +829,8 @@ const PersonalInfoSection: React.FC = () => {
           <pre>{JSON.stringify(data, null, 2)}</pre>
         </div>
       )}
+      {error && <div className="text-red-600">{error}</div>}
+      {success && <div className="text-green-600">{success}</div>}
     </FormProvider>
   );
 };

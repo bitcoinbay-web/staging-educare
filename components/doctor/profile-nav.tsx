@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import DoctorTabs from "./doctor-tabs";
 import { useState } from "react";
+import { FaPlusCircle } from "react-icons/fa";
 
 const ProfileNav = () => {
   const { data: session } = useSession();
@@ -58,6 +59,7 @@ const ProfileNav = () => {
             onChange={handleImageUpload}
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
+
           <Image
             src={image}
             alt="Profile"
@@ -65,6 +67,7 @@ const ProfileNav = () => {
             height={75}
             className="rounded-lg cursor-pointer"
           />
+          <FaPlusCircle className="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 text-white bg-gray-800 rounded-full" />
         </div>
         <div>
           <h1 className="font-bold">{session.user.name}</h1>

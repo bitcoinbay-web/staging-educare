@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['ik.imagekit.io'], 
+    domains: ["ik.imagekit.io", "lh3.googleusercontent.com"],
   },
   webpack: (config, { isServer }) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
@@ -21,23 +21,23 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)', // Match all routes
+        source: "/(.*)", // Match all routes
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate",
           },
           {
-            key: 'Pragma',
-            value: 'no-cache',
+            key: "Pragma",
+            value: "no-cache",
           },
           {
-            key: 'Expires',
-            value: '0',
+            key: "Expires",
+            value: "0",
           },
           {
-            key: 'Surrogate-Control',
-            value: 'no-store',
+            key: "Surrogate-Control",
+            value: "no-store",
           },
         ],
       },

@@ -204,7 +204,7 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
             <FormItem>
               <FormLabel>Phone Number *</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input required {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -492,7 +492,7 @@ const HealthPractitionerForm: React.FC<FormProps> = ({ studentId }) => {
             <FormItem>
               <FormLabel>Booking Phone Number *</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input required {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

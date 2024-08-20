@@ -74,11 +74,9 @@ const DisabilitySchema = z.object({
   disability: z.enum(["permanent", "temporary", "persistent"]),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  nature: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    }),
+  nature: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one item.",
+  }),
   primaryNature: z.enum([
     "acquired",
     "adhd",
@@ -99,6 +97,10 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
   const account = useAccount();
   const { data: session } = useSession();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+
   const disabilityForm = useForm<z.infer<typeof DisabilitySchema>>({
     resolver: zodResolver(DisabilitySchema),
     defaultValues: {
@@ -115,71 +117,86 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
     },
   });
 
-  const { fields, append } = useFieldArray({
+  const { fields } = useFieldArray({
     control: disabilityForm.control,
     name: "additionalDiagnoses",
   });
 
   useEffect(() => {
-    const storedValues = sessionStorage.getItem('disabilityFormValues');
+    const storedValues = sessionStorage.getItem("disabilityFormValues");
     if (storedValues) {
       disabilityForm.reset(JSON.parse(storedValues));
     }
-    const savedData = sessionStorage.getItem("signMessageData");
-    if (savedData) {
-      signMessage(JSON.parse(savedData));
+  }, [disabilityForm]);
+
+  useEffect(() => {
+    if (data && isSubmitting) {
+      handleFinalSubmit();
     }
-  }, [disabilityForm, signMessage]);
+  }, [data]);
 
   useEffect(() => {
     const subscription = disabilityForm.watch((values) => {
-      sessionStorage.setItem('disabilityFormValues', JSON.stringify(values));
+      sessionStorage.setItem("disabilityFormValues", JSON.stringify(values));
     });
     return () => subscription.unsubscribe();
   }, [disabilityForm]);
 
-  const onSubmit = async (values: z.infer<typeof DisabilitySchema>) => {
-    const jsonString = JSON.stringify(values);
-    sessionStorage.setItem("disabilityFormValues", jsonString);
-    signMessage({
-      message: jsonString,
-      account: account.address
-    });
-
+  const handleFinalSubmit = async () => {
+    const values = disabilityForm.getValues();
     const userId = studentId;
+
+    if (!userId || !data) {
+      console.error("User ID or signed message data is missing.");
+      setError("User ID or signed message data is missing.");
+      return;
+    }
 
     const formData = {
       ...values,
       userId,
       account: account.address,
-      signedMessage: data
+      signedMessage: data,
     };
 
     try {
-      const response = await fetch('/api/disabilityConfirmation', {
-        method: 'POST',
+      const response = await fetch("/api/disabilityConfirmation", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
       if (response.ok) {
-        console.log('Form submitted successfully:', result);
+        console.log("Form submitted successfully:", result);
+        setSuccess("Form submitted successfully!");
+        setIsSubmitting(false);
       } else {
-        console.error('Failed to submit form:', result);
+        console.error("Failed to submit form:", result);
+        setError("Failed to submit form.");
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
+      setError("An error occurred during submission.");
     }
   };
 
-  useEffect(() => {
+  const onSubmit = async (values: z.infer<typeof DisabilitySchema>) => {
+    setIsSubmitting(true);
+    const jsonString = JSON.stringify(values);
+    sessionStorage.setItem("disabilityFormValues", jsonString);
+
+    await signMessage({
+      message: jsonString,
+      account: account.address,
+    });
+
     if (data) {
-      sessionStorage.setItem("signMessageData", JSON.stringify(data));
+      handleFinalSubmit();
     }
-  }, [data]);
+  };
 
   return (
     <Form {...disabilityForm}>
@@ -284,7 +301,9 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
                       <FormControl>
                         <RadioGroupItem value={item.id} />
                       </FormControl>
-                      <FormLabel className="font-normal">{item.label}</FormLabel>
+                      <FormLabel className="font-normal">
+                        {item.label}
+                      </FormLabel>
                     </FormItem>
                   ))}
                 </RadioGroup>
@@ -313,9 +332,7 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
                         return checked
                           ? field.onChange([...field.value, item.id])
                           : field.onChange(
-                              field.value?.filter(
-                                (value) => value !== item.id
-                              )
+                              field.value?.filter((value) => value !== item.id)
                             );
                       }}
                     />
@@ -337,11 +354,7 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
                 <FormItem>
                   <FormLabel>Diagnosis</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Diagnosis"
-                      type="text"
-                      {...field}
-                    />
+                    <Input placeholder="Diagnosis" type="text" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -390,7 +403,9 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
           </div>
         ))}
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
       </form>
       {data && (
         <div>
@@ -398,6 +413,8 @@ const DisabilityConfirmation: React.FC<FormProps> = ({ studentId }) => {
           <pre>{JSON.stringify(data, null, 2)}</pre>
         </div>
       )}
+      {error && <div className="text-red-600">{error}</div>}
+      {success && <div className="text-green-600">{success}</div>}
     </Form>
   );
 };

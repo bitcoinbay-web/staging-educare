@@ -23,7 +23,7 @@ const DoctorTabs = () => {
               : ""
           } `}
         >
-          <Link href="/student/profile/user" className="flex items-center">
+          <Link href="/doctor/profile" className="flex items-center">
             <HiMiniWrenchScrewdriver className="mr-2" />
             Profile
           </Link>

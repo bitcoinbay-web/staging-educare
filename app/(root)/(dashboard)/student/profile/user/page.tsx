@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation"; 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
+import { useRouter } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import WagmiReadContractComponent from "@/components/WagmiReadContractComponent"; // Import WagmiReadContractComponent
 import BidirectionalConsentForm from "@/components/forms/BidirectionalConsentForm"; // Import BidirectionalConsentForm component
@@ -14,11 +14,11 @@ import UserProfilePage from "@/components/user/user-card";
 import ProfileNav from "@/components/user/profile-nav";
 
 const ProfilePage = () => {
-  const router = useRouter(); 
+  const router = useRouter();
   const { data: session } = useSession();
 
   function onSubmit() {
-    router.push("/student/dashboard"); 
+    router.push("/student/dashboard");
   }
 
   return (

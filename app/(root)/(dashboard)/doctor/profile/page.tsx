@@ -57,7 +57,7 @@ const ProfilePage = () => {
               </TabsContent>
             </Tabs>
 
-            <WagmiReadContractComponent />
+            {/* <WagmiReadContractComponent /> */}
 
             {/* <div className="flex space-x-2 w-[80%]">
               <Card className="flex-1 w-[350px]">

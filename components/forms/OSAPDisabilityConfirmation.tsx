@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { format } from 'date-fns';
-
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,10 +12,12 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAccount, useSignMessage } from "wagmi";
+import { useSession } from "next-auth/react";
 
 const isValidDate = (date: any) => {
   return date instanceof Date && !isNaN(date.getTime());
@@ -75,7 +76,9 @@ const disabilityVerificationSchema = z.object({
   patient: z.object({
     firstName: z.string().nonempty("First name is required"),
     lastName: z.string().nonempty("Last name is required"),
-    dateOfBirth: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
+    dateOfBirth: z.date().refine((date) => !isNaN(date.getTime()), {
+      message: "Valid date is required",
+    }),
   }),
   physician: z.object({
     firstName: z.string().nonempty("First name is required"),
@@ -83,27 +86,37 @@ const disabilityVerificationSchema = z.object({
     specialty: z.string().nonempty("Specialty is required"),
     phoneNumber: z.string().nonempty("Phone number is required"),
     licenseNumber: z.string().nonempty("License number is required"),
-    facilityNameAndAddress: z.string().nonempty("Facility name and address is required"),
+    facilityNameAndAddress: z
+      .string()
+      .nonempty("Facility name and address is required"),
   }),
   disabilityStatus: z.string().nonempty("Disability status is required"),
-  disabilities: z.array(z.string()).nonempty("At least one disability must be selected"),
+  disabilities: z
+    .array(z.string())
+    .nonempty("At least one disability must be selected"),
   psychoEducationalAssessment: z.boolean().optional(),
   assessmentDate: z.date().optional(),
   learningDisabilityConfirmed: z.boolean().optional(),
   mobilityImpacts: z.array(z.string()).optional(),
   cognitiveImpacts: z.array(z.string()).optional(),
   signature: z.string().nonempty("Signature is required"),
-  signatureDate: z.date().refine(date => !isNaN(date.getTime()), { message: "Valid date is required" }),
+  signatureDate: z.date().refine((date) => !isNaN(date.getTime()), {
+    message: "Valid date is required",
+  }),
 });
 
-// Define the prop types for form
 interface FormProps {
   studentId: string;
 }
 
 const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
-  const { data, signMessage } = useSignMessage();
+  const { data: signedData, signMessage, isError } = useSignMessage();
   const account = useAccount();
+  const { data: session } = useSession();
+
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof disabilityVerificationSchema>>({
     resolver: zodResolver(disabilityVerificationSchema),
@@ -133,71 +146,98 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
     },
   });
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedValues = sessionStorage.getItem("disabilityVerificationFormValues");
-      if (storedValues) {
-        form.reset(JSON.parse(storedValues));
-      }
-    }
-  }, [form]);
+  const onSubmit = async (
+    values: z.infer<typeof disabilityVerificationSchema>
+  ) => {
+    setIsSubmitting(true);
+    setError(undefined);
+    setSuccess(undefined);
 
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("disabilityVerificationFormValues", JSON.stringify(values));
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+    console.log("Form submitted with values:", values);
 
-  useEffect(() => {
-    if (data) {
-      sessionStorage.setItem("signMessageData", JSON.stringify(data));
-    }
-  }, [data]);
-
-  const onSubmit = async (values: z.infer<typeof disabilityVerificationSchema>) => {
     const jsonString = JSON.stringify(values);
-    sessionStorage.setItem("disabilityVerificationFormValues", jsonString);
-    await signMessage({
-      message: jsonString,
-      account: account.address
-    });
-    console.log(jsonString);
-
-    const userId = studentId;
-    const formData = {
-      ...values,
-      userId,
-      account: account.address,
-      signedMessage: data
-    };
+    console.log("JSON stringified form data for signing:", jsonString);
 
     try {
-      const response = await fetch('/api/osapDisabilityConfirmation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      await signMessage({
+        message: jsonString,
+        account: account.address,
       });
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log('Form submitted successfully:', result);
-      } else {
-        console.error('Failed to submit form:', result);
-      }
     } catch (error) {
-      console.error('An error occurred:', error);
+      setError("Failed to sign the message. Please try again.");
+      console.error("Error during signing:", error);
+      setIsSubmitting(false);
+      return;
     }
-  }
+  };
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error occurred during message signing");
+      setError("Failed to sign the message. Please try again.");
+      setIsSubmitting(false);
+    }
+
+    if (signedData) {
+      console.log("Message signed successfully:", signedData);
+
+      const userId = studentId || session?.user?.id || "";
+      if (!userId) {
+        setError("User ID is missing. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const formData = {
+        ...form.getValues(), // Assuming form.getValues() gets the current form state
+        userId,
+        account: account.address,
+        signedMessage: signedData,
+      };
+
+      const submitForm = async () => {
+        try {
+          const response = await fetch("/api/osapDisabilityConfirmation", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            console.log("Form submitted successfully:", result);
+            setSuccess("Form submitted successfully!");
+          } else {
+            console.error("Failed to submit form:", result);
+            setError("Failed to submit form.");
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          setError("An unexpected error occurred. Please try again later.");
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+
+      submitForm();
+    }
+  }, [
+    signedData,
+    isError,
+    form,
+    account.address,
+    studentId,
+    session?.user?.id,
+  ]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
-        <FormLabel>Section B: Verification of patient&apos;s disability</FormLabel>
+        <FormLabel>
+          Section B: Verification of patient&apos;s disability
+        </FormLabel>
 
         <FormLabel>Patient Information</FormLabel>
         <FormField
@@ -209,6 +249,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="First Name" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -221,6 +262,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="Last Name" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -238,12 +280,17 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={isValidDate(field.value) ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={
+                        isValidDate(field.value)
+                          ? format(field.value, "yyyy-MM-dd")
+                          : ""
+                      }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -258,6 +305,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="First Name" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -270,6 +318,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="Last Name" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -282,6 +331,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="Specialty" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -292,8 +342,9 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
             <FormItem>
               <FormLabel>Area code and telephone number</FormLabel>
               <FormControl>
-                <Input placeholder="Phone Number" {...field} />
+                <Input placeholder="Phone Number" required {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -306,6 +357,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="Licence Number" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -318,6 +370,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="Facility Name and Address" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -344,6 +397,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
                 />
               </FormControl>
               <FormLabel>Patient&apos;s disability is temporary</FormLabel>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -362,7 +416,9 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
                     onCheckedChange={(checked) =>
                       checked
                         ? field.onChange([...field.value, type])
-                        : field.onChange(field.value.filter((item) => item !== type))
+                        : field.onChange(
+                            field.value.filter((item) => item !== type)
+                          )
                     }
                     ref={field.ref}
                   />
@@ -380,6 +436,7 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
               <FormControl>
                 <Input placeholder="Other disability" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -398,7 +455,9 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
                     onCheckedChange={(checked) =>
                       checked
                         ? field.onChange([...field.value, impact])
-                        : field.onChange(field.value.filter((item) => item !== impact))
+                        : field.onChange(
+                            field.value.filter((item) => item !== impact)
+                          )
                     }
                     ref={field.ref}
                   />
@@ -423,7 +482,9 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
                     onCheckedChange={(checked) =>
                       checked
                         ? field.onChange([...field.value, impact])
-                        : field.onChange(field.value.filter((item) => item !== impact))
+                        : field.onChange(
+                            field.value.filter((item) => item !== impact)
+                          )
                     }
                     ref={field.ref}
                   />
@@ -434,16 +495,21 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
           />
         ))}
 
-        <FormLabel>Declaration of Physician or Regulated Health Care Professional</FormLabel>
+        <FormLabel>
+          Declaration of Physician or Regulated Health Care Professional
+        </FormLabel>
         <FormField
           control={form.control}
           name="signature"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Signature of physician or regulated health care professional</FormLabel>
+              <FormLabel>
+                Signature of physician or regulated health care professional
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Signature" {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -461,22 +527,31 @@ const OSAPDisabilityVerificationForm: React.FC<FormProps> = ({ studentId }) => {
                     <Input
                       placeholder="Date"
                       type="date"
-                      value={isValidDate(field.value) ? format(field.value, 'yyyy-MM-dd') : ''}
+                      value={
+                        isValidDate(field.value)
+                          ? format(field.value, "yyyy-MM-dd")
+                          : ""
+                      }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   )}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
+        {success && <p className="text-green-500">{success}</p>}
+        {error && <p className="text-red-500">{error}</p>}
       </form>
-      {data && (
+      {signedData && (
         <div>
           <h3>Signed Data:</h3>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <pre>{JSON.stringify(signedData, null, 2)}</pre>
         </div>
       )}
     </Form>

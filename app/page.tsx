@@ -23,8 +23,7 @@ const HomePage = () => {
           <img src="educare-logo.jpeg" alt="" className="max-h-48" />
         </div>
         <p className={cn("text-white text-lg", font.className)}>
-          A blockchain based accessibility service provider for your
-          institution.
+          Your Health and Accessibility Records, All in One Place
         </p>
         <div className="space-x-6">
           <LoginButton>

@@ -73,7 +73,7 @@ export const DoctorRegisterForm = () => {
         headerLabel=""
         backButtonLabel="Already have an account?"
         backButtonHref="/login"
-        showSocial
+        // showSocial
       >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

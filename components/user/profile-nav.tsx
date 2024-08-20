@@ -3,25 +3,33 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import UserTabs from "./user-tabs";
 import { useState } from "react";
+import { FaPlusCircle } from "react-icons/fa";
 
 const ProfileNav = () => {
   const { data: session } = useSession();
-  const [image, setImage] = useState(session?.user?.image || "/profile-pic.avif");
+  const [image, setImage] = useState(
+    session?.user?.image || "/profile-pic.avif"
+  );
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
 
-    if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg')) {
+    if (
+      file &&
+      (file.type === "image/jpeg" ||
+        file.type === "image/png" ||
+        file.type === "image/jpg")
+    ) {
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
 
       const formData = new FormData();
-      formData.append('image', file);
-      formData.append('email', session?.user?.email);
+      formData.append("image", file);
+      formData.append("email", session?.user?.email);
 
       try {
-        const response = await fetch('/api/upload-profile-image', {
-          method: 'POST',
+        const response = await fetch("/api/upload-profile-image", {
+          method: "POST",
           body: formData,
         });
 
@@ -29,15 +37,15 @@ const ProfileNav = () => {
           const data = await response.json();
           setImage(data.data.image);
         } else {
-          console.error('Image upload failed');
+          console.error("Image upload failed");
         }
       } catch (error) {
-        console.error('An error occurred while uploading the image', error);
+        console.error("An error occurred while uploading the image", error);
       } finally {
         URL.revokeObjectURL(imageUrl);
       }
     } else {
-      console.error('Invalid file type');
+      console.error("Invalid file type");
     }
   };
 
@@ -58,6 +66,7 @@ const ProfileNav = () => {
             height={75}
             className="rounded-lg cursor-pointer"
           />
+          <FaPlusCircle className="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 text-white bg-gray-800 rounded-full" />
         </div>
         <div>
           <h1 className="font-bold">{session.user.name}</h1>

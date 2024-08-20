@@ -12,7 +12,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { useAccount, useSignMessage } from "wagmi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react"; // Import useSession
 
 // Define the schema for the form
@@ -26,9 +26,13 @@ interface FormProps {
 }
 
 const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
-  const { data, signMessage } = useSignMessage();
+  const { data: signedData, signMessage, error: signError } = useSignMessage();
   const account = useAccount();
   const { data: session } = useSession(); // Get session data
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const form = useForm({
     resolver: zodResolver(AccommodationSchema),
@@ -42,11 +46,13 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
     if (storedValues) {
       form.reset(JSON.parse(storedValues));
     }
-    const savedData = sessionStorage.getItem("signMessageData");
-    if (savedData) {
-      signMessage(JSON.parse(savedData));
+  }, [form]);
+
+  useEffect(() => {
+    if (signedData && isSubmitting) {
+      handleFinalSubmit();
     }
-  }, [form, signMessage]);
+  }, [signedData]);
 
   useEffect(() => {
     const subscription = form.watch((values) => {
@@ -59,19 +65,45 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
   }, [form]);
 
   const onSubmit = async (values: z.infer<typeof AccommodationSchema>) => {
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
+
     const jsonString = JSON.stringify(values);
     sessionStorage.setItem("recommendationFormValues", jsonString);
+
     await signMessage({
       message: jsonString,
       account: account.address,
     });
 
-    const userId = studentId
+    if (signError || error) {
+      setError("User declined to sign the message. Please try again.");
+      setIsSubmitting(false); // Re-enable the submit button
+      return;
+    }
+
+    if (signedData) {
+      handleFinalSubmit();
+    }
+  };
+
+  const handleFinalSubmit = async () => {
+    const values = form.getValues();
+    const userId = studentId;
+
+    if (!userId || !signedData) {
+      console.error("User ID or signed message data is missing.");
+      setError("User ID or signed message data is missing.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = {
       ...values,
       userId,
       account: account.address,
-      signedMessage: data,
+      signedMessage: signedData,
     };
 
     try {
@@ -85,12 +117,17 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
 
       const result = await response.json();
       if (response.ok) {
+        setSuccess("Form submitted successfully.");
         console.log("Form submitted successfully:", result);
       } else {
         console.error("Failed to submit form:", result);
+        setError("Failed to submit form.");
       }
     } catch (error) {
       console.error("An error occurred:", error);
+      setError("An error occurred during submission.");
+    } finally {
+      setIsSubmitting(false); // Ensure the submit button is re-enabled
     }
   };
 
@@ -124,13 +161,17 @@ const RecommendationForm: React.FC<FormProps> = ({ studentId }) => {
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          Submit
+        </Button>
+        {success && <p className="text-green-500">{success}</p>}
+        {error && <p className="text-red-500">{error}</p>}
         <p>Thank you for completing this form.</p>
       </form>
-      {data && (
+      {signedData && (
         <div>
           <h3>Signed Data:</h3>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <pre>{JSON.stringify(signedData, null, 2)}</pre>
         </div>
       )}
     </Form>

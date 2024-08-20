@@ -1,38 +1,46 @@
 "use client";
 
 // Import necessary modules and components
-import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
-import { abi } from '@/constants/educareNFTABI';
-import { Button } from './ui/button';
+import React, { useState, useEffect } from "react";
+import { useAccount, useReadContract } from "wagmi";
+import { abi } from "@/constants/educareNFTABI";
+import { Button } from "./ui/button";
 
-import { contractAddress } from "@/constants/index"
+import { contractAddress } from "@/constants/index";
 
 // Define the component
 const WagmiReadContractComponent: React.FC = () => {
   // State to manage loading state
   const [isLoading, setIsLoading] = useState<boolean>(false);
   // State to store the token URI
-  const [tokenURI, setTokenURI] = useState<string>('');
+  const [tokenURI, setTokenURI] = useState<string>("");
   // State to store the token ID
-  const [tokenId, setTokenId] = useState<number>(0);
+  const [tokenId, setTokenId] = useState<number>(1);
   // Destructure address and isConnected from useAccount hook
   const { address, isConnected } = useAccount();
 
   // Hook to read the token ID from the contract
-  const { data: tokenIdData, isError: tokenIdError, refetch: refetchTokenId } = useReadContract({
+  const {
+    data: tokenIdData,
+    isError: tokenIdError,
+    refetch: refetchTokenId,
+  } = useReadContract({
     address: contractAddress,
     abi,
-    functionName: 'tokenOfOwnerByIndex',
+    functionName: "tokenOfOwnerByIndex",
     args: [address, BigInt(0)],
     // enabled: false, // disable automatic fetching
   });
 
   // Hook to read the token URI from the contract
-  const { data: tokenURIData, isError: tokenURIError, refetch: refetchTokenURI } = useReadContract({
+  const {
+    data: tokenURIData,
+    isError: tokenURIError,
+    refetch: refetchTokenURI,
+  } = useReadContract({
     address: contractAddress,
     abi,
-    functionName: 'tokenURI',
+    functionName: "tokenURI",
     args: [BigInt(tokenId)],
     // enabled: false, // disable automatic fetching
   });
@@ -70,7 +78,9 @@ const WagmiReadContractComponent: React.FC = () => {
         <div>
           {isLoading && <div>Loading...</div>}
           {!isLoading && tokenURI && <div>Onboarding Status: {tokenURI}</div>}
-          {!isLoading && !tokenURI && <div>No token found for the address.</div>}
+          {!isLoading && !tokenURI && (
+            <div>No token found for the address.</div>
+          )}
         </div>
       )}
     </div>

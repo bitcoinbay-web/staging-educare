@@ -51,6 +51,32 @@ const AdminSidebar: React.FC = () => {
           Dashboard
         </Link>
       </div>
+      <div
+        className={`mb-10 font-bold text-md text-[#8290AA] ${
+          pathname === "/admin/all-students"
+            ? "bg-white px-5 py-3 rounded-md"
+            : ""
+        } `}
+      >
+        <Link
+          href="/admin/all-students"
+          className="flex items-center text-[#8290AA] "
+        >
+          <FaHome className="mr-5 text-[#3E84EC]" />
+          Students
+        </Link>
+      </div>
+
+      <div
+        className={`mb-10 font-bold text-md text-[#8290AA] ${
+          pathname === "/admin/mint" ? "bg-white px-5 py-3 rounded-md" : ""
+        } `}
+      >
+        <Link href="/admin/mint" className="flex items-center text-[#8290AA] ">
+          <FaHome className="mr-5 text-[#3E84EC]" />
+          Minting
+        </Link>
+      </div>
 
       <div
         className={`mb-10 font-bold text-md text-[#8290AA] ${

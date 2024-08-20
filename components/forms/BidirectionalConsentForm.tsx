@@ -1,6 +1,6 @@
 "use client"; // This directive is used in Next.js to indicate that the file contains client-side code.
 
-import React, { useEffect } from "react"; // Import React and hooks
+import React, { useEffect, useState } from "react"; // Import React and hooks
 import { zodResolver } from "@hookform/resolvers/zod"; // Import zodResolver for form validation
 import { useForm } from "react-hook-form"; // Import React Hook Form utilities
 import { z } from "zod"; // Import zod for schema validation
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"; // Import Button component
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"; // Import Input component
 
 import { useAccount, useSignMessage } from "wagmi"; // Import wagmi hooks for account and message signing
+import { useSession } from "next-auth/react"; // Import useSession from next-auth/react
 
 // Define the schema for the form using zod
 const BidirectionalConsentFormSchema = z.object({
@@ -30,8 +30,13 @@ const BidirectionalConsentFormSchema = z.object({
 
 // BidirectionalConsentForm component
 const BidirectionalConsentForm: React.FC = () => {
-  const { data, signMessage } = useSignMessage(); // Initialize wagmi hooks
-  const account = useAccount(); // Get the current account
+  const { data: signedData, signMessage, isError } = useSignMessage(); // Initialize wagmi hooks
+  const { address } = useAccount(); // Get the current account address
+  const { data: session } = useSession(); // Get the session data
+
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize form with default values and validation schema
   const form = useForm<z.infer<typeof BidirectionalConsentFormSchema>>({
@@ -52,6 +57,7 @@ const BidirectionalConsentForm: React.FC = () => {
     );
     if (storedValues) {
       form.reset(JSON.parse(storedValues));
+      console.log("Form initialized or reset.");
     }
   }, [form]);
 
@@ -62,6 +68,7 @@ const BidirectionalConsentForm: React.FC = () => {
         "BidirectionalConsentFormValues",
         JSON.stringify(values)
       );
+      console.log("Watching form changes.");
     });
     return () => subscription.unsubscribe();
   }, [form]);
@@ -70,39 +77,89 @@ const BidirectionalConsentForm: React.FC = () => {
   const onSubmit = async (
     values: z.infer<typeof BidirectionalConsentFormSchema>
   ) => {
-    const jsonString = JSON.stringify(values);
-    sessionStorage.setItem("BidirectionalConsentFormValues", jsonString);
-    signMessage({
-      message: jsonString,
-      account: account.address,
-    });
-    // console.log(JSON.stringify(values, null, 2));
+    setIsSubmitting(true);
+    setError(undefined);
+    setSuccess(undefined);
 
-    const userId = account.address; // Replace this with the correct user ID
-    const formData = {
-      ...values,
-      userId,
-    };
+    if (!address || !session?.user?.id) {
+      setError(
+        "User account address or session ID is missing. Please try again."
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    console.log("Form submitted with values:", values);
+
+    const jsonString = JSON.stringify(values);
+    console.log("JSON stringified form data for signing:", jsonString);
 
     try {
-      const response = await fetch("/api/bidirectionalConsentForm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      await signMessage({
+        message: jsonString,
+        account: address,
       });
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log("Form submitted successfully:", result);
-      } else {
-        console.error("Failed to submit form:", result);
-      }
     } catch (error) {
-      console.error("An error occurred:", error);
+      setError("Failed to sign the message. Please try again.");
+      console.error("Error during signing:", error);
+      setIsSubmitting(false);
+      return;
     }
   };
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error occurred during message signing");
+      setError("Failed to sign the message. Please try again.");
+      setIsSubmitting(false);
+    }
+
+    if (signedData) {
+      console.log("Message signed successfully:", signedData);
+
+      const userId = session?.user?.id;
+      if (!userId) {
+        setError("User ID is missing. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const formData = {
+        ...form.getValues(),
+        userId,
+        account: address,
+        signedMessage: signedData,
+      };
+
+      const submitForm = async () => {
+        try {
+          const response = await fetch("/api/bidirectionalConsentForm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            console.log("Form submitted successfully:", result);
+            setSuccess("Form submitted successfully!");
+          } else {
+            console.error("Failed to submit form:", result);
+            setError("Failed to submit form.");
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          setError("An unexpected error occurred. Please try again later.");
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+
+      submitForm();
+    }
+  }, [signedData, isError, form, address, session?.user?.id]);
 
   return (
     <Form {...form}>
@@ -112,17 +169,8 @@ const BidirectionalConsentForm: React.FC = () => {
             <FormLabel>
               AAS Bidirectional Consent for Release of Student Information
             </FormLabel>
-            <FormDescription>
-              In order to share a student&apos;s information with their family
-              members, guardians, and/or service providers, TMU&apos;s Academic
-              Accommodation Support (AAS) needs written consent. By completing
-              and submitting this form, you are consenting to sharing your
-              information with the person(s) you identify below. If you have
-              questions about confidentiality and information sharing, please
-              contact our administrative team at aasadmin@torontomu.ca.
-            </FormDescription>
+            <FormMessage />
           </div>
-          <FormMessage />
         </FormItem>
         <FormField
           control={form.control}
@@ -192,16 +240,20 @@ const BidirectionalConsentForm: React.FC = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
+        {success && <p className="text-green-500">{success}</p>}
+        {error && <p className="text-red-500">{error}</p>}
       </form>
-      {data && (
+      {signedData && (
         <div>
           <h3>Signed Data:</h3>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <pre>{JSON.stringify(signedData, null, 2)}</pre>
         </div>
       )}
     </Form>
   );
 };
 
-export default BidirectionalConsentForm; // Export the BidirectionalConsentForm component as the default export
+export default BidirectionalConsentForm;

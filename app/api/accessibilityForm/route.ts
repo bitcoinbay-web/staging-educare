@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
-import { sendDoctorInvitationEmail } from "@/lib/mail"; 
+import { sendDoctorInvitationEmail } from "@/lib/mail";
 
 const prisma = new PrismaClient();
 
 const formSchema = z.object({
   studentName: z.string().min(2).max(50),
   studentId: z.string().regex(/^[a-zA-Z0-9]+$/),
-  phoneNumber: z.coerce.number().nonnegative(),
+  phoneNumber: z.string(), // Ensure this is a string
   email: z.string().email(),
   consent: z.boolean(),
   authorize: z.boolean(),
@@ -23,6 +23,8 @@ const formSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    console.log("Received data:", body);
+
     const {
       studentName,
       studentId,
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
       signedMessage,
       selectedDoctor,
       doctorEmail,
-      doctorName
+      doctorName,
     } = body;
 
     const user = await prisma.user.findUnique({
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
+      console.error("User not found");
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
@@ -51,27 +54,31 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingForm) {
+      console.error("Form already exists for this user");
       return NextResponse.json(
         { error: "Form already exists for this user" },
         { status: 400 }
       );
     }
 
-    if (selectedDoctor === 'other' && doctorEmail && doctorName) {
+    if (selectedDoctor === "other" && doctorEmail && doctorName) {
+      console.log("Sending doctor invitation email...");
       await sendDoctorInvitationEmail(doctorEmail, doctorName);
     } else if (selectedDoctor) {
+      console.log("Linking doctor to user...");
       await prisma.user.update({
         where: { id: userId },
         data: {
           doctor: {
-            connect: { id: selectedDoctor }
-          }
+            connect: { id: selectedDoctor },
+          },
         },
       });
     } else {
       console.warn("No doctor ID provided for linking.");
     }
-    
+
+    console.log("Creating form entry in the database...");
     const createdForm = await prisma.accessibilityFormData.create({
       data: {
         studentName,
@@ -83,11 +90,12 @@ export async function POST(req: NextRequest) {
         account,
         signedMessage,
         user: {
-          connect: { id: userId }
-        }
+          connect: { id: userId },
+        },
       },
     });
 
+    console.log("Form successfully created:", createdForm);
     return NextResponse.json(createdForm, { status: 201 });
   } catch (error) {
     console.error("Error creating form data:", error);

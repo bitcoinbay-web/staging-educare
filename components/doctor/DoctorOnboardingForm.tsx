@@ -17,7 +17,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const DoctorOnboardingForm: React.FC<{}> = () => {
-
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -83,7 +82,7 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
     };
 
     console.log(dataToSubmit);
-    
+
     try {
       const response = await fetch("/api/healthPractitionerForm", {
         method: "POST",
@@ -97,7 +96,6 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
       if (response.ok) {
         console.log("Form submitted successfully:", result);
         router.push("/doctor/dashboard");
-
       } else {
         console.error("Failed to submit form:", result);
       }
@@ -140,8 +138,8 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
                   onChange={handleChange}
                 />
               </div>
-              <div>
-                <label>Gender *</label>
+              <div className="flex flex-col">
+                <label className="">Gender *</label>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                     <Input
@@ -167,6 +165,7 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+
               <div>
                 <label>Phone Number *</label>
                 <Input
