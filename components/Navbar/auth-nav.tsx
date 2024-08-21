@@ -42,9 +42,7 @@ const AuthNav = () => {
             </div>
           </div>
           <div>
-            <Button className="text-black bg-white rounded-full py-6 px-10 hover:text-white">
-              Connect Wallet
-            </Button>
+            <w3m-button size="md" />
           </div>
         </div>
       </main>

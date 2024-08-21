@@ -10,9 +10,9 @@ import BidirectionalConsentForm from "@/components/forms/BidirectionalConsentFor
 import FileUpload from "@/components/FileUpload";
 
 import Image from "next/image";
-import UserProfilePage from "@/components/user/user-card";
 import ProfileNav from "@/components/doctor/profile-nav";
 import DoctorOnboardingCard from "@/components/doctor/OnboardingCard";
+import DoctorUserCard from "@/components/doctor/d-userCard";
 
 const ProfilePage = () => {
   const router = useRouter();
@@ -50,7 +50,7 @@ const ProfilePage = () => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="account">
-                <UserProfilePage />
+                <DoctorUserCard />
               </TabsContent>
               <TabsContent value="Onboarding">
                 <DoctorOnboardingCard />

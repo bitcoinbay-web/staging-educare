@@ -41,87 +41,75 @@ export async function GET(req: NextRequest) {
 
     let formDataEntries: any[] = [];
     const userData = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        doctorId: user.doctorId,
-      };
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      doctorId: user.doctorId,
+    };
 
     switch (formType) {
       case 'accessibility':
-        if (user.accessibilityFormData.some(form => form.status === 'pending') &&
+        if (
           user.PractitionerFormData.length > 0 &&
           user.AssessmentHistoryData.length > 0 &&
           user.DisabilityConfirmationData.length > 0 &&
           user.academicFunctionFormData.length > 0 &&
-          user.RecommendationFormData.length > 0) {
-          formDataEntries = user.accessibilityFormData
-            .filter(form => form.status === 'pending')
-            .map(form => ({
-              ...userData,
-              formType: 'AccessibilityFormData',
-              formData: form,
-              associatedForms: {
-                PractitionerFormData: user.PractitionerFormData[0],
-                AssessmentHistoryData: user.AssessmentHistoryData[0],
-                DisabilityConfirmationData: user.DisabilityConfirmationData[0],
-                academicFunctionFormData: user.academicFunctionFormData[0],
-                RecommendationFormData: user.RecommendationFormData[0],
-              }
-            }));
+          user.RecommendationFormData.length > 0
+        ) {
+          formDataEntries = user.accessibilityFormData.map(form => ({
+            ...userData,
+            formType: 'AccessibilityFormData',
+            formData: form,
+            associatedForms: {
+              PractitionerFormData: user.PractitionerFormData[0],
+              AssessmentHistoryData: user.AssessmentHistoryData[0],
+              DisabilityConfirmationData: user.DisabilityConfirmationData[0],
+              academicFunctionFormData: user.academicFunctionFormData[0],
+              RecommendationFormData: user.RecommendationFormData[0],
+            }
+          }));
         }
         break;
 
       case 'osap':
-        if (user.StudentOSAPFormData.some(form => form.status === 'pending') &&
+        if (
           user.OSAPDisabilityConfirmationData.length > 0 &&
-          user.doctor?.practitionerForm.length > 0) {
-          formDataEntries = user.StudentOSAPFormData
-            .filter(form => form.status === 'pending')
-            .map(form => ({
-              ...userData,
-              formType: 'StudentOSAPFormData',
-              formData: form,
-              associatedForms: {
-                OSAPDisabilityConfirmationData: user.OSAPDisabilityConfirmationData[0],
-                practitionerForm: user.doctor?.practitionerForm[0],
-              }
-            }));
+          user.doctor?.practitionerForm.length > 0
+        ) {
+          formDataEntries = user.StudentOSAPFormData.map(form => ({
+            ...userData,
+            formType: 'StudentOSAPFormData',
+            formData: form,
+            associatedForms: {
+              OSAPDisabilityConfirmationData: user.OSAPDisabilityConfirmationData[0],
+              practitionerForm: user.doctor?.practitionerForm[0],
+            }
+          }));
         }
         break;
 
       case 'intake':
-        if (user.IntakeFormData.some(form => form.status === 'pending')) {
-          formDataEntries = [
-            ...user.IntakeFormData
-              .filter(form => form.status === 'pending')
-              .map(form => ({
-                ...userData,
-                formType: 'IntakeFormData',
-                formData: form,
-              }))
-          ];
-        }
+        formDataEntries = user.IntakeFormData.map(form => ({
+          ...userData,
+          formType: 'IntakeFormData',
+          formData: form,
+        }));
         break;
 
       case 'disability':
-        formDataEntries = user.DisabilityConfirmationData
-          .filter((form:any) => form.status === 'pending')
-          .map(form => ({
-            ...userData,
-            formType: 'DisabilityConfirmationData',
-            formData: form,
-          }));
+        formDataEntries = user.DisabilityConfirmationData.map(form => ({
+          ...userData,
+          formType: 'DisabilityConfirmationData',
+          formData: form,
+        }));
         break;
 
       case 'personalInfo':
-        formDataEntries = user.personalInfoSectionData
-          .filter(form => form.status === 'pending')
-          .map(form => ({
-            ...userData,
-            formType: 'PersonalInfoSectionData',
-            formData: form,
-          }));
+        formDataEntries = user.personalInfoSectionData.map(form => ({
+          ...userData,
+          formType: 'PersonalInfoSectionData',
+          formData: form,
+        }));
         break;
 
       default:

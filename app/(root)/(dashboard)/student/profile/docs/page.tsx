@@ -1,5 +1,5 @@
 "use client";
-import FileUpload from "@/components/FileUpload";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardDescription,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import ProfileNav from "@/components/user/profile-nav";
 import Image from "next/image";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,22 +26,40 @@ import {
 const MyDocuments = () => {
   const { data: session } = useSession();
 
+  const [requests, setRequests] = useState([]);
+
+  useEffect(() => {
+    if (session) {
+      fetch(`/api/studentApplications?studentId=${session?.user?.id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          if (data?.error) {
+            setRequests([]);
+          } else {
+            setRequests(data);
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching user form data:", error)
+        );
+    }
+  }, [session]);
+
   const uploadedFiles = [
     {
       formName: "Accessibility Form",
       category: "Accessibility Services",
-      uploadedOn: "2023-09-20",
     },
     {
       formName: "OSAP Disability",
       category: "Financial Services",
-      uploadedOn: "2024-03-20",
     },
-    {
-      formName: "Other Form",
-      category: "Miscellaneous",
-      uploadedOn: "2024-05-15",
-    },
+    // {
+    //   formName: "Other Form",
+    //   category: "Miscellaneous",
+    //   uploadedOn: "2024-05-15",
+    // },
     // Add more objects as needed
   ];
 
@@ -71,36 +90,33 @@ const MyDocuments = () => {
               <Tabs defaultValue="account" className="w-[80%]">
                 <TabsList>
                   <TabsTrigger value="account">Files</TabsTrigger>
-                  <TabsTrigger value="password">Upload</TabsTrigger>
                 </TabsList>
                 <TabsContent value="account">
                   <Table>
-                    <TableCaption>A list of your uploaded files.</TableCaption>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="">Form Name</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Uploaded On</TableHead>
+                        {/* <TableHead>Category</TableHead> */}
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {uploadedFiles.map((file, index) => (
+                      {requests.map((file, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">
-                            {file.formName}
+                            {file.formType}
                           </TableCell>
                           <TableCell>{file.category}</TableCell>
-                          <TableCell>{file.uploadedOn}</TableCell>
                           <TableCell className="text-right">
                             <button className="mr-2 bg-blue-500 text-white px-4 py-2 rounded-sm">
-                              View
-                            </button>
-                            <button className="mr-2 bg-green-500 text-white px-4 py-2 rounded-sm">
-                              Download
-                            </button>
-                            <button className="bg-red-500 text-white px-4 py-2 rounded-sm">
-                              Delete
+                              <Link
+                                href={{
+                                  pathname: `/student/profile/docs/${file.id}`,
+                                  query: { data: JSON.stringify(file) },
+                                }}
+                              >
+                                View
+                              </Link>
                             </button>
                           </TableCell>
                         </TableRow>
@@ -118,9 +134,7 @@ const MyDocuments = () => {
                             Upload your filled out Accessibility Form
                           </CardDescription>
                         </CardHeader>
-                        <CardFooter>
-                          <FileUpload userId={session.user.id} />
-                        </CardFooter>
+                        <CardFooter></CardFooter>
                       </Card>
                       <Card className="flex-1 w-[350px]">
                         <CardHeader>
@@ -129,9 +143,7 @@ const MyDocuments = () => {
                             Upload your filled out Student OSAP Form
                           </CardDescription>
                         </CardHeader>
-                        <CardFooter>
-                          <FileUpload userId={session.user.id} />
-                        </CardFooter>
+                        <CardFooter></CardFooter>
                       </Card>
                       <Card className="flex-1 w-[350px]">
                         <CardHeader>
@@ -142,9 +154,7 @@ const MyDocuments = () => {
                             Upload your filled out ERO Intake Form
                           </CardDescription>
                         </CardHeader>
-                        <CardFooter>
-                          <FileUpload userId={session.user.id} />
-                        </CardFooter>
+                        <CardFooter></CardFooter>
                       </Card>
                     </div>
                     <Card className="flex-1 w-[350px] mt-6">
@@ -152,9 +162,7 @@ const MyDocuments = () => {
                         <CardTitle>Other Forms</CardTitle>
                         <CardDescription>Upload other files</CardDescription>
                       </CardHeader>
-                      <CardFooter>
-                        <FileUpload userId={session.user.id} />
-                      </CardFooter>
+                      <CardFooter></CardFooter>
                     </Card>
                   </div>
                 </TabsContent>

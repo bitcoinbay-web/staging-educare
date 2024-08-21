@@ -23,34 +23,10 @@ const OSAP = () => {
   const [activeTab, setActiveTab] = useState<string>("formData");
   const [formData, setFormData] = useState<FormData | null>(null);
   const [associatedForms, setAssociatedForms] = useState<AssociatedForms>({});
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
   const { studentID } = useParams();
   const searchParams = useSearchParams();
   const formType = searchParams.get("formType");
-
-  const { address } = useAccount();
-  const { data: ownerAddress } = useReadContract({
-    address: contractAddress,
-    abi,
-    functionName: "owner",
-  });
-
-  const { data: hash, error, isPending, writeContract } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({ hash });
-
-  const [recipient, setRecipient] = useState("");
-  const [tokenId, setTokenId] = useState("");
-  const [uri, setUri] = useState("");
-  const [isLoadingTokenURI, setIsLoadingTokenURI] = useState(false);
-
-  const { data: tokenUriData, refetch: refetchTokenUri } = useReadContract({
-    address: contractAddress,
-    abi,
-    functionName: "tokenURI",
-    args: [BigInt(tokenId)],
-  });
 
   useEffect(() => {
     if (studentID && formType) {
@@ -59,7 +35,6 @@ const OSAP = () => {
         .then((data) => {
           const [form] = data;
           setFormData(form.formData);
-          setRecipient(form.formData.account)
           setAssociatedForms(form.associatedForms || {});
           setIsDataLoaded(true);
         })
@@ -80,29 +55,6 @@ const OSAP = () => {
         body: JSON.stringify({ action, studentID, formType }),
       });
       const data = await response.json();
-      console.log("Action response:", data);
-
-      if(action === "approve") {
-        setIsLoadingTokenURI(true);
-        const { data: tokenUriCheck } = await refetchTokenUri();
-        setIsLoadingTokenURI(false);
-  
-        if (tokenUriCheck) {
-          alert("Token ID already exists with a valid URI.");
-          return;
-        }
-  
-        writeContract({
-          address: contractAddress,
-          abi,
-          functionName: "safeMint",
-          args: [recipient, BigInt(tokenId), uri],
-          chain: network.sepolia,
-          account: address,
-        });
-      }
-
-    
 
       router.push("/admin/dashboard");
     } catch (error) {

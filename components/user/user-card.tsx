@@ -9,7 +9,7 @@ const UserProfilePage = () => {
     <>
       {console.log(session)}
       <div className="pt-10 h-full">
-        <UserInfo label="💻 User Information" user={session.user} />
+        <UserInfo label="💻 User Information" user={session?.user} />
       </div>
     </>
   );

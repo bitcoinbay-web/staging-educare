@@ -45,6 +45,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Form entry not found' }, { status: 404 });
     }
 
+    await prisma.user.update({
+      where : { id : studentID},
+      data : {
+        onboarding : action
+      }
+    })
+
     await (prisma[formTypes[formType]] as any).update({
       where: { id: formEntry.id },
       data: { status: action }

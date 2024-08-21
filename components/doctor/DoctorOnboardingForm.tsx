@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSignMessage, useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -41,11 +41,14 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
     bio: "",
   });
 
-  const { data, signMessage } = useSignMessage();
+  const { data: signedData, signMessage, isError } = useSignMessage();
   const account = useAccount();
   const { data: session } = useSession();
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -66,43 +69,87 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
 
   const onSubmitForm = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError(undefined);
+    setSuccess(undefined);
+
     const jsonString = JSON.stringify(formData);
     sessionStorage.setItem("healthPractitionerFormValues", jsonString);
-    signMessage({
-      message: jsonString,
-      account: account.address,
-    });
-
-    const userId = session?.user?.id;
-    const dataToSubmit = {
-      ...formData,
-      userId,
-      account: account.address,
-      signedMessage: data,
-    };
-
-    console.log(dataToSubmit);
 
     try {
-      const response = await fetch("/api/healthPractitionerForm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSubmit),
+      await signMessage({
+        message: jsonString,
+        account: account.address,
       });
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log("Form submitted successfully:", result);
-        router.push("/doctor/dashboard");
-      } else {
-        console.error("Failed to submit form:", result);
-      }
     } catch (error) {
-      console.error("An error occurred:", error);
+      setError("Failed to sign the message. Please try again.");
+      console.error("Error during signing:", error);
+      setIsSubmitting(false);
+      return;
     }
   };
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error occurred during message signing");
+      setError("Failed to sign the message. Please try again.");
+      setIsSubmitting(false);
+    }
+
+    if (signedData) {
+      console.log("Message signed successfully:", signedData);
+
+      const userId = session?.user?.id || "";
+      if (!userId) {
+        setError("User ID is missing. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const dataToSubmit = {
+        ...formData,
+        userId,
+        account: account.address,
+        signedMessage: signedData,
+      };
+
+      const submitForm = async () => {
+        try {
+          const response = await fetch("/api/healthPractitionerForm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToSubmit),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            console.log("Form submitted successfully:", result);
+            setSuccess("Form submitted successfully!");
+            router.push("/doctor/dashboard");
+          } else {
+            console.error("Failed to submit form:", result);
+            setError("Failed to submit form.");
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          setError("An unexpected error occurred. Please try again later.");
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+
+      submitForm();
+    }
+  }, [
+    signedData,
+    isError,
+    formData,
+    account.address,
+    session?.user?.id,
+    router,
+  ]);
 
   const nextStep = () => setCurrentStep((prevStep) => prevStep + 1);
   const prevStep = () => setCurrentStep((prevStep) => prevStep - 1);
@@ -114,22 +161,6 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
           <div>
             <h2 className="text-center mb-6">Basic Information</h2>
             <div className="grid grid-cols-2 gap-4">
-              {/* <div>
-                <label>First Name *</label>
-                <Input
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label>Last Name *</label>
-                <Input
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-              </div> */}
               <div>
                 <label>Email Address *</label>
                 <Input
@@ -420,14 +451,20 @@ const DoctorOnboardingForm: React.FC<{}> = () => {
             Next
           </Button>
         )}
-        {currentStep === 3 && <Button type="submit">Submit</Button>}
+        {currentStep === 3 && (
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        )}
       </div>
-      {data && (
+      {signedData && (
         <div>
           <h3>Signed Data:</h3>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <pre>{JSON.stringify(signedData, null, 2)}</pre>
         </div>
       )}
+      {error && <div className="text-red-600">{error}</div>}
+      {success && <div className="text-green-600">{success}</div>}
     </form>
   );
 };

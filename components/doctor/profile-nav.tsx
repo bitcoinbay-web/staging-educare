@@ -70,8 +70,8 @@ const ProfileNav = () => {
           <FaPlusCircle className="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 text-white bg-gray-800 rounded-full" />
         </div>
         <div>
-          <h1 className="font-bold">{session.user.name}</h1>
-          <p className="text-sm text-gray-500">{session.user.email}</p>
+          <h1 className="font-bold">{session?.user?.name}</h1>
+          <p className="text-sm text-gray-500">{session?.user?.email}</p>
         </div>
         <div className="w-full flex justify-end items-center">
           <DoctorTabs />

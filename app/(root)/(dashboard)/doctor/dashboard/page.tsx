@@ -33,7 +33,7 @@ const DoctorDashboard: React.FC = () => {
   return (
     <div>
       <div className="dashboard-main">
-        <h1>Welcome Dr. {session.user.name}</h1>
+        <h1>Welcome Dr. {session?.user?.name}</h1>
         <DoctorDashboardTable />
       
       </div>
