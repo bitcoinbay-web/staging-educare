@@ -31,14 +31,14 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      PractitionerFormData: user.PractitionerFormData.length > 0,
-      accessibilityFormData: user.accessibilityFormData.length > 0,
-      AssessmentHistoryData: user.AssessmentHistoryData.length > 0,
-      DisabilityConfirmationData: user.DisabilityConfirmationData.length > 0,
-      academicFunctionFormData: user.academicFunctionFormData.length > 0,
-      StudentOSAPFormData: user.StudentOSAPFormData.length > 0,
-      OSAPDisabilityConfirmationData: user.OSAPDisabilityConfirmationData.length > 0,
-      RecommendationFormData: user.RecommendationFormData.length > 0
+      PractitionerFormData: user.PractitionerFormData.length > 0 ? user.PractitionerFormData[0] : false,
+      accessibilityFormData: user.accessibilityFormData.length > 0 ? user.accessibilityFormData[0] : false,
+      AssessmentHistoryData: user.AssessmentHistoryData.length > 0 ? user.AssessmentHistoryData[0] : false,
+      DisabilityConfirmationData: user.DisabilityConfirmationData.length > 0 ? user.DisabilityConfirmationData[0] : false,
+      academicFunctionFormData: user.academicFunctionFormData.length > 0 ? user.academicFunctionFormData[0] : false,
+      StudentOSAPFormData: user.StudentOSAPFormData.length > 0 ? user.StudentOSAPFormData[0] : false,
+      OSAPDisabilityConfirmationData: user.OSAPDisabilityConfirmationData.length > 0 ? user.OSAPDisabilityConfirmationData[0] : false,
+      RecommendationFormData: user.RecommendationFormData.length > 0 ? user.RecommendationFormData[0] : false
     });
   } catch (error) {
     console.error('Error fetching user data:', error);

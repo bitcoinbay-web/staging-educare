@@ -1,29 +1,20 @@
-import { EmailTemplate } from '@/components/email-template'; // Import the email template component
-import { Resend } from 'resend'; // Import Resend for email sending
+import { sendDoctorInviteEmail } from "@/lib/mail";
 
-// Initialize Resend instance with API key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Define the POST request handler
-export async function POST(toEmail: string, toName: string, urlLink: string) {
+export async function POST(req: Request) {
   try {
-    // Send an email using Resend
-    const { data, error } = await resend.emails.send({
-      from: 'EduCare <info@educarelms.com>',
-      to: [toEmail],
-      subject: 'EduCare: Request to complete form',
-      react: EmailTemplate({ toName: toName, urlLink: urlLink }),
+    const { toEmail, urlLink } = await req.json();
+
+    await sendDoctorInviteEmail(toEmail, urlLink);
+
+    return new Response(JSON.stringify({ success: "ok" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     });
-
-    // Handle any errors during email sending
-    if (error) {
-      return Response.json({ error }, { status: 500 });
-    }
-
-    // Return the data from the email sending operation
-    return Response.json(data);
   } catch (error) {
-    // Return a response with error information in case of failure
-    return Response.json({ error }, { status: 500 });
+    console.error("Error sending email:", error);
+    return new Response(JSON.stringify({ error: "Failed to send email" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

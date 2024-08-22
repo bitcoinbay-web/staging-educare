@@ -20,7 +20,6 @@ const DoctorDashboardTable = () => {
       fetch(`/api/applications?doctorId=${session?.user?.id}`)
         .then((response) => response.json())
         .then((data) =>{
-          console.log(data)
           if(data?.error){
             setRequests([])
           }else{

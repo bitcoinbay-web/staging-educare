@@ -20,7 +20,6 @@ const Page = () => {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const form = useForm({
-    resolver: zodResolver(emailSchema),
     defaultValues: {
       email: "",
     },

@@ -31,8 +31,8 @@ export async function GET(req: NextRequest) {
         name: user.name,
         email: user.email,
       };
-      console.log(user)
       const includeAccessibilityFormData = user.accessibilityFormData.length > 0 &&
+
         (
           user.PractitionerFormData.length === 0 ||
           user.AssessmentHistoryData.length === 0 ||
@@ -40,26 +40,24 @@ export async function GET(req: NextRequest) {
           user.academicFunctionFormData.length === 0 ||
           user.RecommendationFormData.length === 0
         );
-        console.log(includeAccessibilityFormData)
+        
       const includeStudentOSAPFormData = user.StudentOSAPFormData.length > 0 &&
         user.OSAPDisabilityConfirmationData.length === 0;
-        console.log(includeStudentOSAPFormData)
 
-      const accessibilityFormDataEntries = includeAccessibilityFormData
-        ? user.accessibilityFormData.map(form => ({
+      const accessibilityFormDataEntries = user.accessibilityFormData.map(form => ({
             ...userData,
             formType: 'AccessibilityFormData',
             formData: form,
+            isSubmitted : includeAccessibilityFormData
           }))
-        : [];
 
-      const studentOSAPFormDataEntries = includeStudentOSAPFormData
-        ? user.StudentOSAPFormData.map(form => ({
+      const studentOSAPFormDataEntries = user.StudentOSAPFormData.map(form => ({
             ...userData,
             formType: 'StudentOSAPFormData',
             formData: form,
+            isSubmitted : includeStudentOSAPFormData
           }))
-        : [];
+
       return [
         ...accessibilityFormDataEntries,
         ...studentOSAPFormDataEntries,

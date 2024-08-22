@@ -30,6 +30,12 @@ export const sendFormStatusUpdateEmail = async (email: string, formName: string,
   await sendEmail(email, `Form Status Update: ${formName}`, body);
 };
 
+export const sendDoctorInviteEmail = async (email: string , urllink : string) => {
+  console.log(email, "\n\n\n\n\n")
+  const body = `<p>Hi Doctor, a student is waiting for you on the <a href=${urllink} target="_blank">Educare</a> Platform</p>`;
+  await sendEmail(email, `A patient is Inviting you to Educare`, body);
+};
+
 export async function sendEmail(email: string, subject: string, body: string) {
   try {
     let transporter = nodemailer.createTransport({

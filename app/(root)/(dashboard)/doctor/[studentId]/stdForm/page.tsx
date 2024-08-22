@@ -23,7 +23,6 @@ const StudentForm = () => {
                 Form Type: {data.formType}
               </h2>
               <h2 className="text-2xl font-bold mb-4">
-                {/* Student Request #{data.id} */}
               </h2>
               <div className="space-y-2">
                 {Object.entries(data.formData).map(([key, value]) => {
